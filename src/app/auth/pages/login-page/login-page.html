@@ -14,7 +14,7 @@
             <circle cx="12" cy="7" r="4"></circle>
           </g>
         </svg>
-        <input type="text" required placeholder="Username" formControlName="username" />
+        <input type="text" required placeholder="Usuario" formControlName="username" />
       </label>
 
       <label class="input validator">
@@ -26,17 +26,21 @@
             <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
           </g>
         </svg>
-        <input type="password" required placeholder="Password" formControlName="password" />
+        <input type="text" required placeholder="Token" formControlName="token" />
       </label>
 
-      <button class="btn btn-primary" type="submit">Login</button>
+      <button class="btn btn-primary" [class.animate-spin]="" type="submit">Login</button>
     </form>
-
-    @if (hasError()) {
-    <p class="text-red-500 text-sm mt-4 text-center">
-      Ambos campos son obligatorios.
-    </p>
-    }
 
   </div>
 </div>
+
+@if (hasError()) {
+<div role="alert" class="alert alert-error fixed bottom-2 right-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span>Ambos campos son obligatorios y el token debe ser válido.</span>
+</div>
+}

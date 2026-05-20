@@ -17,16 +17,30 @@ export class LoginPage {
 
   loginForm = this.fb.group({
     username: ['', Validators.required],
-    password: ['', Validators.required],
+    token: ['', Validators.required],
   });
 
   onSubmit() {
     if (!this.loginForm.valid) {
-      this.hasError.set(true);
+      this.showErrorMessage();
       return;
     }
-    const { username, password } = this.loginForm.value;
-    // this.authService.login(username!, password!);
-    this.router.navigate(['/scores']);
+    const { username, token } = this.loginForm.value;
+    this.authService.login(username!, token!)
+      .subscribe(isAuthenticated => {
+        if (isAuthenticated) {
+          this.router.navigate(['/scores']);
+          return;
+        }
+
+        this.showErrorMessage();
+      });
+  }
+
+  private showErrorMessage() {
+    this.hasError.set(true);
+    setTimeout(() => {
+      this.hasError.set(false);
+    }, 2000);
   }
 }
