@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { PiuscoresService } from '../../piuscores/services/piuscores-service';
 
 const LOCAL_STORAGE_CREDENTIALS_KEY = 'credentials';
 
@@ -7,11 +7,14 @@ const LOCAL_STORAGE_CREDENTIALS_KEY = 'credentials';
   providedIn: 'root',
 })
 export class AuthService {
+  piuscoresService = inject(PiuscoresService);
   private _basicAuthorization = signal<string | null>(localStorage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY));
   basicAuthorization = computed<string | null>(() => this._basicAuthorization());
 
   login(token: string): boolean {
     const encoded = btoa(`username:${token}`);
+    this.piuscoresService.getPhoenixScores(1);
+
     this._basicAuthorization.set(encoded);
     localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, encoded);
     return true;

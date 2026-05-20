@@ -21,12 +21,12 @@ export class LoginPage {
   });
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      // this.authService.login(username!, password!);
-      this.router.navigate(['/scores']);
-    } else {
+    if (!this.loginForm.valid) {
       this.hasError.set(true);
+      return;
     }
+    const { username, password } = this.loginForm.value;
+    // this.authService.login(username!, password!);
+    this.router.navigate(['/scores']);
   }
 }
