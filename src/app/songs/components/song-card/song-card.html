@@ -1,11 +1,11 @@
-<div class="card bg-base-100 shadow-sm">
+<div class="card card-xs card-border bg-primary/5 shadow-sm">
   <figure>
-    <img [src]="chart().song.imagePath" alt="Shoes" />
+    <img [src]="chart().song.imagePath" [alt]="chart().song.name" />
   </figure>
-  <div class="card-body">
+  <div class="card-body items-center text-center">
     <h2 class="card-title">
       {{ chart().song.name }}
-      <div class="badge badge-secondary">{{ chart().shorthand }}</div>
+      <!-- <div class="badge badge-secondary">{{ chart().shorthand }}</div> -->
     </h2>
     <!-- <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
     <div class="card-actions justify-end">

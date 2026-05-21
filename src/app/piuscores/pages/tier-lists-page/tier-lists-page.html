@@ -1,38 +1,41 @@
 <form class="flex flex-col" [formGroup]="tierListForm" (ngSubmit)="onSearch()">
 
-  <div class="grid row-auto grid-cols-3 gap-4 justify-content-center justify-items-center">
-    <div class="grid grid-cols-2 gap-4 w-full">
-      <button type="button" class="btn btn-error" [class.btn-outline]="tierListForm.value.chartType!=='Single'"
-        (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
-      <button type="button" class="btn btn-success" [class.btn-outline]="tierListForm.value.chartType!=='Double'"
-        (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
-    </div>
-
-    <div class="grid grid-cols-1 justify-content-center justify-items-center w-full">
-      <input type="number" class="input" placeholder="Dificultad" formControlName="level" />
-    </div>
-
-    <div class="grid grid-flow-col auto-cols-max gap-4 w-full" formArrayName="songTypes">
-      @for (songType of piuScoresService.getSongTypes(); track songType; let i = $index) {
-      <label class="cursor-pointer">
-        <input type="checkbox" class="checkbox checkbox-primary" [formControlName]="i" />
-        <span class="ml-2">{{ songType }}</span>
-      </label>
-      }
-    </div>
+  <div class="grid grid-cols-2 gap-1 w-full">
+    <button type="button" class="btn btn-error" [class.btn-outline]="tierListForm.value.chartType!=='Single'"
+      (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
+    <button type="button" class="btn btn-success" [class.btn-outline]="tierListForm.value.chartType!=='Double'"
+      (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
   </div>
 
-  <div class="flex justify-end mt-4 mr-4">
+  <div class="grid grid-cols-1 justify-items-center mt-2">
+    <input type="number" class="input" placeholder="Dificultad" formControlName="level" />
+  </div>
+
+  <div class="grid grid-cols-1 mt-2">
     <button type="submit" class="btn btn-primary">Buscar</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid grid-flow-col auto-cols-max gap-2 justify-items-center w-full" formArrayName="songTypes">
+    @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
+    <label class="cursor-pointer">
+      <input type="checkbox" class="checkbox checkbox-primary checkbox-xs" [formControlName]="i" />
+      <span class="ml-1">{{ songType }}</span>
+    </label>
+    }
   </div>
 
 </form>
 
-<div class="grid grid-cols-4 mt-4 gap-4">
-  @for (song of tierList(); track $index) {
-  <song-card [chart]="song.chart" />
-  }
-  @empty{
-  <p class="text-center col-span-4">No se encontraron resultados</p>
+<div class="divider"></div>
+
+@for (category of piuScoresService.categories; track category) {
+<h2 class="textarea-xl font-bold">{{ category }}</h2>
+<div class="grid grid-cols-2 gap-2 mt-2">
+  @for (chart of getTierListByCategory(category); track $index) {
+  <song-card [chart]="chart" />
   }
 </div>
+<div class="divider"></div>
+}

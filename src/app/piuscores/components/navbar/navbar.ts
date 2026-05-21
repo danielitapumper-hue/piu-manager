@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '@auth/services/auth-service';
+import { RouterLink, RouterLinkActive } from "@angular/router";
 
 @Component({
   selector: 'navbar',
-  imports: [],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
 })
 export class Navbar {

@@ -25,9 +25,9 @@ export enum ChartType {
 }
 
 export enum Category {
-  Easy = "Easy",
-  Hard = "Hard",
-  Medium = "Medium",
   VeryEasy = "VeryEasy",
+  Easy = "Easy",
+  Medium = "Medium",
+  Hard = "Hard",
   VeryHard = "VeryHard",
 }
