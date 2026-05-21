@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Navbar } from "../../components/navbar/navbar";
 import { RouterOutlet } from '@angular/router';
+import { Navbar } from "@piuscores/components/navbar/navbar";
 
 @Component({
   selector: 'app-piuscores-layout',
-  imports: [Navbar, RouterOutlet],
+  imports: [RouterOutlet, Navbar],
   templateUrl: './piuscores-layout.html',
 })
 export class PiuscoresLayout { }

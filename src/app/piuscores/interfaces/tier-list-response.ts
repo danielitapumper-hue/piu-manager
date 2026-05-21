@@ -1,7 +1,7 @@
-import { Chart } from "./piuscores-interfaces";
+import { Category, Chart } from "./piuscores-interfaces";
 
 export interface TierListResponse {
-  category: string;
+  category: Category;
   order: number;
   chart: Chart;
 }

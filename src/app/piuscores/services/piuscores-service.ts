@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { PhoenixScoresResponse } from '../interfaces/phoenix-scores-response';
 import { Observable } from 'rxjs';
-import { TierListResponse } from '../interfaces/tier-list-response';
-import { ChartType } from '../interfaces/piuscores-interfaces';
+import { TierListResponse } from '@piuscores/interfaces/tier-list-response';
+import { ChartType, SongType } from '@piuscores/interfaces/piuscores-interfaces';
+import { PhoenixScoresResponse } from '@piuscores/interfaces/phoenix-scores-response';
 
 const API_URL = 'https://piuscores.arroweclip.se/api';
 
@@ -22,12 +22,20 @@ export class PiuscoresService {
     });
   }
 
-  getTierListByScores(chartType: ChartType, level: number): Observable<TierListResponse> {
-    return this.http.get<TierListResponse>(`${API_URL}/tierlist/scores`, {
+  getTierListByScores(chartType: string, level: number): Observable<TierListResponse[]> {
+    return this.http.get<TierListResponse[]>(`${API_URL}/tierlist/scores`, {
       params: {
         chartType: chartType,
         level: level
       }
     });
+  }
+
+  getChartTypes(): string[] {
+    return Object.values(ChartType);
+  }
+
+  getSongTypes(): string[] {
+    return Object.values(SongType);
   }
 }

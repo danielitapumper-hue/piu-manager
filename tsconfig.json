@@ -3,6 +3,18 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@auth/*": [
+        "./src/app/auth/*"
+      ],
+      "@piuscores/*": [
+        "./src/app/piuscores/*"
+      ],
+      "@songs/*": [
+        "./src/app/songs/*"
+      ],
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
