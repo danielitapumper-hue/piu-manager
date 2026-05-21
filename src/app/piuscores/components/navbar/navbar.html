@@ -1,4 +1,4 @@
-<div class="navbar bg-primary text-primary-content shadow-sm">
+<div class="navbar bg-base-100 text-primary-content shadow-sm">
   <div class="navbar-start">
     <div class="dropdown">
       <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -18,24 +18,16 @@
         <li><a>Item 3</a></li>
       </ul>
     </div>
-    <a class="btn btn-ghost text-xl">Dani</a>
+    <a class="btn btn-ghost text-xl">{{ authService.userName() }}</a>
   </div>
   <div class="navbar-center hidden lg:flex">
-    <!-- <ul class="menu menu-horizontal px-1">
-      <li><a>Item 1</a></li>
+    <ul class="menu menu-horizontal px-1">
       <li>
-        <details>
-          <summary>Parent</summary>
-          <ul class="p-2 bg-base-100 w-40 z-1">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
+        <a routerLink="/scores" routerLinkActive="btn-primary" class="btn btn-outline">Mis scores</a>
       </li>
-      <li><a>Item 3</a></li>
-    </ul> -->
+    </ul>
   </div>
   <div class="navbar-end">
-    <button class="btn btn-soft">Logout</button>
+    <button class="btn btn-soft" (click)="authService.logout()">Logout</button>
   </div>
 </div>

@@ -1,26 +1,41 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { PiuscoresService } from '../../piuscores/services/piuscores-service';
 import { catchError, map, Observable, of } from 'rxjs';
+import { Router } from '@angular/router';
 
 const LOCAL_STORAGE_CREDENTIALS_KEY = 'credentials';
+
+interface Credentials {
+  username?: string;
+  basicAuthorization?: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private _basicAuthorization = signal<string | null>(localStorage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY));
+  //Private
+  private _credentials = signal<Credentials | null>(this.getCredentialsFromLocalStorage());
+
+  //Injectables
   piuscoresService = inject(PiuscoresService);
-  basicAuthorization = computed<string | null>(() => this._basicAuthorization());
+  router = inject(Router);
 
+  //Getters
+  basicAuthorization = computed<string>(() => this._credentials()?.basicAuthorization ?? '');
+  userName = computed<string>(() => this._credentials()?.username ?? '');
+
+  //Functions
   login(username: string, token: string): Observable<boolean> {
-    const encoded = btoa(`${username}:${token}`);
-    this._basicAuthorization.set(encoded);
-
-    console.log({ basicAuth: this._basicAuthorization() });
+    const encoded = btoa(`:${token}`);
+    this._credentials.set({
+      username: username,
+      basicAuthorization: encoded
+    });
 
     return this.piuscoresService.getPhoenixScores(1).pipe(
       map(resp => {
-        localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, encoded);
+        localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(this._credentials()));
         return true;
       }),
       catchError(error => {
@@ -31,7 +46,21 @@ export class AuthService {
   }
 
   logout(): void {
-    this._basicAuthorization.set(null);
+    this._credentials.set(null);
     localStorage.removeItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+    this.router.navigate(['/login']);
+  }
+
+  checkStatus(): boolean {
+    return this._credentials() !== null;
+  }
+
+
+  //Private
+  private getCredentialsFromLocalStorage(): Credentials | null {
+    const localStorageCredentials = localStorage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
+    return localStorageCredentials
+      ? JSON.parse(localStorageCredentials)
+      : null;
   }
 }
