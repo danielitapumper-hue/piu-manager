@@ -12,6 +12,7 @@ const API_URL = 'https://piuscores.arroweclip.se/api';
 })
 export class PiuscoresService {
   private http = inject(HttpClient);
+
   chartTypes = Object.values(ChartType);
   songTypes = Object.values(SongType);
   categories = Object.values(Category);

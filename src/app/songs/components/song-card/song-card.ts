@@ -7,6 +7,5 @@ import { Chart } from '@piuscores/interfaces/piuscores-interfaces';
   templateUrl: './song-card.html',
 })
 export class SongCard {
-  //Inputs
   chart = input.required<Chart>()
 }

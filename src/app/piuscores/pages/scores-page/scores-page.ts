@@ -9,7 +9,6 @@ import { PiuscoresService } from '@piuscores/services/piuscores-service';
   templateUrl: './scores-page.html',
 })
 export class ScoresPage {
-  //Injectables
   piuScoresService = inject(PiuscoresService);
 
   scoresResource = rxResource({

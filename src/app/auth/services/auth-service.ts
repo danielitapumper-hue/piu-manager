@@ -14,18 +14,14 @@ interface Credentials {
   providedIn: 'root',
 })
 export class AuthService {
-  //Private
   private _credentials = signal<Credentials | null>(this.getCredentialsFromLocalStorage());
 
-  //Injectables
   piuscoresService = inject(PiuscoresService);
   router = inject(Router);
 
-  //Getters
   basicAuthorization = computed<string>(() => this._credentials()?.basicAuthorization ?? '');
   userName = computed<string>(() => this._credentials()?.username ?? '');
 
-  //Functions
   login(username: string, token: string): Observable<boolean> {
     const encoded = btoa(`:${token}`);
     this._credentials.set({
@@ -55,8 +51,6 @@ export class AuthService {
     return this._credentials() !== null;
   }
 
-
-  //Private
   private getCredentialsFromLocalStorage(): Credentials | null {
     const localStorageCredentials = localStorage.getItem(LOCAL_STORAGE_CREDENTIALS_KEY);
     return localStorageCredentials
