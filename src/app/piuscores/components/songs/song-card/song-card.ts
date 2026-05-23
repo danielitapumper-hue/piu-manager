@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Chart } from '@piuscores/interfaces/piuscores-interfaces';
+import { Chart } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 
 @Component({
   selector: 'song-card',

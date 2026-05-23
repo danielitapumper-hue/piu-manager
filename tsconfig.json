@@ -10,10 +10,7 @@
       ],
       "@piuscores/*": [
         "./src/app/piuscores/*"
-      ],
-      "@songs/*": [
-        "./src/app/songs/*"
-      ],
+      ]
     },
     "strict": true,
     "noImplicitOverride": true,

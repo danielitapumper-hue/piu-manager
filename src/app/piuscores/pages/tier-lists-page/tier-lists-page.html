@@ -1,32 +1,8 @@
-<form class="flex flex-col" [formGroup]="tierListForm" (ngSubmit)="onSearch()">
+<!-- <saved-filters /> -->
 
-  <div class="grid grid-cols-2 gap-1 w-full">
-    <button type="button" class="btn btn-error" [class.btn-outline]="tierListForm.value.chartType!=='Single'"
-      (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
-    <button type="button" class="btn btn-success" [class.btn-outline]="tierListForm.value.chartType!=='Double'"
-      (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
-  </div>
+<div class="divider"></div>
 
-  <div class="grid grid-cols-1 justify-items-center mt-2">
-    <input type="number" class="input" placeholder="Dificultad" formControlName="level" />
-  </div>
-
-  <div class="grid grid-cols-1 mt-2">
-    <button type="submit" class="btn btn-primary">Buscar</button>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="grid grid-flow-col auto-cols-max gap-2 justify-items-center w-full" formArrayName="songTypes">
-    @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
-    <label class="cursor-pointer">
-      <input type="checkbox" class="checkbox checkbox-primary checkbox-xs" [formControlName]="i" />
-      <span class="ml-1">{{ songType }}</span>
-    </label>
-    }
-  </div>
-
-</form>
+<search-filters-form (searchFilters)="search($event)" />
 
 <div class="divider"></div>
 
