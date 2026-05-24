@@ -7,6 +7,7 @@ import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
+import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
 
 @Component({
   selector: 'app-tier-lists-page',
@@ -36,8 +37,7 @@ export class TierListsPage {
   }
 
   searchSavedFilter(savedFilter: string) {
-    const filter = savedFilter.split('-');
-    this.tierList = this.piuScoresService.getTierListByScoresFromLocalStorage(savedFilter);
+    this.tierList = LocalStorageUtils.getTierListByScoresFromLocalStorage(savedFilter);
     this.tierListByCategories.set(this.getTierListByCategories())
   }
 
