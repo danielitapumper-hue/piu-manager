@@ -1,4 +1,4 @@
-<form class="flex flex-col" [formGroup]="tierListForm" (ngSubmit)="onSearch()">
+<form class="flex flex-col" [formGroup]="tierListForm" (ngSubmit)="formSubmit()">
 
   <div class="grid grid-cols-2 gap-1 w-full">
     <button type="button" class="btn btn-error" [class.btn-outline]="tierListForm.value.chartType!=='Single'"
@@ -26,12 +26,16 @@
   <div class="divider"></div>
 
   <div class="grid grid-flow-col auto-cols-max gap-2 justify-items-center w-full" formArrayName="songTypes">
+
     @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
+
     <label class="cursor-pointer">
       <input type="checkbox" class="checkbox checkbox-primary checkbox-xs" [formControlName]="i" />
       <span class="ml-1">{{ songType }}</span>
     </label>
+
     }
+
   </div>
 
 </form>

@@ -1,5 +1,6 @@
 import { Component, inject, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 
@@ -10,6 +11,7 @@ import { PiuscoresService } from '@piuscores/services/piuscores-service';
 })
 export class SearchFiltersForm {
   searchFilters = output<SearchFilters>();
+  songTypesFilter = output<SongType[]>();
 
   piuScoresService = inject(PiuscoresService);
   fb = inject(FormBuilder);
@@ -26,15 +28,15 @@ export class SearchFiltersForm {
 
   songTypesChanged = this.tierListForm.get('songTypes')!.valueChanges
     .subscribe((songTypes) => {
-      this.emitSearchFilters(songTypes as boolean[]);
+      this.songTypesFilter.emit(this.piuScoresService.songTypes.filter((_, i) => songTypes[i]));
     });
 
-  onSearch() {
+  formSubmit() {
     const { songTypes } = this.tierListForm.value;
-    this.emitSearchFilters(songTypes as boolean[]);
+    this.emitSearchFilters(this.piuScoresService.songTypes.filter((_, i) => songTypes?.at(i) ?? false));
   }
 
-  private emitSearchFilters(songTypes: boolean[]) {
+  private emitSearchFilters(songTypes: SongType[]) {
     if (this.tierListForm.invalid)
       return;
 
@@ -43,7 +45,7 @@ export class SearchFiltersForm {
       chartType: chartType!,
       level: level!,
       saveFilter: saveFilter!,
-      songTypes: this.piuScoresService.songTypes.filter((_, i) => songTypes[i])
+      songTypes: songTypes
     };
 
     this.searchFilters.emit(searchFilters);

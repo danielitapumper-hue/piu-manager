@@ -1,17 +1,23 @@
-<!-- <saved-filters /> -->
+<saved-filters (filter)="searchSavedFilter($event)" />
 
 <div class="divider"></div>
 
-<search-filters-form (searchFilters)="search($event)" />
+<search-filters-form (searchFilters)="search($event)" (songTypesFilter)="searchBySongTypes($event)" />
 
 <div class="divider"></div>
 
 @for (tierListByCategory of tierListByCategories(); track $index) {
+
 <h2 class="textarea-xl font-bold">{{ tierListByCategory.category }}</h2>
 <div class="grid grid-cols-2 gap-2 mt-2">
+
   @for (chart of tierListByCategory.charts; track $index) {
+
   <song-card [chart]="chart" />
+
   }
+
 </div>
 <div class="divider"></div>
+
 }
