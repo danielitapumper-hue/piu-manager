@@ -1,13 +1,13 @@
 <h2>Filtros guardados</h2>
 <div class="grid grid-cols-4 gap-3 justify-items-center mt-2">
 
-  @for (filter of savedFiltersArray(); track filter) {
+  @for (searchFilter of savedFiltersArray(); track searchFilter) {
 
   <div class="badge badge-success" [class]="{
-      'badge-success': filter.chartType==='Double',
-      'badge-error': filter.chartType==='Single'
-      }" (click)="search(filter.filter)">
-    {{ filter | shortHand }}
+      'badge-success': searchFilter.chartType==='Double',
+      'badge-error': searchFilter.chartType==='Single'
+      }" (click)="search(searchFilter.filter!)">
+    {{ searchFilter | shortHand }}
   </div>
 
   }

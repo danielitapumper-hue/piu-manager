@@ -5,7 +5,6 @@ import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-
 import { Category, ChartType, SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { PhoenixScoresResponse } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
-import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
 
 const API_URL = 'https://piuscores.arroweclip.se/api';
 
@@ -19,19 +18,13 @@ export class PiuscoresService {
   songTypes = Object.values(SongType);
   categories = Object.values(Category);
 
-  savedFilters = signal<Map<string, TierListResponse[]>>(LocalStorageUtils.getSavedFiltersFromLocalStorage());
-
   getTierListByScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {
     return this.http.get<TierListResponse[]>(`${API_URL}/tierlist/scores`, {
       params: {
         chartType: searchFilters.chartType,
         level: searchFilters.level
       }
-    }).pipe(tap(resp => {
-      if (searchFilters.saveFilter) {
-        this.savedFilters.set(LocalStorageUtils.addFilterToLocalStorage(searchFilters, resp));
-      }
-    }));
+    });
   }
 
   getPhoenixScores(page: number): Observable<PhoenixScoresResponse> {

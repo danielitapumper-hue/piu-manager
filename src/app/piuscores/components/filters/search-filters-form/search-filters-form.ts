@@ -1,9 +1,8 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, effect, inject, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
+import { LocalStorageService } from '@piuscores/services/local-storage-service';
 
 @Component({
   selector: 'search-filters-form',
@@ -11,19 +10,25 @@ import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
   templateUrl: './search-filters-form.html',
 })
 export class SearchFiltersForm {
-  private lastFilter = LocalStorageUtils.getLastFilter();
+  localStorageService = inject(LocalStorageService);
 
   searchFilters = output<SearchFilters>();
-  songTypesFilter = output<SongType[]>();
+  songTypesFilter = output<boolean[]>();
 
   piuScoresService = inject(PiuscoresService);
   fb = inject(FormBuilder);
 
   tierListForm = this.fb.group({
-    chartType: [this.lastFilter.chartType, [Validators.required, Validators.pattern(/Single|Double/)]],
-    level: [this.lastFilter.level, [Validators.required, Validators.min(1), Validators.max(29)]],
+    chartType: [
+      this.localStorageService.lastFilter().chartType,
+      [Validators.required, Validators.pattern(/Single|Double/)]
+    ],
+    level: [
+      this.localStorageService.lastFilter().level,
+      [Validators.required, Validators.min(1), Validators.max(29)]
+    ],
     songTypes: this.fb.array(
-      this.piuScoresService.songTypes.map((songType, i) => i === 0),
+      this.piuScoresService.songTypes.map((songType, i) => this.localStorageService.lastFilter().songTypes[i]),
       [Validators.required, Validators.minLength(1)]
     ),
     saveFilter: [false]
@@ -31,22 +36,33 @@ export class SearchFiltersForm {
 
   songTypesChanged = this.tierListForm.get('songTypes')!.valueChanges
     .subscribe((songTypes) => {
-      this.songTypesFilter.emit(this.piuScoresService.songTypes.filter((_, i) => songTypes[i]));
+      const songTypesBooleanArray = songTypes.map((item) => item === true);
+      this.songTypesFilter.emit(songTypesBooleanArray);
     });
 
+  changeFilterEffect = effect((onCleanUp) => {
+    const lastFilter = this.localStorageService.lastFilter();
+    this.tierListForm.patchValue({
+      chartType: lastFilter.chartType,
+      level: lastFilter.level,
+      songTypes: lastFilter.songTypes
+    }, { emitEvent: false });
+  });
+
   ngOnInit() {
-    if (this.lastFilter.filter.length > 0) {
-      const songTypes = this.tierListForm.get('songTypes')!.value;
-      this.songTypesFilter.emit(this.piuScoresService.songTypes.filter((_, i) => songTypes[i]));
+    const lastFilter = this.localStorageService.lastFilter();
+    if (lastFilter.filter) {
+      this.songTypesFilter.emit(lastFilter.songTypes);
     }
   }
 
   formSubmit() {
     const { songTypes } = this.tierListForm.value;
-    this.emitSearchFilters(this.piuScoresService.songTypes.filter((_, i) => songTypes?.at(i) ?? false));
+    const songTypesBooleanArray = songTypes!.map((item) => item === true);
+    this.emitSearchFilters(songTypesBooleanArray);
   }
 
-  private emitSearchFilters(songTypes: SongType[]) {
+  private emitSearchFilters(songTypes: boolean[]) {
     if (this.tierListForm.invalid)
       return;
 

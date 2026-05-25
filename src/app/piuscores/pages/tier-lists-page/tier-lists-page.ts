@@ -7,7 +7,7 @@ import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
-import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
+import { LocalStorageService } from '@piuscores/services/local-storage-service';
 
 @Component({
   selector: 'app-tier-lists-page',
@@ -16,9 +16,10 @@ import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
 })
 export class TierListsPage {
   piuScoresService = inject(PiuscoresService);
+  localStorageService = inject(LocalStorageService);
 
   private tierList: TierListResponse[] = [];
-  private songTypesFilter: SongType[] = [];
+  private songTypesFilter: boolean[] = [];
 
   tierListByCategories = signal<CategoryChart[]>([]);
 
@@ -28,17 +29,22 @@ export class TierListsPage {
         this.tierList = resp;
         this.songTypesFilter = searchFilters.songTypes;
         this.tierListByCategories.set(this.getTierListByCategories());
+        this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+        if (searchFilters.saveFilter) {
+          this.localStorageService.setLocalStorageSavedFilters(this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters), resp);
+        }
       });
   }
 
-  searchBySongTypes(songTypes: SongType[]) {
+  searchBySongTypes(songTypes: boolean[]) {
     this.songTypesFilter = songTypes;
     this.tierListByCategories.set(this.getTierListByCategories());
+    this.localStorageService.setLocalStorageLastSongTypesFilter(songTypes);
   }
 
   searchSavedFilter(savedFilter: string) {
-    this.tierList = LocalStorageUtils.getTierListByScoresFromLocalStorage(savedFilter);
-    this.tierListByCategories.set(this.getTierListByCategories())
+    this.tierList = this.localStorageService.getTierListByScoresFromLocalStorage(savedFilter);
+    this.tierListByCategories.set(this.getTierListByCategories());
   }
 
   private getTierListByCategories(): CategoryChart[] {
@@ -56,7 +62,8 @@ export class TierListsPage {
   }
 
   private getTierListBySongTypes(): TierListResponse[] {
-    return this.tierList.filter(item => this.songTypesFilter.includes(item.chart.song.type));
+    const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter[i])
+    return this.tierList.filter(item => songTypesFilter.includes(item.chart.song.type));
   };
 
   private getTierListByCategory(category: Category, tierListBySongTypes: TierListResponse[]): Chart[] {

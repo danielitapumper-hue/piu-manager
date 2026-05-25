@@ -1,8 +1,7 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
-import { SavedFilter } from '@piuscores/interfaces/saved-filter';
+import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
-import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
+import { LocalStorageService } from '@piuscores/services/local-storage-service';
 
 @Component({
   selector: 'saved-filters',
@@ -10,14 +9,16 @@ import { LocalStorageUtils } from '@piuscores/utils/local-storage-utils';
   templateUrl: './saved-filters.html',
 })
 export class SavedFilters {
+  localStorageService = inject(LocalStorageService);
+
   filter = output<string>();
-  piuscoresService = inject(PiuscoresService);
-  savedFiltersArray = computed<SavedFilter[]>(() => Array.from(this.piuscoresService.savedFilters().keys())
-    .map(filter => LocalStorageUtils.filterStringToSavedFilter(filter)));
+  savedFiltersArray = computed<SearchFilters[]>(() =>
+    Array.from(this.localStorageService.savedFilters().keys())
+      .map(filter => this.localStorageService.filterStringToSearchFilter(filter)));
 
   ngOnInit() {
-    const lastFilter = LocalStorageUtils.getLastFilter();
-    if (lastFilter.filter.length > 0) {
+    const lastFilter = this.localStorageService.lastFilter();
+    if (lastFilter.filter) {
       this.search(lastFilter.filter);
     }
   }

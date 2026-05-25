@@ -1,11 +1,11 @@
 import { Pipe, type PipeTransform } from '@angular/core';
-import { SavedFilter } from '@piuscores/interfaces/saved-filter';
+import { SearchFilters } from '@piuscores/interfaces/search-filters';
 
 @Pipe({
   name: 'shortHand',
 })
 export class ShortHandPipe implements PipeTransform {
-  transform(value: SavedFilter): string {
+  transform(value: SearchFilters): string {
     return value.chartType.at(0)! + value.level;
   }
 }
