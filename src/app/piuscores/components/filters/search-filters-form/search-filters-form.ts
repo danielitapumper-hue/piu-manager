@@ -40,7 +40,7 @@ export class SearchFiltersForm {
       this.songTypesFilter.emit(songTypesBooleanArray);
     });
 
-  changeFilterEffect = effect((onCleanUp) => {
+  changeFilterEffect = effect(() => {
     const lastFilter = this.localStorageService.lastFilter();
     this.tierListForm.patchValue({
       chartType: lastFilter.chartType,
