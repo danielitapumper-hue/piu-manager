@@ -23,15 +23,33 @@ export class TierListsPage {
 
   tierListByCategories = signal<CategoryChart[]>([]);
 
+  ngOnInit() {
+    this.searchLastFilter();
+  }
+
+  searchLastFilter() {
+    const lastFilter = this.localStorageService.lastFilter();
+    if (lastFilter.filter) {
+      this.songTypesFilter = lastFilter.songTypes;
+      this.tierList = this.localStorageService.getTierListByScoresFromLocalStorage(
+        this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
+      );
+      this.tierListByCategories.set(this.getTierListByCategories());
+    }
+  }
+
   search(searchFilters: SearchFilters) {
     this.piuScoresService.getTierListByScores(searchFilters)
       .subscribe(resp => {
-        this.tierList = resp;
         this.songTypesFilter = searchFilters.songTypes;
+        this.tierList = resp;
         this.tierListByCategories.set(this.getTierListByCategories());
         this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
         if (searchFilters.saveFilter) {
-          this.localStorageService.setLocalStorageSavedFilters(this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters), resp);
+          this.localStorageService.setLocalStorageSavedFilters(
+            this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
+            resp
+          );
         }
       });
   }
@@ -48,6 +66,9 @@ export class TierListsPage {
   }
 
   private getTierListByCategories(): CategoryChart[] {
+    if (this.tierList.length === 0)
+      return [];
+
     const tierListByCategories: CategoryChart[] = [];
     const tierListBySongTypes = this.getTierListBySongTypes();
 

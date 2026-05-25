@@ -8,6 +8,8 @@
 
 @for (tierListByCategory of tierListByCategories(); track $index) {
 
+@if (tierListByCategory.charts.length > 0) {
+
 <h2 class="textarea-xl font-bold">{{ tierListByCategory.category }}</h2>
 <div class="grid grid-cols-2 gap-2 mt-2">
 
@@ -19,5 +21,7 @@
 
 </div>
 <div class="divider"></div>
+
+}
 
 }

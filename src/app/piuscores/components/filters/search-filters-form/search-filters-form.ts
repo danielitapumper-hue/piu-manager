@@ -49,13 +49,6 @@ export class SearchFiltersForm {
     }, { emitEvent: false });
   });
 
-  ngOnInit() {
-    const lastFilter = this.localStorageService.lastFilter();
-    if (lastFilter.filter) {
-      this.songTypesFilter.emit(lastFilter.songTypes);
-    }
-  }
-
   formSubmit() {
     const { songTypes } = this.tierListForm.value;
     const songTypesBooleanArray = songTypes!.map((item) => item === true);

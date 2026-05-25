@@ -1,4 +1,5 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
+import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
@@ -15,13 +16,6 @@ export class SavedFilters {
   savedFiltersArray = computed<SearchFilters[]>(() =>
     Array.from(this.localStorageService.savedFilters().keys())
       .map(filter => this.localStorageService.filterStringToSearchFilter(filter)));
-
-  ngOnInit() {
-    const lastFilter = this.localStorageService.lastFilter();
-    if (lastFilter.filter) {
-      this.search(lastFilter.filter);
-    }
-  }
 
   search(savedFilter: string) {
     this.filter.emit(savedFilter);

@@ -12,27 +12,34 @@ export class LocalStorageService {
   lastFilter = signal<SearchFilters>(this.getLastFilter());
   savedFilters = signal<Map<string, TierListResponse[]>>(this.getSavedFiltersFromLocalStorage());
 
-  getTierListByScoresFromLocalStorage(charTypeLevelFilterString: string): TierListResponse[] {
-    const charTypeLevelFilter = this.filterStringToSearchFilter(charTypeLevelFilterString);
+  getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListResponse[] {
+    const charTypeLevelFilter = this.filterStringToSearchFilter(charTypeLevelKey);
     this.lastFilter.update(currentValue => ({
       ...currentValue,
       chartType: charTypeLevelFilter.chartType,
       level: charTypeLevelFilter.level
     }));
+
+    //Uso la key de searchFilters completa
     this.setLocalStorageLastFilter(this.searchFiltersToKey(this.lastFilter()));
 
-    //Uso charTypeLevelFilterString porque los filtros guardados tienen chartType-level, sin los songTypes.
-    return this.savedFilters().get(charTypeLevelFilterString) ?? [];
+    //Uso charTypeLevelKey porque los filtros guardados tienen chartType-level, sin los songTypes.
+    return this.savedFilters().get(charTypeLevelKey) ?? [];
   }
 
-  setLocalStorageSavedFilters(searchFiltersKey: string, data: TierListResponse[]) {
-    this.savedFilters().set(searchFiltersKey, data);
+  setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListResponse[]) {
+    this.savedFilters.update(currentValue => {
+      const updatedFilters = new Map(currentValue);
+      updatedFilters.set(charTypeLevelKey, data);
+      return updatedFilters;
+    });
+
     localStorage.setItem(LOCAL_STORAGE_SAVED_FILTERS_KEY, JSON.stringify(Array.from(this.savedFilters().entries())));
   }
 
-  setLocalStorageLastFilter(searchFilter: string) {
-    this.lastFilter.set(this.filterStringToSearchFilter(searchFilter));
-    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, searchFilter);
+  setLocalStorageLastFilter(searchFiltersKey: string) {
+    this.lastFilter.set(this.filterStringToSearchFilter(searchFiltersKey));
+    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, searchFiltersKey);
   }
 
   setLocalStorageLastSongTypesFilter(songTypes: boolean[]) {
