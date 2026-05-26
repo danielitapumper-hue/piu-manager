@@ -6,12 +6,18 @@
 
 <div class="divider"></div>
 
+@if(isLoadingTierList()){
+<div class="flex justify-center">
+  <span class="loading loading-spinner text-primary"></span>
+</div>
+}
+
 @for (tierListByCategory of tierListByCategories(); track $index) {
 
 @if (tierListByCategory.charts.length > 0) {
 
-<h2 class="textarea-xl font-bold">{{ tierListByCategory.category }}</h2>
-<div class="grid grid-cols-2 gap-2 mt-2">
+<h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
+<div class="grid grid-cols-2 gap-2 mt-2 lg:grid-cols-5 xl:grid-cols-6">
 
   @for (chart of tierListByCategory.charts; track $index) {
 
@@ -24,4 +30,7 @@
 
 }
 
+}
+@empty {
+<h2>No hay datos. Utiliza los filtros de búsqueda para obtener la lista.</h2>
 }

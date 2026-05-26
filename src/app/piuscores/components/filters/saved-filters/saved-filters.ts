@@ -15,7 +15,7 @@ export class SavedFilters {
   filter = output<string>();
   savedFiltersArray = computed<SearchFilters[]>(() =>
     Array.from(this.localStorageService.savedFilters().keys())
-      .map(filter => this.localStorageService.filterStringToSearchFilter(filter)));
+      .map(filter => this.localStorageService.charTypeLevelKeyToSearchFilter(filter)));
 
   search(savedFilter: string) {
     this.filter.emit(savedFilter);

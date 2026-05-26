@@ -22,6 +22,7 @@ export class TierListsPage {
   private songTypesFilter: boolean[] = [];
 
   tierListByCategories = signal<CategoryChart[]>([]);
+  isLoadingTierList = signal<boolean>(false);
 
   ngOnInit() {
     this.searchLastFilter();
@@ -39,6 +40,7 @@ export class TierListsPage {
   }
 
   search(searchFilters: SearchFilters) {
+    this.isLoadingTierList.set(true);
     this.piuScoresService.getTierListByScores(searchFilters)
       .subscribe(resp => {
         this.songTypesFilter = searchFilters.songTypes;
@@ -51,6 +53,7 @@ export class TierListsPage {
             resp
           );
         }
+        this.isLoadingTierList.set(false);
       });
   }
 

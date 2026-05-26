@@ -1,23 +1,28 @@
 <form class="flex flex-col" [formGroup]="tierListForm" (ngSubmit)="formSubmit()">
 
-  <div class="grid grid-cols-2 gap-1 w-full">
-    <button type="button" class="btn btn-error" [class.btn-outline]="tierListForm.value.chartType!=='Single'"
-      (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
-    <button type="button" class="btn btn-success" [class.btn-outline]="tierListForm.value.chartType!=='Double'"
-      (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
+  <div class="flex gap-1">
+    <button type="button" class="btn btn-error flex-1" [class]="{
+      'btn-outline':tierListForm.value.chartType!=='Single',
+      'text-white':tierListForm.value.chartType==='Single'
+    }" (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
+    <button type="button" class="btn btn-success flex-1" [class]="{
+      'btn-outline':tierListForm.value.chartType!=='Double',
+      'text-white':tierListForm.value.chartType==='Double'
+    }" (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
   </div>
 
-  <div class="grid grid-cols-1 justify-items-center mt-2">
-    <input type="number" class="input" placeholder="Dificultad" formControlName="level" />
+  <div class="flex justify-center mt-2">
+    <input type="number" class="input input-primary w-full" placeholder="Dificultad" formControlName="level" />
   </div>
 
-  <div class="grid grid-cols-2 gap-1 mt-2">
+  <div class="flex gap-1 mt-2">
 
-    <button type="submit" class="btn btn-primary btn-outline" (click)="tierListForm.patchValue({saveFilter: false})">
+    <button type="submit" class="btn btn-primary btn-outline flex-1"
+      (click)="tierListForm.patchValue({saveFilter: false})">
       Buscar
     </button>
 
-    <button type="submit" class="btn btn-primary" (click)="tierListForm.patchValue({saveFilter: true})">
+    <button type="submit" class="btn btn-primary flex-1" (click)="tierListForm.patchValue({saveFilter: true})">
       Buscar y guardar
     </button>
 
@@ -25,12 +30,12 @@
 
   <div class="divider"></div>
 
-  <div class="grid grid-flow-col auto-cols-max gap-2 justify-items-center w-full" formArrayName="songTypes">
+  <div class="flex gap-2 justify-center" formArrayName="songTypes">
 
     @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
 
-    <label class="cursor-pointer">
-      <input type="checkbox" class="checkbox checkbox-primary checkbox-xs" [formControlName]="i" />
+    <label class="cursor-pointer flex-1">
+      <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" [formControlName]="i" />
       <span class="ml-1">{{ songType }}</span>
     </label>
 

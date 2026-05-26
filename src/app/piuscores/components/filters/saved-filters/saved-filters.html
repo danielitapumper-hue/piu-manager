@@ -1,17 +1,25 @@
-<h2>Filtros guardados</h2>
-<div class="grid grid-cols-4 gap-3 justify-items-center mt-2">
+<h2 class="text-xl font-bold">Filtros guardados</h2>
 
-  @for (searchFilter of savedFiltersArray(); track searchFilter) {
+@if(savedFiltersArray().length>0){
 
-  <div class="badge badge-success" [class]="{
+<div class="flex flex-wrap gap-1 mt-2">
+
+  @for (searchFilter of savedFiltersArray(); track searchFilter.filter) {
+
+  <div class="badge badge-xl badge-outline" [class]="{
+      'badge-outline': !searchFilter.isLastFilter,
+      'text-white': searchFilter.isLastFilter,
       'badge-success': searchFilter.chartType==='Double',
       'badge-error': searchFilter.chartType==='Single'
-      }" (click)="search(searchFilter.filter!)">
+    }" (click)="search(searchFilter.filter!)">
     {{ searchFilter | shortHand }}
   </div>
 
   }
-  @empty {
-  <!-- TODO -->
-  }
 </div>
+}
+@else {
+
+<h2>Todavía no guardaste ningún filtro.</h2>
+
+}

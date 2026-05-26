@@ -13,7 +13,7 @@ export class LocalStorageService {
   savedFilters = signal<Map<string, TierListResponse[]>>(this.getSavedFiltersFromLocalStorage());
 
   getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListResponse[] {
-    const charTypeLevelFilter = this.filterStringToSearchFilter(charTypeLevelKey);
+    const charTypeLevelFilter = this.charTypeLevelKeyToSearchFilter(charTypeLevelKey);
     this.lastFilter.update(currentValue => ({
       ...currentValue,
       chartType: charTypeLevelFilter.chartType,
@@ -67,6 +67,21 @@ export class LocalStorageService {
       filter: filter ?? '',
       level: level,
       songTypes: songTypesArray
+    };
+  }
+
+  charTypeLevelKeyToSearchFilter(charTypeLevelKey: string): SearchFilters {
+    const filterArray = charTypeLevelKey.split('-');
+    const chartType = filterArray.at(0)!;
+    const level = Number(filterArray.at(1));
+    const isLastFilter = this.lastFilter().chartType === chartType && this.lastFilter().level === level;
+
+    return {
+      chartType: filterArray.at(0)!,
+      filter: charTypeLevelKey,
+      isLastFilter: isLastFilter,
+      level: level,
+      songTypes: [true]
     };
   }
 
