@@ -47,26 +47,37 @@ export class LocalStorageService {
     localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
   }
 
+  setLocalStorageLastStagePassFilter(stagePass: boolean | null) {
+    this.lastFilter.update(currentValue => ({ ...currentValue, stagePass: stagePass }));
+    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
+  }
+
   filterStringToSearchFilter(filter: string | null): SearchFilters {
     const filterArray = filter?.split('-');
+
     if (!filterArray || filterArray.length === 0) {
+      //Filtro por defecto
       return {
         chartType: 'Single',
         filter: '',
         level: 2,
-        songTypes: [true]
+        songTypes: [true],
+        stagePass: null
       };
     }
 
     const level = Number(filterArray.at(1));
     const songTypes = filterArray.at(2) ?? 'true';
-    const songTypesArray = songTypes.split(',').map((item) => item === 'true')
+    const songTypesArray = songTypes.split(',').map((item) => item === 'true');
+    const stagePass = filterArray.at(3);
+    const stagePassFilter = !stagePass ? null : stagePass === 'true';
 
     return {
       chartType: filterArray.at(0)!,
       filter: filter ?? '',
       level: level,
-      songTypes: songTypesArray
+      songTypes: songTypesArray,
+      stagePass: stagePassFilter
     };
   }
 
@@ -81,13 +92,15 @@ export class LocalStorageService {
       filter: charTypeLevelKey,
       isLastFilter: isLastFilter,
       level: level,
-      songTypes: [true]
+      songTypes: [true], //valor por defecto
+      stagePass: null //valor por defecto
     };
   }
 
   //Este sirve para guardar el último filtro completo
   searchFiltersToKey(searchFilters: SearchFilters): string {
-    return `${searchFilters.chartType}-${searchFilters.level}-${searchFilters.songTypes}`;
+    const key = `${searchFilters.chartType}-${searchFilters.level}-${searchFilters.songTypes}`;
+    return searchFilters.stagePass === null ? key : `${key}-${searchFilters.stagePass}`;
   }
 
   //Este sirve para guardar los filtros de chartType y level nada más

@@ -29,7 +29,7 @@ export class LoginPage {
     this.authService.login(username!, token!)
       .subscribe(isAuthenticated => {
         if (isAuthenticated) {
-          this.router.navigate(['/scores']);
+          this.router.navigate(['/']);
           return;
         }
 

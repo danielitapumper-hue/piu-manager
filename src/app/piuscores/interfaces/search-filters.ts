@@ -4,5 +4,6 @@ export interface SearchFilters {
   isLastFilter?: boolean,
   level: number,
   saveFilter?: boolean,
-  songTypes: boolean[]
+  songTypes: boolean[],
+  stagePass: boolean | null
 }

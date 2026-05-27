@@ -16,11 +16,15 @@ export const piuscoresRoutes: Routes = [
         path: 'tier-lists',
         component: TierListsPage
       },
+      {
+        path: '**',
+        redirectTo: 'tier-lists'
+      }
     ]
   },
   {
     path: '**',
-    redirectTo: 'scores'
+    redirectTo: 'tier-lists'
   }
 ];
 

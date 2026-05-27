@@ -14,6 +14,7 @@ export class SearchFiltersForm {
 
   searchFilters = output<SearchFilters>();
   songTypesFilter = output<boolean[]>();
+  stagePassFilter = output<boolean | null>();
 
   piuScoresService = inject(PiuscoresService);
   fb = inject(FormBuilder);
@@ -21,7 +22,7 @@ export class SearchFiltersForm {
   tierListForm = this.fb.group({
     chartType: [
       this.localStorageService.lastFilter().chartType,
-      [Validators.required, Validators.pattern(/Single|Double/)]
+      [Validators.required]
     ],
     level: [
       this.localStorageService.lastFilter().level,
@@ -31,8 +32,13 @@ export class SearchFiltersForm {
       this.piuScoresService.songTypes.map((songType, i) => this.localStorageService.lastFilter().songTypes[i]),
       [Validators.required, Validators.minLength(1)]
     ),
+    stagePass: [this.localStorageService.lastFilter().stagePass],
     saveFilter: [false]
   });
+
+  formSubmit() {
+    this.emitSearchFilters();
+  }
 
   songTypesChanged = this.tierListForm.get('songTypes')!.valueChanges
     .subscribe((songTypes) => {
@@ -45,26 +51,40 @@ export class SearchFiltersForm {
     this.tierListForm.patchValue({
       chartType: lastFilter.chartType,
       level: lastFilter.level,
-      songTypes: lastFilter.songTypes
+      songTypes: lastFilter.songTypes,
+      stagePass: lastFilter.stagePass
     }, { emitEvent: false });
   });
 
-  formSubmit() {
-    const { songTypes } = this.tierListForm.value;
-    const songTypesBooleanArray = songTypes!.map((item) => item === true);
-    this.emitSearchFilters(songTypesBooleanArray);
+  toggleStagePass(input: HTMLInputElement) {
+    const control = this.tierListForm.get('stagePass');
+    const current = control?.value as boolean | null;
+    const next = current === null
+      ? true
+      : current === true
+        ? false
+        : null;
+
+    control?.setValue(next);
+
+    input.indeterminate = next === null;
+    input.checked = next === true;
+
+    this.stagePassFilter.emit(next);
   }
 
-  private emitSearchFilters(songTypes: boolean[]) {
+  private emitSearchFilters() {
     if (this.tierListForm.invalid)
       return;
 
-    const { chartType, level, saveFilter } = this.tierListForm.value;
+    const { chartType, level, saveFilter, songTypes, stagePass } = this.tierListForm.value;
+    const songTypesBooleanArray = songTypes!.map((item) => item === true);
     const searchFilters: SearchFilters = {
       chartType: chartType!,
       level: level!,
       saveFilter: saveFilter!,
-      songTypes: songTypes
+      songTypes: songTypesBooleanArray,
+      stagePass: stagePass ?? null
     };
 
     this.searchFilters.emit(searchFilters);
