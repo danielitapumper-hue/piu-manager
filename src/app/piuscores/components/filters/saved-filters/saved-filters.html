@@ -6,7 +6,7 @@
 
   @for (searchFilter of savedFiltersArray(); track searchFilter.filter) {
 
-  <div class="badge badge-xl badge-outline" [class]="{
+  <div class="badge badge-xl badge-outline cursor-pointer" [class]="{
       'badge-outline': !searchFilter.isLastFilter,
       'text-white': searchFilter.isLastFilter,
       'badge-success': searchFilter.chartType==='Double',

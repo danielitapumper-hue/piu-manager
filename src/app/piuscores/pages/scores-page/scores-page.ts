@@ -14,7 +14,7 @@ export class ScoresPage {
   scoresResource = rxResource({
     params: () => ({}),
     stream: ({ }) => {
-      return this.piuScoresService.getPhoenixScores(1);
+      return this.piuScoresService.getPhoenixScores(1, 1000);
     }
   });
 }

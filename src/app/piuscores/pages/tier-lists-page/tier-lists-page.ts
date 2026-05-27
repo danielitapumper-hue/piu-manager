@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { SearchFiltersForm } from "@piuscores/components/filters/search-filters-form/search-filters-form";
 import { SongCard } from '@piuscores/components/songs/song-card/song-card';
-import { CategoryChart } from '@piuscores/interfaces/category-chart';
+import { CategoryCharts } from '@piuscores/interfaces/category-charts';
 import { Category, Chart, SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
-import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
+import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
+import { ChartScore } from '@piuscores/interfaces/chart-score';
 
 @Component({
   selector: 'app-tier-lists-page',
@@ -18,10 +19,10 @@ export class TierListsPage {
   piuScoresService = inject(PiuscoresService);
   localStorageService = inject(LocalStorageService);
 
-  private tierList: TierListResponse[] = [];
+  private tierList: TierListWithScore[] = [];
   private songTypesFilter: boolean[] = [];
 
-  tierListByCategories = signal<CategoryChart[]>([]);
+  tierListByCategories = signal<CategoryCharts[]>([]);
   isLoadingTierList = signal<boolean>(false);
 
   ngOnInit() {
@@ -41,7 +42,7 @@ export class TierListsPage {
 
   search(searchFilters: SearchFilters) {
     this.isLoadingTierList.set(true);
-    this.piuScoresService.getTierListByScores(searchFilters)
+    this.piuScoresService.getTierListWithScores(searchFilters)
       .subscribe(resp => {
         this.songTypesFilter = searchFilters.songTypes;
         this.tierList = resp;
@@ -68,11 +69,11 @@ export class TierListsPage {
     this.tierListByCategories.set(this.getTierListByCategories());
   }
 
-  private getTierListByCategories(): CategoryChart[] {
+  private getTierListByCategories(): CategoryCharts[] {
     if (this.tierList.length === 0)
       return [];
 
-    const tierListByCategories: CategoryChart[] = [];
+    const tierListByCategories: CategoryCharts[] = [];
     const tierListBySongTypes = this.getTierListBySongTypes();
 
     for (const category of this.piuScoresService.categories) {
@@ -85,14 +86,19 @@ export class TierListsPage {
     return tierListByCategories;
   }
 
-  private getTierListBySongTypes(): TierListResponse[] {
+  private getTierListBySongTypes(): TierListWithScore[] {
     const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter[i])
     return this.tierList.filter(item => songTypesFilter.includes(item.chart.song.type));
   };
 
-  private getTierListByCategory(category: Category, tierListBySongTypes: TierListResponse[]): Chart[] {
+  private getTierListByCategory(category: Category, tierListBySongTypes: TierListWithScore[]): ChartScore[] {
     return tierListBySongTypes
       .filter(item => item.category === category)
-      .map(item => item.chart);
+      .map(item => {
+        return {
+          chart: item.chart,
+          score: item.score
+        };
+      });
   }
 }

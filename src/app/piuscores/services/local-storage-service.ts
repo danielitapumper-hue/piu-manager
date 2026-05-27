@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
+import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 
 const LOCAL_STORAGE_SAVED_FILTERS_KEY = 'savedFilters';
 const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
@@ -10,9 +10,9 @@ const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
 })
 export class LocalStorageService {
   lastFilter = signal<SearchFilters>(this.getLastFilter());
-  savedFilters = signal<Map<string, TierListResponse[]>>(this.getSavedFiltersFromLocalStorage());
+  savedFilters = signal<Map<string, TierListWithScore[]>>(this.getSavedFiltersFromLocalStorage());
 
-  getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListResponse[] {
+  getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListWithScore[] {
     const charTypeLevelFilter = this.charTypeLevelKeyToSearchFilter(charTypeLevelKey);
     this.lastFilter.update(currentValue => ({
       ...currentValue,
@@ -27,7 +27,7 @@ export class LocalStorageService {
     return this.savedFilters().get(charTypeLevelKey) ?? [];
   }
 
-  setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListResponse[]) {
+  setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListWithScore[]) {
     this.savedFilters.update(currentValue => {
       const updatedFilters = new Map(currentValue);
       updatedFilters.set(charTypeLevelKey, data);
@@ -95,13 +95,13 @@ export class LocalStorageService {
     return `${searchFilters.chartType}-${searchFilters.level}`;
   }
 
-  private getSavedFiltersFromLocalStorage(): Map<string, TierListResponse[]> {
+  private getSavedFiltersFromLocalStorage(): Map<string, TierListWithScore[]> {
     const savedFilters = localStorage.getItem(LOCAL_STORAGE_SAVED_FILTERS_KEY);
 
     if (!savedFilters)
-      return new Map<string, TierListResponse[]>();
+      return new Map<string, TierListWithScore[]>();
 
-    const parsed = JSON.parse(savedFilters) as [string, TierListResponse[]][];
+    const parsed = JSON.parse(savedFilters) as [string, TierListWithScore[]][];
     return new Map(parsed);
   }
 

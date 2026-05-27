@@ -1,16 +1,25 @@
-<div class="card card-xs card-border bg-primary/5 shadow-sm">
-  <figure>
-    <img [src]="chart().song.imagePath" [alt]="chart().song.name" />
-  </figure>
-  <div class="card-body items-center text-center">
-    <h2 class="card-title break-all">
-      {{ chart().song.name }}
-      <!-- <div class="badge badge-secondary">{{ chart().shorthand }}</div> -->
-    </h2>
-    <!-- <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-    <div class="card-actions justify-end">
-      <div class="badge badge-outline">Fashion</div>
-      <div class="badge badge-outline">Products</div>
-    </div> -->
+<a class="hover-3d cursor-pointer">
+
+  <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{'border-success': chartScore().score}">
+    <figure>
+      <img [src]="chartScore().chart.song.imagePath" [alt]="chartScore().chart.song.name" />
+    </figure>
+    <div class="card-body items-center text-center">
+      <h2 class="card-title break-all">
+        {{ chartScore().chart.song.name }}
+      </h2>
+      @if(chartScore().score){
+      <span class="font-bold">{{ chartScore().score?.score | number }}</span>
+      <img [src]="chartScore().score!.isBroken
+          ?`B_${chartScore().score!.letterGrade}`
+          : `R_${chartScore().score!.letterGrade}` | imageSrc" [alt]="chartScore().score!.letterGrade" class="w-9">
+
+      @if(chartScore().score!.plate){
+      <img [src]="chartScore().score!.plate!.split(' ').map(word => word.charAt(0)).join('') | imageSrc"
+        [alt]="chartScore().score!.plate!" class="w-7" />
+      }
+      }
+    </div>
   </div>
-</div>
+
+</a>

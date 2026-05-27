@@ -29,12 +29,12 @@ export class AuthService {
       basicAuthorization: encoded
     });
 
-    return this.piuscoresService.getPhoenixScores(1).pipe(
-      map(resp => {
+    return this.piuscoresService.getPhoenixScores(1, 1).pipe(
+      map(() => {
         localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(this._credentials()));
         return true;
       }),
-      catchError(error => {
+      catchError(() => {
         this.logout();
         return of(false);
       })

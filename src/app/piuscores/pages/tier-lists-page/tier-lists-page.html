@@ -19,9 +19,9 @@
 <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
 <div class="grid grid-cols-2 gap-2 mt-2 lg:grid-cols-5 xl:grid-cols-6">
 
-  @for (chart of tierListByCategory.charts; track $index) {
+  @for (chartScore of tierListByCategory.charts; track $index) {
 
-  <song-card [chart]="chart" />
+  <song-card [chartScore]="chartScore" />
 
   }
 
