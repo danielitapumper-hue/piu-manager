@@ -4,8 +4,8 @@
     <figure>
       <img [src]="chartScore().chart.song.imagePath" [alt]="chartScore().chart.song.name" />
     </figure>
-    <div class="card-body items-center text-center">
-      <h2 class="card-title break-all">
+    <div class="card-body items-center text-center block space-y-2">
+      <h2 class="card-title wrap-break-word block">
         {{ chartScore().chart.song.name }}
       </h2>
       <div class="flex flex-row justify-evenly gap-2 w-full">
@@ -25,3 +25,4 @@
   </div>
 
 </a>
+<!-- calc(0.25rem * 2) -->
