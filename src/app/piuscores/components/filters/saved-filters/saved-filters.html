@@ -6,14 +6,14 @@
 
   @for (searchFilter of savedFiltersArray(); track searchFilter.filter) {
 
-  <div class="badge badge-xl badge-outline cursor-pointer" [class]="{
-      'badge-outline': !searchFilter.isLastFilter,
+  <button type="button" class="btn btn-outline cursor-pointer" [class]="{
+      'btn-outline': !searchFilter.isLastFilter,
       'text-white': searchFilter.isLastFilter,
-      'badge-success': searchFilter.chartType==='Double',
-      'badge-error': searchFilter.chartType==='Single'
+      'btn-success': searchFilter.chartType==='Double',
+      'btn-error': searchFilter.chartType==='Single'
     }" (click)="search(searchFilter.filter!)">
     {{ searchFilter | shortHand }}
-  </div>
+  </button>
 
   }
 </div>
