@@ -11,13 +11,12 @@ import { LocalStorageService } from '@piuscores/services/local-storage-service';
 })
 export class SearchFiltersForm {
   localStorageService = inject(LocalStorageService);
+  piuScoresService = inject(PiuscoresService);
+  fb = inject(FormBuilder);
 
   searchFilters = output<SearchFilters>();
   songTypesFilter = output<boolean[]>();
   stagePassFilter = output<boolean | null>();
-
-  piuScoresService = inject(PiuscoresService);
-  fb = inject(FormBuilder);
 
   tierListForm = this.fb.group({
     chartType: [

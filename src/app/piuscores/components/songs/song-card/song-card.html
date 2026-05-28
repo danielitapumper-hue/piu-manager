@@ -1,4 +1,4 @@
-<a class="hover-3d cursor-pointer">
+<a class="hover-3d cursor-pointer" (click)="openDialog()">
 
   <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{'border-success': chartScore().score}">
     <figure>
@@ -10,7 +10,7 @@
       </h2>
       @if(chartScore().score){
       <div class="flex flex-row justify-evenly gap-2 w-full">
-        <span class="font-bold">{{ chartScore().score?.score | number }}</span>
+        <span class="font-bold">{{ chartScore().score!.score | number }}</span>
         <img [src]="chartScore().score!.isBroken
           ? `B_${chartScore().score!.letterGrade}`
           : `R_${chartScore().score!.letterGrade}` | imageSrc" [alt]="chartScore().score!.letterGrade" class="w-9">

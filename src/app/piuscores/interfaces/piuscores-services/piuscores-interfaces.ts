@@ -25,6 +25,7 @@ export enum ChartType {
 }
 
 export enum Category {
+  Overrated = "Overrated",
   VeryEasy = "VeryEasy",
   Easy = "Easy",
   Medium = "Medium",
