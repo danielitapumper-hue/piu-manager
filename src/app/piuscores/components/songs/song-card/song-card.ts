@@ -1,18 +1,18 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, input, inject } from '@angular/core';
+import { Component, input, inject, output } from '@angular/core';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
-import { ImageSrcPipe } from '@piuscores/pipes/image-src-pipe';
 import { Dialog } from '@angular/cdk/dialog';
 import { SongDialog } from '../song-dialog/song-dialog';
+import { ScoreData } from "../score-data/score-data";
 
 @Component({
   selector: 'song-card',
-  imports: [DecimalPipe, ImageSrcPipe],
+  imports: [ScoreData],
   templateUrl: './song-card.html',
 })
 export class SongCard {
   dialog = inject(Dialog);
   chartScore = input.required<ChartScore>();
+  chartScoreUpdated = output<ChartScore>();
 
   openYoutubeSearch() {
     const song = this.chartScore().chart.song.name;
@@ -24,13 +24,15 @@ export class SongCard {
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open<string>(SongDialog, {
+    const dialogRef = this.dialog.open<ChartScore | undefined>(SongDialog, {
       data: this.chartScore(),
       backdropClass: 'bg-base-100/90'
     });
 
-    // dialogRef.closed.subscribe(result => {
-    //   console.log('The dialog was closed');
-    // });
+    dialogRef.closed.subscribe((updatedChartScore) => {
+      if (updatedChartScore) {
+        this.chartScoreUpdated.emit(updatedChartScore);
+      }
+    });
   }
 }

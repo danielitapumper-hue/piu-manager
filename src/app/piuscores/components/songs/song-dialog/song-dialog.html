@@ -9,43 +9,15 @@
     <div class="flex flex-row grow items-center">
 
       <!-- Score -->
-      <div class="flex flex-col flex-1 gap-2 items-center">
-        @if(chartScore.score?.score){
-        <span class="text-xl lg:text-3xl font-bold">{{ chartScore.score!.score | number }}</span>
-
-        <img [src]="(chartScore.score!.isBroken
-          ? `B_${chartScore.score!.letterGrade}`
-          : `R_${chartScore.score!.letterGrade}`) | imageSrc" [alt]="chartScore.score!.letterGrade"
-          class="w-24 lg:w-40">
-
-        @if(chartScore.score!.plate){
-        <img [src]="chartScore.score!.plate!.split(' ').map(word => word.charAt(0)).join('') | imageSrc"
-          [alt]="chartScore.score!.plate!" class="w-12 lg:w-20" />
-        }
-        }
-        @else {
-        <p>No hay ningún score cargado.</p>
-        }
-      </div>
+      @if(chartScore.score?.score){
+      <score-data class="flex flex-col flex-1 gap-2 items-center" [chartScore]="chartScore" scoreDataSize="lg" />
+      }
+      @else {
+      <p class="flex flex-col flex-1 gap-2 items-center">No hay ningún score cargado.</p>
+      }
 
       <!-- Form para agregar score -->
-      <form class="flex flex-col flex-1 gap-2 items-start" [formGroup]="scoreForm" (ngSubmit)="formSubmit()">
-        <input type="number" placeholder="Score" class="input input-primary" formControlName="score" />
-
-        <select class="select select-primary" formControlName="plate">
-          <option disabled selected value=null>Plate</option>
-          @for (plate of plateOptions; track plate.key) {
-          <option [value]="plate.key">{{ plate.value }}</option>
-          }
-        </select>
-
-        <label class="cursor-pointer">
-          <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" formControlName="isBroken" />
-          <span class="ml-1">Broken</span>
-        </label>
-
-        <button class="btn btn-outline btn-primary w-full">Actualizar score</button>
-      </form>
+      <score-form class="flex-1" [chartScore]="chartScore" (scoreSaved)="handleScoreSaved($event)" />
 
     </div>
 

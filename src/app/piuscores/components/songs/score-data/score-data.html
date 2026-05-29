@@ -1,0 +1,21 @@
+<span class="font-bold" [class]="{
+  'text-xl': scoreDataSize()==='lg',
+  'lg:text-3xl': scoreDataSize()==='lg',
+}">{{ chartScore().score!.score | number }}</span>
+
+<img [src]="(chartScore().score!.isBroken
+          ? `B_${chartScore().score!.letterGrade}`
+          : `R_${chartScore().score!.letterGrade}`) | imageSrc" [alt]="chartScore().score!.letterGrade" [class]="{
+            'w-9': scoreDataSize()==='sm',
+            'w-24': scoreDataSize()==='lg',
+            'lg:w-40': scoreDataSize()==='lg',
+          }">
+
+@if(chartScore().score!.plate){
+<img [src]="chartScore().score!.plate!.split(' ').map(word => word.charAt(0)).join('') | imageSrc"
+  [alt]="chartScore().score!.plate!" [class]="{
+            'w-7': scoreDataSize()==='sm',
+            'w-12': scoreDataSize()==='lg',
+            'lg:w-20': scoreDataSize()==='lg',
+          }" />
+}

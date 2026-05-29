@@ -20,9 +20,9 @@
 <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
 <div class="grid grid-cols-2 gap-2 mt-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 
-  @for (chartScore of tierListByCategory.charts; track $index) {
+  @for (chartScore of tierListByCategory.charts; track chartScore.chart.id) {
 
-  <song-card [chartScore]="chartScore" />
+  <song-card [chartScore]="chartScore" (chartScoreUpdated)="handleChartScoreUpdated($event)" />
 
   }
 

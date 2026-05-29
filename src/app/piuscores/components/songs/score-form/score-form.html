@@ -1,0 +1,38 @@
+<form class="flex flex-col gap-2 items-start" [formGroup]="scoreForm" (ngSubmit)="formSubmit()">
+  <div class="w-full">
+    <input type="number" placeholder="Score" class="input input-primary w-full" formControlName="score" />
+    @if (submitted && scoreForm.get('score')?.hasError('required')) {
+    <p class="text-error text-sm mt-1">El score es obligatorio.</p>
+    }
+    @if (submitted && scoreForm.get('score')?.hasError('min')) {
+    <p class="text-error text-sm mt-1">El score no puede ser menor a 0.</p>
+    }
+    @if (submitted && scoreForm.get('score')?.hasError('max')) {
+    <p class="text-error text-sm mt-1">El score no puede superar 1,000,000.</p>
+    }
+  </div>
+
+  <div class="w-full">
+    <select class="select select-primary w-full" formControlName="plate">
+      <option value="" disabled selected>Plate</option>
+      @for (plate of plateOptions; track plate.key) {
+      <option [value]="plate.key">{{ plate.value }}</option>
+      }
+    </select>
+    @if (submitted && scoreForm.errors?.['plateRequired']) {
+    <p class="text-error text-sm mt-1">Selecciona una placa cuando la canción no está rota.</p>
+    }
+  </div>
+
+  <label class="cursor-pointer">
+    <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" formControlName="isBroken" />
+    <span class="ml-1">Broken</span>
+  </label>
+
+  <button type="submit" class="btn btn-outline btn-primary w-full">
+    @if(isLoading()){
+    <span class="loading loading-spinner"></span>
+    }
+    Actualizar score
+  </button>
+</form>

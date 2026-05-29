@@ -78,6 +78,19 @@ export class TierListsPage {
     this.tierListByCategories.set(this.getTierListByCategories());
   }
 
+  handleChartScoreUpdated(updatedChartScore: ChartScore): void {
+    this.tierList = this.tierList.map(item =>
+      item.chart.id === updatedChartScore.chart.id
+        ? {
+            ...item,
+            score: updatedChartScore.score,
+          }
+        : item
+    );
+
+    this.tierListByCategories.set(this.getTierListByCategories());
+  }
+
   private getTierListByCategories(): CategoryCharts[] {
     if (this.tierList.length === 0)
       return [];
