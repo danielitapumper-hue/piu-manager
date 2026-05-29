@@ -10,12 +10,12 @@
 
       <!-- Score -->
       <div class="flex flex-col flex-1 gap-2 items-center">
-        @if(chartScore.score){
+        @if(chartScore.score?.score){
         <span class="text-xl lg:text-3xl font-bold">{{ chartScore.score!.score | number }}</span>
 
-        <img [src]="chartScore.score!.isBroken
+        <img [src]="(chartScore.score!.isBroken
           ? `B_${chartScore.score!.letterGrade}`
-          : `R_${chartScore.score!.letterGrade}` | imageSrc" [alt]="chartScore.score!.letterGrade"
+          : `R_${chartScore.score!.letterGrade}`) | imageSrc" [alt]="chartScore.score!.letterGrade"
           class="w-24 lg:w-40">
 
         @if(chartScore.score!.plate){
@@ -34,8 +34,8 @@
 
         <select class="select select-primary" formControlName="plate">
           <option disabled selected value=null>Plate</option>
-          @for (plate of plateOptions; track plate) {
-          <option [value]="plate">{{ plate }}</option>
+          @for (plate of plateOptions; track plate.key) {
+          <option [value]="plate.key">{{ plate.value }}</option>
           }
         </select>
 

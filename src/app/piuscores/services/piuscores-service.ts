@@ -6,6 +6,7 @@ import { Category, ChartType, SongType } from '@piuscores/interfaces/piuscores-s
 import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
+import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 
 const API_URL = 'https://piuscores.arroweclip.se/api';
 
@@ -73,6 +74,10 @@ export class PiuscoresService {
         )
       })
     );
+  }
+
+  postScore(scoreRequest: ScoreRequest) {
+    return this.http.post(`${API_URL}/phoenixScores`, scoreRequest);
   }
 
   private combineResults(tierList: TierListResponse[], scores: Result[]): TierListWithScore[] {

@@ -1,19 +1,22 @@
 <a class="hover-3d cursor-pointer" (click)="openDialog()">
 
-  <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{'border-success': chartScore().score}">
+  <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{'border-success': chartScore().score?.score}">
+
     <figure>
       <img [src]="chartScore().chart.song.imagePath" [alt]="chartScore().chart.song.name" />
     </figure>
+
     <div class="card-body items-center text-center block space-y-3">
+
       <h2 class="card-title wrap-break-word block">
         {{ chartScore().chart.song.name }}
       </h2>
-      @if(chartScore().score){
+      @if(chartScore().score?.score){
       <div class="flex flex-row justify-evenly gap-2 w-full">
         <span class="font-bold">{{ chartScore().score!.score | number }}</span>
-        <img [src]="chartScore().score!.isBroken
+        <img [src]="(chartScore().score!.isBroken
           ? `B_${chartScore().score!.letterGrade}`
-          : `R_${chartScore().score!.letterGrade}` | imageSrc" [alt]="chartScore().score!.letterGrade" class="w-9">
+          : `R_${chartScore().score!.letterGrade}`) | imageSrc" [alt]="chartScore().score!.letterGrade" class="w-9">
 
         @if(chartScore().score!.plate){
         <img [src]="chartScore().score!.plate!.split(' ').map(word => word.charAt(0)).join('') | imageSrc"
@@ -30,6 +33,7 @@
           </svg>
         </button>
       </div>
+
     </div>
   </div>
 
