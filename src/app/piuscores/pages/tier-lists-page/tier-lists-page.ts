@@ -78,17 +78,25 @@ export class TierListsPage {
     this.tierListByCategories.set(this.getTierListByCategories());
   }
 
-  handleChartScoreUpdated(updatedChartScore: ChartScore): void {
+  handleChartScoreUpdated(updatedChartScore: ChartScore) {
+    //Actualizo la tierlist con el nuevo score
     this.tierList = this.tierList.map(item =>
       item.chart.id === updatedChartScore.chart.id
         ? {
-            ...item,
-            score: updatedChartScore.score,
-          }
+          ...item,
+          score: updatedChartScore.score,
+        }
         : item
     );
-
+    //Actualizo la pantalla
     this.tierListByCategories.set(this.getTierListByCategories());
+
+    //Actualizo el localStorage
+    this.localStorageService.setLocalStorageSavedFilters(
+      this.localStorageService.searchFiltersToChartTypeLevelKey(
+        this.localStorageService.lastFilter()
+      ), this.tierList, true
+    );
   }
 
   private getTierListByCategories(): CategoryCharts[] {

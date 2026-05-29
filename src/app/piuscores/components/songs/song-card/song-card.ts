@@ -14,7 +14,8 @@ export class SongCard {
   chartScore = input.required<ChartScore>();
   chartScoreUpdated = output<ChartScore>();
 
-  openYoutubeSearch() {
+  openYoutubeSearch(event: Event) {
+    event.stopPropagation();
     const song = this.chartScore().chart.song.name;
     const shorthand = this.chartScore().chart.shorthand;
     const query = `PUMP IT UP ${song} ${shorthand}`;

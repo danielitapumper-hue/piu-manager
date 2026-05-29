@@ -15,7 +15,7 @@ export class SongDialog {
   chartScore = inject<ChartScore>(DIALOG_DATA);
 
   closeDialog(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(this.chartScore);
   }
 
   handleScoreSaved(updatedScore: Score | undefined): void {
@@ -23,7 +23,5 @@ export class SongDialog {
       ...this.chartScore,
       score: updatedScore,
     };
-
-    this.dialogRef.close(this.chartScore);
   }
 }

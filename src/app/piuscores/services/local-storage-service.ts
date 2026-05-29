@@ -27,7 +27,10 @@ export class LocalStorageService {
     return this.savedFilters().get(charTypeLevelKey) ?? [];
   }
 
-  setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListWithScore[]) {
+  setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListWithScore[], onlyUpdate?: boolean) {
+    if (onlyUpdate && !this.savedFilters().get(charTypeLevelKey))
+      return;
+
     this.savedFilters.update(currentValue => {
       const updatedFilters = new Map(currentValue);
       updatedFilters.set(charTypeLevelKey, data);
