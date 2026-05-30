@@ -11,14 +11,24 @@ import { LocalStorageService } from '@piuscores/services/local-storage-service';
 export class SavedFilters {
   localStorageService = inject(LocalStorageService);
 
+  isEditMode = signal(false);
+
   filter = output<string>();
   savedFiltersArray = computed<SearchFilters[]>(() =>
     Array.from(this.localStorageService.savedFilters().keys())
-      .map(filter => this.localStorageService.charTypeLevelKeyToSearchFilter(filter))
+      .map(charTypeLevelKey => this.localStorageService.charTypeLevelKeyToSearchFilter(charTypeLevelKey))
       .sort((a, b) => a.level - b.level)
       .sort((a, b) => b.chartType.localeCompare(a.chartType)));
 
   search(savedFilter: string) {
     this.filter.emit(savedFilter);
+  }
+
+  toggleEditMode() {
+    this.isEditMode.update(value => !value);
+  }
+
+  delete(savedFilter: string) {
+    this.localStorageService.deleteLocalStorageSavedFilter(savedFilter);
   }
 }

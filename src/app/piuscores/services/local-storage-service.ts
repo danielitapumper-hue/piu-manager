@@ -12,6 +12,7 @@ export class LocalStorageService {
   lastFilter = signal<SearchFilters>(this.getLastFilter());
   savedFilters = signal<Map<string, TierListWithScore[]>>(this.getSavedFiltersFromLocalStorage());
 
+  /* GET */
   getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListWithScore[] {
     const charTypeLevelFilter = this.charTypeLevelKeyToSearchFilter(charTypeLevelKey);
     this.lastFilter.update(currentValue => ({
@@ -27,6 +28,7 @@ export class LocalStorageService {
     return this.savedFilters().get(charTypeLevelKey) ?? [];
   }
 
+  /* SET */
   setLocalStorageSavedFilters(charTypeLevelKey: string, data: TierListWithScore[], onlyUpdate?: boolean) {
     if (onlyUpdate && !this.savedFilters().get(charTypeLevelKey))
       return;
@@ -55,6 +57,18 @@ export class LocalStorageService {
     localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
   }
 
+  /* DELETE */
+  deleteLocalStorageSavedFilter(charTypeLevelKey: string) {
+    this.savedFilters.update(currentValue => {
+      const updatedFilters = new Map(currentValue);
+      updatedFilters.delete(charTypeLevelKey);
+      return updatedFilters;
+    });
+
+    localStorage.setItem(LOCAL_STORAGE_SAVED_FILTERS_KEY, JSON.stringify(Array.from(this.savedFilters().entries())));
+  }
+
+  /* UTILS */
   filterStringToSearchFilter(filter: string | null): SearchFilters {
     const filterArray = filter?.split('-');
 
@@ -111,6 +125,7 @@ export class LocalStorageService {
     return `${searchFilters.chartType}-${searchFilters.level}`;
   }
 
+  /* PRIVATE */
   private getSavedFiltersFromLocalStorage(): Map<string, TierListWithScore[]> {
     const savedFilters = localStorage.getItem(LOCAL_STORAGE_SAVED_FILTERS_KEY);
 
