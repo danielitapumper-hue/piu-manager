@@ -140,4 +140,36 @@ export class LocalStorageService {
     const lastFilter = localStorage.getItem(LOCAL_STORAGE_LAST_FILTER_KEY);
     return this.filterStringToSearchFilter(lastFilter);
   }
+
+  /**
+   * Returns per-key and total sizes (in bytes) of current localStorage entries.
+   */
+  getLocalStorageSizes(): { entries: { key: string; keyBytes: number; valueBytes: number; totalBytes: number }[]; totalBytes: number } {
+    const entries: { key: string; keyBytes: number; valueBytes: number; totalBytes: number }[] = [];
+    let total = 0;
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) as string;
+      const value = localStorage.getItem(key) ?? '';
+      const keyBytes = this.byteSize(key);
+      const valueBytes = this.byteSize(value);
+      const totalBytes = keyBytes + valueBytes;
+      entries.push({ key, keyBytes, valueBytes, totalBytes });
+      total += totalBytes;
+    }
+
+    return { entries, totalBytes: total };
+  }
+
+  private byteSize(str: string): number {
+    try {
+      if (typeof TextEncoder !== 'undefined') {
+        return new TextEncoder().encode(str).length;
+      }
+    } catch (e) {
+      // fall through to fallback
+    }
+    // Fallback approximation for older browsers
+    return encodeURIComponent(str).replace(/%[A-F\d]{2}/g, 'U').length;
+  }
 }

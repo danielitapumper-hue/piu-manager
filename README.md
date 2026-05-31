@@ -1,3 +1,3 @@
 # Funcionalidad que quiero agregar
 
-- Gestionar filtros
+- Creación de listas

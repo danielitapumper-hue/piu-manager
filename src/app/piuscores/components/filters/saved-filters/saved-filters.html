@@ -1,5 +1,7 @@
 <div class="flex items-center justify-between gap-2">
   <h2 class="text-xl font-bold">Filtros guardados</h2>
+
+  @if(savedFiltersArray().length > 0){
   <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="toggleEditMode()">
 
     @if(isEditMode()) {
@@ -17,6 +19,8 @@
     }
 
   </button>
+  }
+
 </div>
 
 @if(savedFiltersArray().length > 0){
