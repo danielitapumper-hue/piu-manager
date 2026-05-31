@@ -19,6 +19,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "baseHref": "/piu-manager/",
             "assets": [
               {
                 "glob": "**/*",
@@ -28,9 +29,16 @@
                 "glob": "_redirects",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": ".nojekyll",
+                "input": ".",
+                "output": "/"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": [
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
