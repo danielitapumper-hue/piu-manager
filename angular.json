@@ -19,7 +19,6 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "baseHref": "/piu-manager/",
             "assets": [
               {
                 "glob": "**/*",
