@@ -30,6 +30,11 @@ jobs:
       - name: Build Angular app
         run: npm run build
 
+      - name: Copy SPA fallback and nojekyll
+        run: |
+          cp .nojekyll dist/piu-manager/browser/. || true
+          cp dist/piu-manager/browser/index.html dist/piu-manager/browser/404.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
