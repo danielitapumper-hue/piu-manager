@@ -1,53 +1,48 @@
-<div class="overflow-x-auto">
-  <table class="table">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th></th>
-        <th>Nivel</th>
-        <th>Score</th>
-      </tr>
-    </thead>
-    <tbody>
+<saved-filters (filter)="searchSavedFilter($event)" />
 
-      @for (result of scoresResource.value()?.results; track $index) {
-      <tr>
-        <td>
-          <div class="flex items-center gap-3">
-            <div class="avatar">
-              <div class="mask mask-squircle h-12 w-12">
-                <img [src]="result.chart.song.imagePath" [alt]="result.chart.song.name" />
+<div class="divider"></div>
+
+<div class="grid grid-cols-1 gap-x-2 gap-y-10 mt-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+
+  @for(categoryChart of this.scoresListByLetterGrade(); track categoryChart.category) {
+
+  <div>
+    <img [src]="`R_${categoryChart.category}` | imageSrc" [alt]="categoryChart.category" class="w-9">
+
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Canción</th>
+            <th>Puntaje</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @for (chartScore of categoryChart.charts; track $index) {
+          <tr>
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="avatar">
+                  <div class="mask mask-squircle h-12 w-12">
+                    <img [src]="chartScore.chart.song.imagePath" [alt]="chartScore.chart.song.name" />
+                  </div>
+                </div>
+                <div>
+                  <div class="font-bold">{{ chartScore.chart.song.name }}</div>
+                  <div class="text-sm opacity-50">{{ chartScore.score!.plate }}</div>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="font-bold">{{ result.chart.song.name }}</div>
-              <div class="text-sm opacity-50">{{ result.chart.song.type }}</div>
-            </div>
-          </div>
-        </td>
+            </td>
+            <td>{{ chartScore.score!.score| number }}</td>
+          </tr>
+          }
 
-        <td>
-          {{ result.chart.type }} {{ result.chart.level}}
-        </td>
-        <td class="text-right">
-          {{ result.score | number:'1.0-0' }}
-        </td>
-      </tr>
-      }
-      @empty {
-      <h1>No scores available</h1>
-      }
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    </tbody>
-    <!-- foot -->
-    <tfoot>
-      <tr>
-        <th></th>
-        <th>Name</th>
-        <th>Job</th>
-        <th>Favorite Color</th>
-        <th></th>
-      </tr>
-    </tfoot>
-  </table>
+  }
+
 </div>

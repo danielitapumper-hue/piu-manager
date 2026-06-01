@@ -18,8 +18,9 @@ export class PiuscoresService {
 
   chartTypes = Object.values(ChartType);
   songTypes = Object.values(SongType);
-  categories = Object.values(Category);
+  categories = Object.entries(Category).map(([key, val]) => ({ key, val }));
 
+  /* GET */
   getTierListByScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {
     return this.http.get<TierListResponse[]>(`${API_URL}/tierlist/scores`, {
       params: {
@@ -27,6 +28,43 @@ export class PiuscoresService {
         level: searchFilters.level
       }
     });
+  }
+
+  getTierListWithScores(searchFilters: SearchFilters): Observable<TierListWithScore[]> {
+    return this.getTierListByScores(searchFilters).pipe(
+      switchMap(tierList => {
+        return this.getAllPhoenixScores().pipe(
+          map(allScores => {
+            // Filtrar según tu lógica
+            const filteredScores = allScores.filter(score => {
+              return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
+            });
+            // Combinar tierList con los scores filtrados
+            return this.combineResults(tierList, filteredScores);
+          })
+        );
+      })
+    );
+  }
+
+  getAllPhoenixScores(): Observable<Result[]> {
+    const count = 1000;
+    // Obtener primera página para saber cuántas páginas hay
+    return this.getPhoenixScores(1, count).pipe(
+      switchMap(firstPage => {
+        // Calcular total de páginas
+        const totalPages = Math.ceil(firstPage.totalResults / count);
+
+        // Crear array de Observables con todas las páginas
+        const allPages = [of(firstPage)]; // Primera página ya obtenida
+        for (let page = 2; page <= totalPages; page++) {
+          allPages.push(this.getPhoenixScores(page, count));
+        }
+
+        // Combinar todas las páginas en paralelo
+        return forkJoin(allPages).pipe(map(responses => responses.flatMap(response => response.results)));
+      })
+    );
   }
 
   getPhoenixScores(page: number, count: number): Observable<PhoenixScoresResponse> {
@@ -38,48 +76,12 @@ export class PiuscoresService {
     });
   }
 
-  getTierListWithScores(searchFilters: SearchFilters): Observable<TierListWithScore[]> {
-    return this.getTierListByScores(searchFilters).pipe(
-      switchMap(tierList => {
-        const count = 100;
-
-        // Obtener primera página para saber cuántas páginas hay
-        return this.getPhoenixScores(1, count).pipe(
-          switchMap(firstPage => {
-            // Calcular total de páginas
-            const totalPages = Math.ceil(firstPage.totalResults / count);
-
-            // Crear array de Observables con todas las páginas
-            const allPages = [of(firstPage)]; // Primera página ya obtenida
-            for (let page = 2; page <= totalPages; page++) {
-              allPages.push(this.getPhoenixScores(page, count));
-            }
-
-            // Combinar todas las páginas en paralelo
-            return forkJoin(allPages).pipe(
-              map(responses => {
-                // Extraer y combinar todos los resultados
-                const allScores = responses.flatMap(response => response.results);
-
-                // Filtrar según tu lógica
-                const filteredScores = allScores.filter(score => {
-                  return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
-                });
-
-                // Combinar tierList con los scores filtrados
-                return this.combineResults(tierList, filteredScores);
-              })
-            );
-          })
-        )
-      })
-    );
-  }
-
+  /* POST */
   postScore(scoreRequest: ScoreRequest) {
     return this.http.post(`${API_URL}/phoenixScores`, scoreRequest);
   }
 
+  /* PRIVATE */
   private combineResults(tierList: TierListResponse[], scores: Result[]): TierListWithScore[] {
     // Tu lógica de combinación aquí
     return tierList.map(tier => ({

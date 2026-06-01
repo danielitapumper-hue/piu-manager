@@ -77,6 +77,7 @@ export class TierListsPage {
     this.tierList = this.localStorageService.getTierListByScoresFromLocalStorage(savedFilter);
     this.tierListByCategories.set(this.getTierListByCategories());
   }
+
   searchBySongName(songName: string) {
     this.tierListByCategories.set(this.getTierListByCategories(songName));
   }
@@ -111,8 +112,8 @@ export class TierListsPage {
 
     for (const category of this.piuScoresService.categories) {
       tierListByCategories.push({
-        category: category,
-        charts: this.getTierListByCategory(category, filteredTierList)
+        category: category.val,
+        charts: this.getTierListByCategory(category.key, filteredTierList)
       });
     }
 
@@ -128,8 +129,8 @@ export class TierListsPage {
       (!songName || item.chart.song.name.toLowerCase().includes(songName.toLowerCase())));
   }
 
-  private getTierListByCategory(category: Category, tierListBySongTypes: TierListWithScore[]): ChartScore[] {
-    return tierListBySongTypes
+  private getTierListByCategory(category: string, filteredTierList: TierListWithScore[]): ChartScore[] {
+    return filteredTierList
       .filter(item => item.category === category)
       .map(item => {
         return {

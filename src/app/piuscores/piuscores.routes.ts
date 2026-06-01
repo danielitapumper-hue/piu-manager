@@ -9,12 +9,12 @@ export const piuscoresRoutes: Routes = [
     component: PiuscoresLayout,
     children: [
       {
-        path: 'scores',
-        component: ScoresPage
-      },
-      {
         path: 'tier-lists',
         component: TierListsPage
+      },
+      {
+        path: 'scores',
+        component: ScoresPage
       },
       {
         path: '**',
