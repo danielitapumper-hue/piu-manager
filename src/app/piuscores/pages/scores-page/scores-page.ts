@@ -66,6 +66,8 @@ export class ScoresPage {
   }
 
   private getScoreListByLetterGrade(letterGrade: string, filteredScoresList: ChartScore[]): ChartScore[] {
-    return filteredScoresList.filter(item => item.score!.letterGrade === letterGrade);
+    return filteredScoresList
+      .filter(item => item.score!.letterGrade === letterGrade)
+      .sort((a, b) => a.score!.score - b.score!.score);
   }
 }
