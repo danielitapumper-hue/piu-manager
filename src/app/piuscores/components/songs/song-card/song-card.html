@@ -1,6 +1,9 @@
 <a class="hover-3d cursor-pointer" (click)="openDialog()">
 
-  <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{'border-success': chartScore().score?.score}">
+  <div class="card card-sm card-border bg-primary/5 shadow-sm" [class]="{
+    'border-success': chartScore().score?.score && !chartScore().score?.isBroken,
+    'border-error': chartScore().score?.score && chartScore().score?.isBroken,
+    }">
 
     <figure>
       <img [src]="chartScore().chart.song.imagePath" [alt]="chartScore().chart.song.name" />

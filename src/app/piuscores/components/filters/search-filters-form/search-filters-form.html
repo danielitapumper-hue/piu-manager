@@ -28,28 +28,4 @@
 
   </div>
 
-  <div class="divider"></div>
-
-  <div class="flex gap-2 justify-center" formArrayName="songTypes">
-
-    @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
-
-    <label class="cursor-pointer flex-1">
-      <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" [formControlName]="i" />
-      <span class="ml-1">{{ songType }}</span>
-    </label>
-
-    }
-
-  </div>
-
-  <div class="flex gap-2 justify-start mt-4">
-    <label class="cursor-pointer flex-1">
-      <input #stagePassInput type="checkbox" class="checkbox checkbox-primary checkbox-sm"
-        [checked]="tierListForm.value.stagePass === true" [indeterminate]="tierListForm.value.stagePass === null"
-        (change)="toggleStagePass(stagePassInput)" />
-      <span class="ml-1">Stage pass</span>
-    </label>
-  </div>
-
 </form>
