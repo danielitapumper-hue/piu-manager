@@ -2,6 +2,12 @@
 
 <div class="divider"></div>
 
+<song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
+
+<search-by-name-filter (songNameFilter)="searchBySongName($event)" />
+
+<div class="divider"></div>
+
 <div class="grid grid-cols-1 gap-x-2 gap-y-10 mt-2 sm:grid-cols-2 2xl:grid-cols-3">
 
   @for(categoryChart of this.scoresListByLetterGrade(); track categoryChart.category) {
