@@ -1,18 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
-import { SearchFiltersForm } from "@piuscores/components/filters/search-filters-form/search-filters-form";
 import { SongCard } from '@piuscores/components/songs/song-card/song-card';
 import { CategoryCharts } from '@piuscores/interfaces/category-charts';
 import { Category, Chart, SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
+import { Filters } from '@piuscores/components/filters/filters';
 
 @Component({
   selector: 'app-tier-lists-page',
-  imports: [SongCard, SearchFiltersForm, SavedFilters],
+  imports: [SongCard, Filters],
   templateUrl: './tier-lists-page.html',
 })
 export class TierListsPage {
@@ -122,9 +121,9 @@ export class TierListsPage {
 
   private getFilteredTierList(songName?: string): TierListWithScore[] {
     const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter[i]);
-    return this.tierList.filter(item =>
-      songTypesFilter.includes(item.chart.song.type) &&
-      (this.stagePassFilter && item.score || this.stagePassFilter === false && !item.score ||
+    return this.tierList.filter(item => songTypesFilter.includes(item.chart.song.type) &&
+      (this.stagePassFilter && item.score && !item.score.isBroken ||
+        this.stagePassFilter === false && (!item.score || item.score.isBroken) ||
         this.stagePassFilter === null) &&
       (!songName || item.chart.song.name.toLowerCase().includes(songName.toLowerCase())));
   }
