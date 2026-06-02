@@ -21,6 +21,7 @@ export class TierListsPage {
   private songTypesFilter: boolean[] = [];
   private stagePassFilter: boolean | null = null;
   private tierList: TierListWithScore[] = [];
+  private songName: string = '';
 
   isLoadingTierList = signal<boolean>(false);
   tierListByCategories = signal<CategoryCharts[]>([]);
@@ -77,7 +78,8 @@ export class TierListsPage {
     this.tierListByCategories.set(this.getTierListByCategories());
   }
   searchBySongName(songName: string) {
-    this.tierListByCategories.set(this.getTierListByCategories(songName));
+    this.songName = songName;
+    this.tierListByCategories.set(this.getTierListByCategories());
   }
 
   handleChartScoreUpdated(updatedChartScore: ChartScore) {
@@ -101,12 +103,12 @@ export class TierListsPage {
     );
   }
 
-  private getTierListByCategories(songName?: string): CategoryCharts[] {
+  private getTierListByCategories(): CategoryCharts[] {
     if (this.tierList.length === 0)
       return [];
 
     const tierListByCategories: CategoryCharts[] = [];
-    const filteredTierList = this.getFilteredTierList(songName);
+    const filteredTierList = this.getFilteredTierList();
 
     for (const category of this.piuScoresService.categories) {
       tierListByCategories.push({
@@ -118,13 +120,13 @@ export class TierListsPage {
     return tierListByCategories;
   }
 
-  private getFilteredTierList(songName?: string): TierListWithScore[] {
+  private getFilteredTierList(): TierListWithScore[] {
     const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter[i]);
     return this.tierList.filter(item => songTypesFilter.includes(item.chart.song.type) &&
       (this.stagePassFilter && item.score && !item.score.isBroken ||
         this.stagePassFilter === false && (!item.score || item.score.isBroken) ||
         this.stagePassFilter === null) &&
-      (!songName || item.chart.song.name.toLowerCase().includes(songName.toLowerCase())));
+      (this.songName.length === 0 || item.chart.song.name.toLowerCase().includes(this.songName.toLowerCase())));
   }
 
   private getTierListByCategory(category: Category, tierListBySongTypes: TierListWithScore[]): ChartScore[] {
