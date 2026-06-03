@@ -2,21 +2,31 @@
 
 <div class="divider"></div>
 
-<song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
-
-<search-by-name-filter (songNameFilter)="searchBySongName($event)" />
+<search-filters-form (searchFilters)="search($event)" />
 
 <div class="divider"></div>
+
+<song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
+
+<song-name-filter (songNameFilter)="searchBySongName($event)" />
+
+<div class="divider"></div>
+
+@if(isLoadingScores()){
+<div class="flex justify-center">
+  <span class="loading loading-spinner text-primary"></span>
+</div>
+}
 
 <div class="grid grid-cols-1 gap-x-2 gap-y-10 mt-2 sm:grid-cols-2 2xl:grid-cols-3">
 
   @for(categoryChart of this.scoresListByLetterGrade(); track categoryChart.category) {
 
-  <div class="flex flex-col gap-2 items-center border-2 border-primary rounded-lg p-4">
-    <img [src]="`R_${categoryChart.category}` | imageSrc" [alt]="categoryChart.category" class="w-9">
+  <div class="flex flex-col gap-2 items-center">
+    <img [src]="`R_${categoryChart.category}` | imageSrc" [alt]="categoryChart.category" class="w-12">
 
-    <div class="overflow-x-auto w-full">
-      <table class="table">
+    <div class="overflow-x-auto h-103 w-full rounded-box border border-primary/25">
+      <table class="table table-pin-rows">
         <thead>
           <tr>
             <th>Canción</th>

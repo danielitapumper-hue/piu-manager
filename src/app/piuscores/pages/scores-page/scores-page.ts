@@ -6,12 +6,14 @@ import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { CategoryCharts } from '@piuscores/interfaces/category-charts';
 import { ImageSrcPipe } from '@piuscores/pipes/image-src-pipe';
 import { SongTypesFilter } from "@piuscores/components/filters/song-types-filter/song-types-filter";
-import { SearchByNameFilter } from "@piuscores/components/filters/search-by-name-filter/search-by-name-filter";
+import { SongNameFilter } from "@piuscores/components/filters/song-name-filter/song-name-filter";
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
+import { SearchFiltersForm } from "@piuscores/components/filters/search-filters-form/search-filters-form";
+import { SearchFilters } from '@piuscores/interfaces/search-filters';
 
 @Component({
   selector: 'app-scores-page',
-  imports: [SavedFilters, ImageSrcPipe, DecimalPipe, SongTypesFilter, SearchByNameFilter],
+  imports: [SavedFilters, ImageSrcPipe, DecimalPipe, SongTypesFilter, SongNameFilter, SearchFiltersForm],
   templateUrl: './scores-page.html',
 })
 export class ScoresPage {
@@ -21,6 +23,7 @@ export class ScoresPage {
   private songTypesFilter: boolean[] = [];
   private scoresList: ChartScore[] = [];
 
+  isLoadingScores = signal<boolean>(false);
   scoresListByLetterGrade = signal<CategoryCharts[]>([]);
 
   ngOnInit() {
@@ -36,6 +39,43 @@ export class ScoresPage {
       );
       this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
     }
+  }
+
+  search(searchFilters: SearchFilters) {
+    this.isLoadingScores.set(true);
+    if (searchFilters.saveFilter) {
+      this.piuScoresService.getTierListWithScores(searchFilters)
+        .subscribe(resp => {
+          this.scoresList = resp;
+          this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+          this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+          this.localStorageService.setLocalStorageSavedFilters(
+            this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
+            resp
+          );
+          this.isLoadingScores.set(false);
+        });
+      return;
+    }
+
+    this.piuScoresService.getAllPhoenixScores()
+      .subscribe(allScores => {
+        const filteredScores = allScores.filter(score => {
+          return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
+        });
+        this.scoresList = filteredScores.map(score => ({
+          chart: score.chart,
+          score: {
+            letterGrade: score.letterGrade,
+            score: score.score,
+            isBroken: score.isBroken,
+            plate: score.plate
+          }
+        }));
+        this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+        this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+        this.isLoadingScores.set(false);
+      });
   }
 
   searchBySongTypes(songTypes: boolean[]) {

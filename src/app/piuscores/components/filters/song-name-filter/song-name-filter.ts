@@ -1,10 +1,10 @@
 import { Component, output } from '@angular/core';
 
 @Component({
-  selector: 'search-by-name-filter',
-  templateUrl: './search-by-name-filter.html',
+  selector: 'song-name-filter',
+  templateUrl: './song-name-filter.html',
 })
-export class SearchByNameFilter {
+export class SongNameFilter {
   songNameFilter = output<string>();
 
   searchBySongName(songName: string) {

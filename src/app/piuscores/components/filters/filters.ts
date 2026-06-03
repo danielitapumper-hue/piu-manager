@@ -1,14 +1,14 @@
 import { Component, inject, output } from '@angular/core';
 import { SearchFiltersForm } from './search-filters-form/search-filters-form';
 import { SavedFilters } from './saved-filters/saved-filters';
-import { SearchByNameFilter } from './search-by-name-filter/search-by-name-filter';
+import { SongNameFilter } from './song-name-filter/song-name-filter';
 import { StagePassFilter } from './stage-pass-filter/stage-pass-filter';
 import { SongTypesFilter } from './song-types-filter/song-types-filter';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 
 @Component({
   selector: 'app-filters',
-  imports: [SearchFiltersForm, SavedFilters, SearchByNameFilter, StagePassFilter, SongTypesFilter],
+  imports: [SearchFiltersForm, SavedFilters, SongNameFilter, StagePassFilter, SongTypesFilter],
   templateUrl: './filters.html',
 })
 export class Filters {

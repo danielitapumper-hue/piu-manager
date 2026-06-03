@@ -46,8 +46,6 @@ export class TierListsPage {
     this.isLoadingTierList.set(true);
     this.piuScoresService.getTierListWithScores(searchFilters)
       .subscribe(resp => {
-        this.songTypesFilter = searchFilters.songTypes;
-        this.stagePassFilter = searchFilters.stagePass;
         this.tierList = resp;
         this.tierListByCategories.set(this.getTierListByCategories());
         this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
