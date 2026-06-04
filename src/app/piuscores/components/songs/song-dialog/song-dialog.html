@@ -10,7 +10,13 @@
 
       <!-- Score -->
       @if(chartScore.score?.score){
-      <score-data class="flex flex-col flex-1 gap-2 items-center" [chartScore]="chartScore" scoreDataSize="lg" />
+      <score-data class="flex flex-col flex-1 gap-2 items-center" [chartScore]="chartScore" scoreDataSize="lg">
+        <span class="text-xs min-h-4">
+          @if(newScore() > 0) {
+          +{{ newScore() | number }}
+          }
+        </span>
+      </score-data>
       }
       @else {
       <p class="flex flex-col flex-1 gap-2 items-center">No hay ningún score cargado.</p>

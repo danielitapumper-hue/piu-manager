@@ -1,7 +1,12 @@
-<span class="font-bold" [class]="{
-  'text-xl': scoreDataSize()==='lg',
-  'lg:text-3xl': scoreDataSize()==='lg',
-}">{{ chartScore().score!.score | number }}</span>
+<div class="flex flex-col text-end">
+  <span class="font-bold" [class]="{
+    'text-xl': scoreDataSize()==='lg',
+    'lg:text-3xl': scoreDataSize()==='lg',
+  }">{{ chartScore().score!.score | number }}</span>
+
+  <ng-content />
+</div>
+
 
 <img [src]="(chartScore().score!.isBroken
           ? `B_${chartScore().score!.letterGrade}`
