@@ -21,17 +21,33 @@ export class Pagination {
       return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
 
-    const currentPage = this.currentPage();
+    const half = Math.floor(this.maxVisiblePages / 2);
+    let start = this.currentPage() - half;
+    let end = this.currentPage() + half;
 
-    if (currentPage <= 2) {
-      return [1, 2, 3, this.ellipsis, totalPages];
+    if (this.currentPage() <= half + 1) {
+      start = 1;
+      end = this.maxVisiblePages;
+    } else if (this.currentPage() >= totalPages - half) {
+      start = totalPages - this.maxVisiblePages + 1;
+      end = totalPages;
     }
 
-    if (currentPage >= totalPages - 1) {
-      return [1, this.ellipsis, totalPages - 2, totalPages - 1, totalPages];
+    const items: Array<number | typeof this.ellipsis> = [];
+
+    if (start > 1) {
+      items.push(1, this.ellipsis);
     }
 
-    return [1, this.ellipsis, currentPage - 1, currentPage, currentPage + 1, this.ellipsis, totalPages];
+    for (let page = start; page <= end; page++) {
+      items.push(page);
+    }
+
+    if (end < totalPages) {
+      items.push(this.ellipsis, totalPages);
+    }
+
+    return items;
   });
 
   goToPage(page: number): void {
