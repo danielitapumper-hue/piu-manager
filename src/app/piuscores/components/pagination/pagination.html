@@ -1,0 +1,22 @@
+<div class="join flex justify-center items-center gap-1">
+  <button class="join-item btn btn-sm" [disabled]="currentPage() <= 1" [routerLink]="[]" (click)="goToPrevPage()"
+    aria-label="Página anterior">
+    ←
+  </button>
+
+  @for (page of visiblePages(); track page === 'ellipsis' ? 'ellipsis-' + $index : page) {
+  @if (page === 'ellipsis') {
+  <button class="join-item btn btn-sm btn-disabled">...</button>
+  } @else {
+  <button class="join-item btn btn-sm" [class.btn-primary]="page === currentPage()" [routerLink]="[]"
+    (click)="goToPage(page)">
+    {{ page }}
+  </button>
+  }
+  }
+
+  <button class="join-item btn btn-sm" [disabled]="currentPage() >= totalPages()" [routerLink]="[]"
+    (click)="goToNextPage()" aria-label="Página siguiente">
+    →
+  </button>
+</div>

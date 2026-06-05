@@ -1,0 +1,43 @@
+<div class="overflow-x-auto">
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Canción</th>
+        <th>Puntaje</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (score of scores(); track $index) {
+      <tr>
+        <td>
+          <div class="flex items-center gap-3">
+            <div class="avatar">
+              <div class="mask mask-squircle h-12 w-12">
+                <img [src]="score.chart.song.imagePath" alt="score.chart.song.name" />
+              </div>
+            </div>
+            <div>
+              <div class="font-bold">{{ score.chart.song.name }}</div>
+              <div class="text-sm opacity-50">{{ score.chart.shorthand }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          {{ score.score | number }}
+          <br />
+          <span class="badge badge-ghost badge-sm">{{ score.letterGrade }}</span>
+        </td>
+        <td>
+          {{ score.recordedDate | date: 'dd/MM/yy' }}
+          <br />
+          <span class="badge badge-ghost badge-sm">
+            Hace {{ daysAgo(score.recordedDate) }} días
+          </span>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

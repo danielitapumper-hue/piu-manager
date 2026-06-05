@@ -7,11 +7,11 @@ import { ScoreForm } from "../score-form/score-form";
 import { DecimalPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-song-dialog',
+  selector: 'app-score-dialog',
   imports: [ScoreData, ScoreForm, DecimalPipe],
-  templateUrl: './song-dialog.html',
+  templateUrl: './score-dialog.html',
 })
-export class SongDialog {
+export class ScoreDialog {
   dialogRef = inject<DialogRef<ChartScore | undefined>>(DialogRef<ChartScore | undefined>);
   chartScore = inject<ChartScore>(DIALOG_DATA);
 

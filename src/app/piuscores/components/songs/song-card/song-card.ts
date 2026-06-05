@@ -1,8 +1,8 @@
 import { Component, input, inject, output } from '@angular/core';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Dialog } from '@angular/cdk/dialog';
-import { SongDialog } from '../song-dialog/song-dialog';
-import { ScoreData } from "../score-data/score-data";
+import { ScoreDialog } from '../../scores/score-dialog/score-dialog';
+import { ScoreData } from "../../scores/score-data/score-data";
 
 @Component({
   selector: 'song-card',
@@ -25,7 +25,7 @@ export class SongCard {
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open<ChartScore | undefined>(SongDialog, {
+    const dialogRef = this.dialog.open<ChartScore | undefined>(ScoreDialog, {
       data: this.chartScore(),
       backdropClass: 'bg-base-100/90'
     });

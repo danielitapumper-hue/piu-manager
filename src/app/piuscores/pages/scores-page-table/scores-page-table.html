@@ -1,1 +1,20 @@
-<p>scores-page-table works!</p>,
+<div class="flex justify-between w-full">
+  <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
+    (activePage)="currentPage.set($event)" />
+
+  <select class="select select-bordered w-20" (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+    <option value="10" selected>10</option>
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+</div>
+
+@if (scoresResource.isLoading()) {
+<div class="flex justify-center">
+  <span class="loading loading-spinner text-primary"></span>
+</div>
+}
+@else {
+<scores-table [scores]="scoresResource.value()?.results ?? []" />
+}
