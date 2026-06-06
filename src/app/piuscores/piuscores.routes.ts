@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { PiuscoresLayout } from './layouts/piuscores-layout/piuscores-layout';
 import { ScoresPage } from './pages/scores-page/scores-page';
 import { TierListsPage } from './pages/tier-lists-page/tier-lists-page';
-import { ScoresPageTable } from './pages/scores-page-table/scores-page-table';
+import { ScoresHistoryPage } from './pages/scores-history-page/scores-history-page';
 
 export const piuscoresRoutes: Routes = [
   {
@@ -18,8 +18,8 @@ export const piuscoresRoutes: Routes = [
         component: ScoresPage
       },
       {
-        path: 'scores-table',
-        component: ScoresPageTable
+        path: 'scores-history',
+        component: ScoresHistoryPage
       },
       {
         path: '**',

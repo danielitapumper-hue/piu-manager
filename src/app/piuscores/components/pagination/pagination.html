@@ -5,14 +5,20 @@
   </button>
 
   @for (page of visiblePages(); track page === 'ellipsis' ? 'ellipsis-' + $index : page) {
+
   @if (page === 'ellipsis') {
   <button class="join-item btn btn-sm btn-disabled">...</button>
-  } @else {
-  <button class="join-item btn btn-sm" [class.btn-primary]="page === currentPage()" [routerLink]="[]"
-    (click)="goToPage(page)">
+  }
+  @else if (page === currentPage()) {
+  <input type="number" placeholder="Página actual" class="join-item input input-primary input-sm"
+    [value]="currentPage()" min="1" [max]="totalPages()" (change)="goToPage(+inputPage.value)" #inputPage />
+  }
+  @else {
+  <button class="join-item btn btn-sm" [routerLink]="[]" (click)="goToPage(page)">
     {{ page }}
   </button>
   }
+
   }
 
   <button class="join-item btn btn-sm" [disabled]="currentPage() >= totalPages()" [routerLink]="[]"

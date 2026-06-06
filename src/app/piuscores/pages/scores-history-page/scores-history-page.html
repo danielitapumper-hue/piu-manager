@@ -1,0 +1,24 @@
+<div>
+
+  <song-name-filter (songNameFilter)="searchBySongName($event)" />
+
+  <div class="flex justify-between items-end">
+    <select class="select select-primary w-20" (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+      <option value="10" selected>10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+    <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
+      (activePage)="currentPage.set($event)" />
+  </div>
+
+  @if (scoresResource.isLoading()) {
+  <div class="flex justify-center">
+    <span class="loading loading-spinner text-primary"></span>
+  </div>
+  }
+  @else {
+  <scores-table [scores]="pagedScores()" />
+  }
+</div>
