@@ -1,5 +1,5 @@
-<div class="overflow-x-auto mt-4 lg:w-200">
-  <table class="table">
+<div class="mt-4 lg:w-200">
+  <table class="table table-xs sm:table-md">
     <!-- head -->
     <thead>
       <tr>
@@ -11,28 +11,28 @@
     <tbody>
       @for (score of scores(); track $index) {
       <tr>
-        <td>
-          <div class="flex items-center gap-3">
+        <td class="max-w-68 sm:max-w-full">
+          <div class="flex items-center gap-3 max-w-4/5 sm:max-w-full">
             <div class="avatar">
               <div class="mask mask-squircle h-12 w-12">
                 <img [src]="score.chart.song.imagePath" alt="score.chart.song.name" />
               </div>
             </div>
-            <div>
-              <div class="font-bold">{{ score.chart.song.name }}</div>
+            <div class="w-full">
+              <div class="font-bold wrap-break-word">{{ score.chart.song.name }}</div>
               <div class="text-sm opacity-50">{{ score.chart.shorthand }}</div>
             </div>
           </div>
         </td>
-        <td>
+        <td class="min-w-16 sm:min-w-32 text-center">
           {{ score.score | number }}
           <br />
-          <span class="badge badge-ghost badge-sm">{{ score.letterGrade }}</span>
+          <span class="badge badge-ghost badge-xs sm:badge-sm">{{ score.letterGrade }}</span>
         </td>
-        <td>
+        <td class="min-w-24 sm:min-w-32 text-center">
           {{ score.recordedDate | date: 'dd/MM/yy' }}
           <br />
-          <span class="badge badge-ghost badge-sm">
+          <span class="badge badge-ghost badge-xs sm:badge-sm">
             Hace {{ daysAgo(score.recordedDate) }} días
           </span>
         </td>
