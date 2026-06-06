@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
@@ -20,11 +20,12 @@ export class ScoresPage {
   localStorageService = inject(LocalStorageService);
   piuScoresService = inject(PiuscoresService);
 
-  private songTypesFilter: boolean[] = [];
-  private scoresList: ChartScore[] = [];
+  private songTypesFilter = signal<boolean[]>([]);
+  private songName = signal<string>('');
+  private scoresList = signal<ChartScore[]>([]);
 
   isLoadingScores = signal<boolean>(false);
-  scoresListByLetterGrade = signal<CategoryCharts[]>([]);
+  scoresListByLetterGrade = computed<CategoryCharts[]>(() => this.getScoresListByLetterGrade());
 
   ngOnInit() {
     this.searchLastFilter();
@@ -33,11 +34,10 @@ export class ScoresPage {
   searchLastFilter() {
     const lastFilter = this.localStorageService.lastFilter();
     if (lastFilter.filter) {
-      this.songTypesFilter = lastFilter.songTypes;
-      this.scoresList = this.localStorageService.getTierListByScoresFromLocalStorage(
+      this.songTypesFilter.set(lastFilter.songTypes);
+      this.scoresList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
         this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
-      );
-      this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+      ));
     }
   }
 
@@ -46,8 +46,10 @@ export class ScoresPage {
     if (searchFilters.saveFilter) {
       this.piuScoresService.getTierListWithScores(searchFilters)
         .subscribe(resp => {
-          this.scoresList = resp;
-          this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+          this.scoresList.set(resp.map(item => ({
+            chart: item.chart,
+            score: item.score
+          })));
           this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
           this.localStorageService.setLocalStorageSavedFilters(
             this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
@@ -63,7 +65,7 @@ export class ScoresPage {
         const filteredScores = allScores.filter(score => {
           return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
         });
-        this.scoresList = filteredScores.map(score => ({
+        this.scoresList.set(filteredScores.map(score => ({
           chart: score.chart,
           score: {
             letterGrade: score.letterGrade,
@@ -71,56 +73,57 @@ export class ScoresPage {
             isBroken: score.isBroken,
             plate: score.plate
           }
-        }));
-        this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+        })));
         this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
         this.isLoadingScores.set(false);
       });
   }
 
   searchBySongTypes(songTypes: boolean[]) {
-    this.songTypesFilter = songTypes;
-    this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+    this.songTypesFilter.set(songTypes);
     this.localStorageService.setLocalStorageLastSongTypesFilter(songTypes);
   }
 
   searchSavedFilter(savedFilter: string) {
-    this.scoresList = this.localStorageService.getTierListByScoresFromLocalStorage(savedFilter);
-    this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade());
+    this.scoresList.set(this.localStorageService.getTierListByScoresFromLocalStorage(savedFilter));
   }
 
   searchBySongName(songName: string) {
-    this.scoresListByLetterGrade.set(this.getScoresListByLetterGrade(songName));
+    this.songName.set(songName);
   }
 
-  private getScoresListByLetterGrade(songName?: string): CategoryCharts[] {
-    if (this.scoresList.length === 0)
+  private getScoresListByLetterGrade(): CategoryCharts[] {
+    if (this.scoresList().length === 0)
       return [];
 
     const scoresListByLetterGrade: CategoryCharts[] = [];
-    const filteredScoresList = this.getFilteredScoresList(songName);
+    const filteredScoresList = this.getFilteredScoresList();
     const letterGrades = [...new Set(
-      this.scoresList
+      this.scoresList()
         .filter(item => item.score)
         .map(item => item.score!.letterGrade)
         .sort((a, b) => a.localeCompare(b))
     )];
 
     for (const letterGrade of letterGrades) {
+      const charts = this.getScoreListByLetterGrade(letterGrade, filteredScoresList);
+      if (charts.length === 0)
+        continue;
+
       scoresListByLetterGrade.push({
         category: letterGrade,
-        charts: this.getScoreListByLetterGrade(letterGrade, filteredScoresList)
+        charts: charts
       });
     }
 
     return scoresListByLetterGrade;
   }
 
-  private getFilteredScoresList(songName?: string): ChartScore[] {
-    const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter[i]);
-    return this.scoresList.filter(item => item.score &&
+  private getFilteredScoresList(): ChartScore[] {
+    const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter()[i]);
+    return this.scoresList().filter(item => item.score &&
       songTypesFilter.includes(item.chart.song.type) &&
-      (!songName || item.chart.song.name.toLowerCase().includes(songName.toLowerCase())));
+      (!this.songName() || item.chart.song.name.toLowerCase().includes(this.songName().toLowerCase())));
   }
 
   private getScoreListByLetterGrade(letterGrade: string, filteredScoresList: ChartScore[]): ChartScore[] {
