@@ -35,7 +35,7 @@ export class TierListsPage {
   }
 
   searchLastFilter() {
-    const lastFilter = this.localStorageService.lastFilter();
+    const lastFilter = this.lastFilter();
     if (lastFilter.filter) {
       this.songTypesFilter.set(lastFilter.songTypes);
       this.stagePassFilter.set(lastFilter.stagePass);
@@ -89,30 +89,34 @@ export class TierListsPage {
     );
 
     this.localStorageService.setLocalStorageSavedFilters(
-      this.localStorageService.searchFiltersToChartTypeLevelKey(this.localStorageService.lastFilter()),
+      this.localStorageService.searchFiltersToChartTypeLevelKey(this.lastFilter()),
       this.tierList(),
       true
     );
   }
 
-  getTierListForRandomizer(category?: string) {
+  openRandomizerDialog(category?: string) {
+    let filter = `${this.lastFilter().chartType.slice(0, 1)}${this.lastFilter().level}`;
+
+    if (category)
+      filter = `${filter} - ${category}`;
+
+    this.dialog.open<SongRandomizerDialogData>(SongRandomizerDialog, {
+      data: {
+        chartScoreList: this.getTierListForRandomizer(category),
+        filter: filter
+      },
+      backdropClass: 'bg-base-100/90'
+    });
+  }
+
+  private getTierListForRandomizer(category?: string) {
     return category
       ? this.tierListByCategories().find(item => item.category === category)?.charts ?? []
       : this.filteredTierList().map(item => ({
         chart: item.chart,
         score: item.score,
       }));
-  }
-
-  openRandomizerDialog(category?: string) {
-    this.dialog.open<SongRandomizerDialogData>(SongRandomizerDialog, {
-      data: {
-        chartScoreList: this.getTierListForRandomizer(category),
-        category: category,
-        lastFilter: this.lastFilter()
-      },
-      backdropClass: 'bg-base-100/90'
-    });
   }
 
   private getTierListByCategories(): CategoryCharts[] {

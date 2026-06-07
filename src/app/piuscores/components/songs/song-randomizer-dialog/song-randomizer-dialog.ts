@@ -1,12 +1,10 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
-import { SearchFilters } from '@piuscores/interfaces/search-filters';
 
 export interface SongRandomizerDialogData {
   chartScoreList: ChartScore[],
-  category: string | undefined,
-  lastFilter: SearchFilters
+  filter: string
 }
 
 @Component({

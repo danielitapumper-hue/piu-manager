@@ -10,6 +10,8 @@ import { SongNameFilter } from "@piuscores/components/filters/song-name-filter/s
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { SearchFiltersForm } from "@piuscores/components/filters/search-filters-form/search-filters-form";
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
+import { Dialog } from '@angular/cdk/dialog';
+import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
 
 @Component({
   selector: 'app-scores-page',
@@ -19,12 +21,14 @@ import { SearchFilters } from '@piuscores/interfaces/search-filters';
 export class ScoresPage {
   localStorageService = inject(LocalStorageService);
   piuScoresService = inject(PiuscoresService);
+  dialog = inject(Dialog);
 
   private songTypesFilter = signal<boolean[]>([]);
   private songName = signal<string>('');
   private scoresList = signal<ChartScore[]>([]);
 
   isLoadingScores = signal<boolean>(false);
+  lastFilter = computed<SearchFilters>(() => this.localStorageService.lastFilter());
   scoresListByLetterGrade = computed<CategoryCharts[]>(() => this.getScoresListByLetterGrade());
 
   ngOnInit() {
@@ -32,7 +36,7 @@ export class ScoresPage {
   }
 
   searchLastFilter() {
-    const lastFilter = this.localStorageService.lastFilter();
+    const lastFilter = this.lastFilter();
     if (lastFilter.filter) {
       this.songTypesFilter.set(lastFilter.songTypes);
       this.scoresList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
@@ -90,6 +94,21 @@ export class ScoresPage {
 
   searchBySongName(songName: string) {
     this.songName.set(songName);
+  }
+
+  openRandomizerDialog(category?: string) {
+    let filter = `${this.lastFilter().chartType.slice(0, 1)}${this.lastFilter().level}`;
+
+    if (category)
+      filter = `${filter} - ${category}`;
+
+    this.dialog.open<SongRandomizerDialogData>(SongRandomizerDialog, {
+      data: {
+        chartScoreList: this.scoresListByLetterGrade().find(item => item.category === category)?.charts ?? [],
+        filter: filter
+      },
+      backdropClass: 'bg-base-100/90'
+    });
   }
 
   private getScoresListByLetterGrade(): CategoryCharts[] {

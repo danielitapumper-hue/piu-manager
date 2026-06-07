@@ -22,8 +22,13 @@
 
   @for(categoryChart of this.scoresListByLetterGrade(); track categoryChart.category) {
 
-  <div class="flex flex-col gap-2 items-center">
-    <img [src]="`R_${categoryChart.category}` | imageSrc" [alt]="categoryChart.category" class="w-12">
+  <div class="flex flex-col gap-2">
+    <div class="flex justify-between items-center w-full">
+      <img [src]="`R_${categoryChart.category}` | imageSrc" [alt]="categoryChart.category" class="w-12">
+      <button class="btn btn-primary btn-outline btn-sm" (click)="openRandomizerDialog(categoryChart.category)">
+        Random ({{ categoryChart.category }})
+      </button>
+    </div>
 
     <div class="overflow-x-auto h-103 w-full rounded-box border border-primary/25">
       <table class="table table-pin-rows">
