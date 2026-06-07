@@ -1,7 +1,13 @@
 <div class="join flex justify-center items-center gap-1">
   <button class="join-item btn btn-sm" [disabled]="currentPage() <= 1" [routerLink]="[]" (click)="goToPrevPage()"
     aria-label="Página anterior">
-    ←
+    <svg fill="#ffffff" viewBox="0 0 32 32" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="SVGRepo_iconCarrier">
+        <path d="M14.19 16.005l7.869 7.868-2.129 2.129-9.996-9.997L19.937 6.002l2.127 2.129z"></path>
+      </g>
+    </svg>
   </button>
 
   @for (page of visiblePages(); track page === 'ellipsis' ? 'ellipsis-' + $index : page) {
@@ -23,6 +29,12 @@
 
   <button class="join-item btn btn-sm" [disabled]="currentPage() >= totalPages()" [routerLink]="[]"
     (click)="goToNextPage()" aria-label="Página siguiente">
-    →
+    <svg fill="#ffffff" viewBox="0 0 32 32" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="SVGRepo_iconCarrier">
+        <path d="M18.629 15.997l-7.083-7.081L13.462 7l8.997 8.997L13.457 25l-1.916-1.916z"></path>
+      </g>
+    </svg>
   </button>
 </div>

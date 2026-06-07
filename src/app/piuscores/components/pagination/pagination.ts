@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './pagination.html',
 })
 export class Pagination {
-  private readonly maxVisiblePages = 3;
+  private readonly maxVisiblePages = 1;
   private readonly ellipsis = 'ellipsis' as const;
 
   currentPage = input<number>(1);

@@ -1,8 +1,9 @@
 <song-name-filter (songNameFilter)="searchBySongName($event)" />
 
 <div class="flex justify-between items-end">
-  <select class="select select-primary w-20" (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
-    <option value="10" selected>10</option>
+  <select class="select select-primary w-20" [value]="scoresPerPage()"
+    (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+    <option value="10">10</option>
     <option value="20">20</option>
     <option value="50">50</option>
     <option value="100">100</option>
@@ -19,3 +20,15 @@
 @else {
 <scores-table [scores]="pagedScores()" />
 }
+
+<div class="flex justify-between items-end mt-4">
+  <select class="select select-primary w-20" [value]="scoresPerPage()"
+    (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+    <option value="10">10</option>
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+  <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
+    (activePage)="currentPage.set($event)" />
+</div>
