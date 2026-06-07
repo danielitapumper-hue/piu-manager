@@ -2,7 +2,9 @@
   (stagePassFilter)="searchByStagePass($event)" (savedFilter)="searchSavedFilter($event)"
   (songNameFilter)="searchBySongName($event)" />
 
-<song-randomizer [chartScoreList]="getTierListForRandomizer()" />
+<button class="btn btn-primary btn-outline" (click)="openRandomizerDialog()">
+  Random
+</button>
 
 <div class="divider"></div>
 
@@ -20,8 +22,9 @@
 
   <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
 
-  <song-randomizer [chartScoreList]="getTierListForRandomizer(tierListByCategory.category)"
-    [category]="tierListByCategory.category" dropDownExtraClasses="dropdown-bottom dropdown-end" />
+  <button class="btn btn-primary btn-outline" (click)="openRandomizerDialog(tierListByCategory.category)">
+    Random ({{ tierListByCategory.category }})
+  </button>
 
 </div>
 

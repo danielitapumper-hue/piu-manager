@@ -7,16 +7,18 @@ import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Filters } from '@piuscores/components/filters/filters';
-import { SongRandomizer } from "@piuscores/components/songs/song-randomizer/song-randomizer";
+import { Dialog } from '@angular/cdk/dialog';
+import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
 
 @Component({
   selector: 'app-tier-lists-page',
-  imports: [SongCard, Filters, SongRandomizer],
+  imports: [SongCard, Filters],
   templateUrl: './tier-lists-page.html',
 })
 export class TierListsPage {
   localStorageService = inject(LocalStorageService);
   piuScoresService = inject(PiuscoresService);
+  dialog = inject(Dialog);
 
   private songTypesFilter = signal<boolean[]>([]);
   private stagePassFilter = signal<boolean | null>(null);
@@ -24,6 +26,7 @@ export class TierListsPage {
   private songName = signal<string>('');
 
   isLoadingTierList = signal<boolean>(false);
+  lastFilter = computed<SearchFilters>(() => this.localStorageService.lastFilter());
   filteredTierList = computed<TierListWithScore[]>(() => this.getFilteredTierList());
   tierListByCategories = computed<CategoryCharts[]>(() => this.getTierListByCategories());
 
@@ -99,6 +102,17 @@ export class TierListsPage {
         chart: item.chart,
         score: item.score,
       }));
+  }
+
+  openRandomizerDialog(category?: string) {
+    this.dialog.open<SongRandomizerDialogData>(SongRandomizerDialog, {
+      data: {
+        chartScoreList: this.getTierListForRandomizer(category),
+        category: category,
+        lastFilter: this.lastFilter()
+      },
+      backdropClass: 'bg-base-100/90'
+    });
   }
 
   private getTierListByCategories(): CategoryCharts[] {
