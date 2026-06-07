@@ -2,6 +2,8 @@
   (stagePassFilter)="searchByStagePass($event)" (savedFilter)="searchSavedFilter($event)"
   (songNameFilter)="searchBySongName($event)" />
 
+<song-randomizer [chartScoreList]="getTierListForRandomizer()" />
+
 <div class="divider"></div>
 
 @if(isLoadingTierList()){
@@ -14,8 +16,16 @@
 
 @if (tierListByCategory.charts.length > 0) {
 
-<h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
-<div class="grid grid-cols-2 gap-2 mt-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+<div class="flex justify-between items-center">
+
+  <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
+
+  <song-randomizer [chartScoreList]="getTierListForRandomizer(tierListByCategory.category)"
+    [category]="tierListByCategory.category" dropDownExtraClasses="dropdown-bottom dropdown-end" />
+
+</div>
+
+<div class="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
 
   @for (chartScore of tierListByCategory.charts; track chartScore.chart.id) {
 

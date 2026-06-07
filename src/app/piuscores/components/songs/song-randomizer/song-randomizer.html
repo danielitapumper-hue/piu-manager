@@ -1,0 +1,15 @@
+<div class="dropdown" [class]="dropDownExtraClasses()">
+  <button class="btn btn-primary btn-outline" (click)="randomizeChart()">
+    Random
+    @if(category()) {
+    ({{ category() }})
+    }
+  </button>
+  <div tabindex="0" class="dropdown-content card card-sm border-primary border-2 bg-base-100 z-1 w-64 shadow-md">
+    <div class="card-body">
+      @if(randomChart()){
+      <img [src]="randomChart()!.chart.song.imagePath" [alt]="randomChart()!.chart.song.name" />
+      }
+    </div>
+  </div>
+</div>

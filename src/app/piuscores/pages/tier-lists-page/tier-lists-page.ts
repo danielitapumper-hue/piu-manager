@@ -7,10 +7,11 @@ import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Filters } from '@piuscores/components/filters/filters';
+import { SongRandomizer } from "@piuscores/components/songs/song-randomizer/song-randomizer";
 
 @Component({
   selector: 'app-tier-lists-page',
-  imports: [SongCard, Filters],
+  imports: [SongCard, Filters, SongRandomizer],
   templateUrl: './tier-lists-page.html',
 })
 export class TierListsPage {
@@ -23,6 +24,7 @@ export class TierListsPage {
   private songName = signal<string>('');
 
   isLoadingTierList = signal<boolean>(false);
+  filteredTierList = computed<TierListWithScore[]>(() => this.getFilteredTierList());
   tierListByCategories = computed<CategoryCharts[]>(() => this.getTierListByCategories());
 
   ngOnInit() {
@@ -90,17 +92,25 @@ export class TierListsPage {
     );
   }
 
+  getTierListForRandomizer(category?: string) {
+    return category
+      ? this.tierListByCategories().find(item => item.category === category)?.charts ?? []
+      : this.filteredTierList().map(item => ({
+        chart: item.chart,
+        score: item.score,
+      }));
+  }
+
   private getTierListByCategories(): CategoryCharts[] {
     if (this.tierList().length === 0)
       return [];
 
     const tierListByCategories: CategoryCharts[] = [];
-    const filteredTierList = this.getFilteredTierList();
 
     for (const category of this.piuScoresService.categories) {
       tierListByCategories.push({
         category: category.val,
-        charts: this.getTierListByCategory(category.key, filteredTierList)
+        charts: this.getTierListByCategory(category.key)
       });
     }
 
@@ -116,8 +126,8 @@ export class TierListsPage {
       (this.songName().length === 0 || item.chart.song.name.toLowerCase().includes(this.songName().toLowerCase())));
   }
 
-  private getTierListByCategory(category: string, filteredTierList: TierListWithScore[]): ChartScore[] {
-    return filteredTierList
+  private getTierListByCategory(category: string): ChartScore[] {
+    return this.filteredTierList()
       .filter(item => item.category === category)
       .map(item => {
         return {
