@@ -1,10 +1,13 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { PiuscoresService } from '../../services/piuscores-service';
 import { ChartType } from '../../interfaces/piuscores-services/piuscores-interfaces';
 import { Plate } from '../../interfaces/piuscores-services/phoenix-scores-response';
 import { ScoreRequest } from '../../interfaces/piuscores-services/score-request';
 import { Title } from "@piuscores/components/title/title";
+import { environment } from '../../../../environments/environment';
+import { deobfuscate } from '../../services/crypto-utils';
 
 interface ScanItem {
   id: string;
@@ -23,9 +26,11 @@ interface ScanItem {
 export class ScanScoresPage implements OnDestroy {
   private fb = inject(FormBuilder);
   private piuscoresService = inject(PiuscoresService);
+  private http = inject(HttpClient);
 
   scanItems = signal<ScanItem[]>([]);
   isDragOver = signal<boolean>(false);
+  private geminiApiKey = environment.geminiApiKey ? deobfuscate(environment.geminiApiKey) : '';
 
   chartTypeOptions = Object.values(ChartType);
   plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
@@ -33,6 +38,10 @@ export class ScanScoresPage implements OnDestroy {
   ngOnDestroy(): void {
     // Clean up all object URLs to prevent leaks
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
+  }
+
+  hasApiKey(): boolean {
+    return !!this.geminiApiKey;
   }
 
   onDragOver(event: DragEvent): void {
@@ -166,25 +175,134 @@ export class ScanScoresPage implements OnDestroy {
     }
   }
 
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
   private triggerScan(item: ScanItem): void {
     item.status = 'scanning';
+    this.scanItems.update(items => [...items]);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const parsed = this.parseFilename(item.file.name);
+    const key = this.geminiApiKey;
+    if (!key) {
+      // Fallback to simulation mode using filename parser
+      setTimeout(() => {
+        const parsed = this.parseFilename(item.file.name);
 
-      item.form.patchValue({
-        songName: parsed.songName,
-        chartType: parsed.chartType,
-        chartLevel: parsed.chartLevel,
-        score: parsed.score,
-        plate: parsed.plate ? this.plateOptions.find(opt => opt.value === parsed.plate)?.key : '',
-        isBroken: parsed.isBroken
+        item.form.patchValue({
+          songName: parsed.songName,
+          chartType: parsed.chartType,
+          chartLevel: parsed.chartLevel,
+          score: parsed.score,
+          plate: parsed.plate ? this.plateOptions.find(opt => opt.value === parsed.plate)?.key : '',
+          isBroken: parsed.isBroken
+        });
+
+        item.status = 'success';
+        this.scanItems.update(items => [...items]);
+      }, 1500);
+      return;
+    }
+
+    this.fileToBase64(item.file).then(base64Data => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              { text: this.getGeminiPrompt() },
+              {
+                inlineData: {
+                  mimeType: item.file.type,
+                  data: base64Data
+                }
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: 'application/json'
+        }
+      };
+
+      this.http.post<any>(url, payload).subscribe({
+        next: (response) => {
+          try {
+            const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!textResponse) {
+              throw new Error('No text response received from API');
+            }
+            const data = JSON.parse(textResponse);
+
+            // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
+            let plateKey = '';
+            if (data.plate) {
+              const matchedOption = this.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
+              if (matchedOption) {
+                plateKey = matchedOption.key;
+              }
+            }
+
+            item.form.patchValue({
+              songName: data.songName || 'Unknown Song',
+              chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
+              chartLevel: data.chartLevel || 10,
+              score: data.score !== undefined ? data.score : null,
+              plate: plateKey,
+              isBroken: data.isBroken === true
+            });
+            item.status = 'success';
+          } catch (err) {
+            item.status = 'error';
+            item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
+          }
+          this.scanItems.update(items => [...items]);
+        },
+        error: (err) => {
+          item.status = 'error';
+          item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
+          this.scanItems.update(items => [...items]);
+        }
       });
-
-      item.status = 'success';
+    }).catch(err => {
+      item.status = 'error';
+      item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
       this.scanItems.update(items => [...items]);
-    }, 1500);
+    });
+  }
+
+  private getGeminiPrompt(): string {
+    return `You are an expert OCR and data extraction agent for the arcade game Pump It Up (Phoenix version).
+Analyze the provided image containing a screenshot of the game results screen and extract the data to populate a ScoreRequest JSON object.
+
+Follow these rules strictly:
+1. **chartLevel**: Locate the tilted oval (inclined to the left, red or green). Extract the number in the center as an integer.
+2. **chartType**: Look at the text inside the tilted oval: "SINGLE" or "DOUBLE". Alternatively, if the oval is green, set to "Double". If the oval is red, set to "Single".
+3. **score**: Find the score number next to the oval (to the right or left). It is a number from 0 to 1000000 located right under the word "SCORE". Do NOT include the smaller number starting with a "+" located below/near it.
+4. **isBroken**: Locate the large letters representing the grade (e.g., SSS+, SS, A+, etc.). Look at their texture/color:
+   - If they are grey with a stone-like/cracked texture, set isBroken to true.
+   - If they are colored (e.g., yellow, orange, blue, red) or shiny silver without a cracked stone texture, set isBroken to false.
+5. **plate**: If isBroken is true, set plate to null. If isBroken is false, look right below the grade letters for a text that represents the plate. Map it to one of these exact string values: "Rough Game", "Fair Game", "Talented Game", "Marvelous Game", "Superb Game", "Extreme Game", "Ultimate Game", "Perfect Game". If none is found, set to null.
+6. **songName**: Extract the song title located right above the chart oval. It is written in white letters inside a semi-transparent blue box.
+
+Return ONLY a JSON object with this structure:
+{
+  "songName": string,
+  "chartType": "Single" | "Double",
+  "chartLevel": number,
+  "score": number,
+  "isBroken": boolean,
+  "plate": string | null
+}`;
   }
 
   private parseFilename(filename: string): {
