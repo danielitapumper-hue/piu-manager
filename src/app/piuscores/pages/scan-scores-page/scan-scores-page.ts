@@ -6,8 +6,6 @@ import { ChartType } from '../../interfaces/piuscores-services/piuscores-interfa
 import { Plate } from '../../interfaces/piuscores-services/phoenix-scores-response';
 import { ScoreRequest } from '../../interfaces/piuscores-services/score-request';
 import { Title } from "@piuscores/components/title/title";
-import { environment } from '../../../../environments/environment';
-import { deobfuscate } from '../../services/crypto-utils';
 
 interface ScanItem {
   id: string;
@@ -30,7 +28,7 @@ export class ScanScoresPage implements OnDestroy {
 
   scanItems = signal<ScanItem[]>([]);
   isDragOver = signal<boolean>(false);
-  private geminiApiKey = environment.geminiApiKey ? deobfuscate(environment.geminiApiKey) : '';
+  apiKey = signal<string>(localStorage.getItem('gemini_api_key') || '');
 
   chartTypeOptions = Object.values(ChartType);
   plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
@@ -40,8 +38,14 @@ export class ScanScoresPage implements OnDestroy {
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
   }
 
-  hasApiKey(): boolean {
-    return !!this.geminiApiKey;
+  saveApiKey(key: string): void {
+    const trimmed = key.trim();
+    this.apiKey.set(trimmed);
+    if (trimmed) {
+      localStorage.setItem('gemini_api_key', trimmed);
+    } else {
+      localStorage.removeItem('gemini_api_key');
+    }
   }
 
   onDragOver(event: DragEvent): void {
@@ -192,7 +196,7 @@ export class ScanScoresPage implements OnDestroy {
     item.status = 'scanning';
     this.scanItems.update(items => [...items]);
 
-    const key = this.geminiApiKey;
+    const key = this.apiKey();
     if (!key) {
       // Fallback to simulation mode using filename parser
       setTimeout(() => {
@@ -214,7 +218,7 @@ export class ScanScoresPage implements OnDestroy {
     }
 
     this.fileToBase64(item.file).then(base64Data => {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
       const payload = {
         contents: [
           {
