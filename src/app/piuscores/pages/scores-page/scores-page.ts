@@ -12,10 +12,11 @@ import { SearchFiltersForm } from "@piuscores/components/filters/search-filters-
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { Dialog } from '@angular/cdk/dialog';
 import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
+import { Title } from "@piuscores/components/title/title";
 
 @Component({
   selector: 'app-scores-page',
-  imports: [SavedFilters, ImageSrcPipe, DecimalPipe, SongTypesFilter, SongNameFilter, SearchFiltersForm],
+  imports: [SavedFilters, ImageSrcPipe, DecimalPipe, SongTypesFilter, SongNameFilter, SearchFiltersForm, Title],
   templateUrl: './scores-page.html',
 })
 export class ScoresPage {

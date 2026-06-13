@@ -1,47 +1,53 @@
-<app-filters (searchFilters)="search($event)" (songTypesFilter)="searchBySongTypes($event)"
-  (stagePassFilter)="searchByStagePass($event)" (savedFilter)="searchSavedFilter($event)"
-  (songNameFilter)="searchBySongName($event)" />
+<div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
+  <app-title [title]="'Tier Lists'" [subTitle]="'Vas a poder ver las canciones filtradas por nivel y tipo de chart, clasificadas según su dificultad.
+    Puedes agregar filtros por tipo de canción, nombre y stage pass (según tus scores cargados). Puedes guardar los filtros que más necesites.
+    También tienes la opción de elegir una canción al azar.'" />
 
-<button class="btn btn-primary btn-outline" (click)="openRandomizerDialog()">
-  Random
-</button>
+  <app-filters (searchFilters)="search($event)" (songTypesFilter)="searchBySongTypes($event)"
+    (stagePassFilter)="searchByStagePass($event)" (savedFilter)="searchSavedFilter($event)"
+    (songNameFilter)="searchBySongName($event)" />
 
-<div class="divider"></div>
-
-@if(isLoadingTierList()){
-<div class="flex justify-center">
-  <span class="loading loading-spinner text-primary"></span>
-</div>
-}
-
-@for (tierListByCategory of tierListByCategories(); track $index) {
-
-@if (tierListByCategory.charts.length > 0) {
-
-<div class="flex justify-between items-center">
-
-  <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
-
-  <button class="btn btn-primary btn-outline btn-sm" (click)="openRandomizerDialog(tierListByCategory.category)">
-    Random ({{ tierListByCategory.category }})
+  <button class="btn btn-primary btn-outline" (click)="openRandomizerDialog()">
+    Random
   </button>
 
-</div>
+  <div class="divider"></div>
 
-<div class="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+  @if(isLoadingTierList()){
+  <div class="flex justify-center">
+    <span class="loading loading-spinner text-primary"></span>
+  </div>
+  }
 
-  @for (chartScore of tierListByCategory.charts; track chartScore.chart.id) {
+  @for (tierListByCategory of tierListByCategories(); track $index) {
 
-  <song-card [chartScore]="chartScore" (chartScoreUpdated)="handleChartScoreUpdated($event)" />
+  @if (tierListByCategory.charts.length > 0) {
+
+  <div class="flex justify-between items-center">
+
+    <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
+
+    <button class="btn btn-primary btn-outline btn-sm" (click)="openRandomizerDialog(tierListByCategory.category)">
+      Random ({{ tierListByCategory.category }})
+    </button>
+
+  </div>
+
+  <div class="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+
+    @for (chartScore of tierListByCategory.charts; track chartScore.chart.id) {
+
+    <song-card [chartScore]="chartScore" (chartScoreUpdated)="handleChartScoreUpdated($event)" />
+
+    }
+
+  </div>
+  <div class="divider"></div>
 
   }
 
+  }
+  @empty {
+  <h2>No hay datos. Utiliza los filtros de búsqueda para obtener la lista.</h2>
+  }
 </div>
-<div class="divider"></div>
-
-}
-
-}
-@empty {
-<h2>No hay datos. Utiliza los filtros de búsqueda para obtener la lista.</h2>
-}

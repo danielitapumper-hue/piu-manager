@@ -9,10 +9,11 @@ import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Filters } from '@piuscores/components/filters/filters';
 import { Dialog } from '@angular/cdk/dialog';
 import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
+import { Title } from "@piuscores/components/title/title";
 
 @Component({
   selector: 'app-tier-lists-page',
-  imports: [SongCard, Filters],
+  imports: [SongCard, Filters, Title],
   templateUrl: './tier-lists-page.html',
 })
 export class TierListsPage {

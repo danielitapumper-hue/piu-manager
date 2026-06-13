@@ -1,34 +1,39 @@
-<song-name-filter (songNameFilter)="searchBySongName($event)" />
+<div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
+  <app-title [title]="'Historial de Scores'"
+    [subTitle]="'Puedes ver el historial de tus scores cargados, ordenados desde el más nuevo al más antiguo. También puedes filtrar por nombre de la canción.'" />
 
-<div class="flex justify-between items-end">
-  <select class="select select-primary w-20" [value]="scoresPerPage()"
-    (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
-    <option value="10">10</option>
-    <option value="20">20</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-  </select>
-  <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
-    (activePage)="currentPage.set($event)" />
-</div>
+  <song-name-filter (songNameFilter)="searchBySongName($event)" />
 
-@if (scoresResource.isLoading()) {
-<div class="flex justify-center mt-4">
-  <span class="loading loading-spinner text-primary"></span>
-</div>
-}
-@else {
-<scores-table [scores]="pagedScores()" />
-}
+  <div class="flex justify-between items-end">
+    <select class="select select-primary w-20" [value]="scoresPerPage()"
+      (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+    <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
+      (activePage)="currentPage.set($event)" />
+  </div>
 
-<div class="flex justify-between items-end mt-4">
-  <select class="select select-primary w-20" [value]="scoresPerPage()"
-    (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
-    <option value="10">10</option>
-    <option value="20">20</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-  </select>
-  <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
-    (activePage)="currentPage.set($event)" />
+  @if (scoresResource.isLoading()) {
+  <div class="flex justify-center mt-4">
+    <span class="loading loading-spinner text-primary"></span>
+  </div>
+  }
+  @else {
+  <scores-table [scores]="pagedScores()" />
+  }
+
+  <div class="flex justify-between items-end mt-4">
+    <select class="select select-primary w-20" [value]="scoresPerPage()"
+      (change)="scoresPerPage.set(+selectPerPage.value)" #selectPerPage>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+    <app-pagination [totalPages]="totalPagesSignal()" [currentPage]="currentPage()"
+      (activePage)="currentPage.set($event)" />
+  </div>
 </div>

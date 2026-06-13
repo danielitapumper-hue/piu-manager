@@ -4,10 +4,11 @@ import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Pagination } from "@piuscores/components/pagination/pagination";
 import { SongNameFilter } from "@piuscores/components/filters/song-name-filter/song-name-filter";
+import { Title } from "@piuscores/components/title/title";
 
 @Component({
   selector: 'app-scores-history-page',
-  imports: [ScoresTable, Pagination, SongNameFilter],
+  imports: [ScoresTable, Pagination, SongNameFilter, Title],
   templateUrl: './scores-history-page.html',
 })
 export class ScoresHistoryPage {
