@@ -4,11 +4,11 @@
     <button type="button" class="btn btn-error flex-1" [class]="{
       'btn-outline':tierListForm.value.chartType!=='Single',
       'text-white':tierListForm.value.chartType==='Single'
-    }" (click)="tierListForm.patchValue({chartType:'Single'})">Single</button>
+    }" (click)="tierListForm.get('chartType')?.setValue('Single')">Single</button>
     <button type="button" class="btn btn-success flex-1" [class]="{
       'btn-outline':tierListForm.value.chartType!=='Double',
       'text-white':tierListForm.value.chartType==='Double'
-    }" (click)="tierListForm.patchValue({chartType:'Double'})">Double</button>
+    }" (click)="tierListForm.get('chartType')?.setValue('Double')">Double</button>
   </div>
 
   <div class="flex justify-center mt-2">
@@ -18,11 +18,11 @@
   <div class="flex gap-1 mt-2">
 
     <button type="submit" class="btn btn-primary btn-outline flex-1"
-      (click)="tierListForm.patchValue({saveFilter: false})">
+      (click)="tierListForm.get('saveFilter')?.setValue(false)">
       Buscar
     </button>
 
-    <button type="submit" class="btn btn-primary flex-1" (click)="tierListForm.patchValue({saveFilter: true})">
+    <button type="submit" class="btn btn-primary flex-1" (click)="tierListForm.get('saveFilter')?.setValue(true)">
       Buscar y guardar
     </button>
 

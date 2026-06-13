@@ -38,8 +38,6 @@ export class SearchFiltersForm {
     }, { emitEvent: false });
   });
 
-
-
   private emitSearchFilters() {
     if (this.tierListForm.invalid)
       return;

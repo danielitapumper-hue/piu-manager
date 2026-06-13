@@ -1,14 +1,9 @@
 <form class="flex flex-col gap-2 items-start" [formGroup]="scoreForm" (ngSubmit)="formSubmit()">
   <div class="w-full">
-    <input type="number" placeholder="Score" class="input input-primary w-full" formControlName="score" />
+    <input type="number" placeholder="Score" class="input input-primary w-full" formControlName="score"
+      (keydown)="onKeyDown($event)" (input)="onScoreInput(inputScore.value)" #inputScore />
     @if (submitted && scoreForm.get('score')?.hasError('required')) {
     <p class="text-error text-sm mt-1">El score es obligatorio.</p>
-    }
-    @if (submitted && scoreForm.get('score')?.hasError('min')) {
-    <p class="text-error text-sm mt-1">El score no puede ser menor a 0.</p>
-    }
-    @if (submitted && scoreForm.get('score')?.hasError('max')) {
-    <p class="text-error text-sm mt-1">El score no puede superar 1,000,000.</p>
     }
   </div>
 

@@ -20,16 +20,33 @@ export class ScoreForm implements OnInit {
 
   isLoading = signal<boolean>(false);
 
+  private readonly maxScore: number = 1_000_000;
+
   submitted = false;
   plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
   scoreForm!: ReturnType<FormBuilder['group']>;
+  previousScoreValue = '';
 
   ngOnInit(): void {
     this.scoreForm = this.buildForm();
+    this.previousScoreValue = this.chartScore().score?.score?.toString() ?? '';
+
     this.scoreForm.get('isBroken')!.valueChanges
       .subscribe((isBroken) => {
         if (isBroken)
-          this.scoreForm.patchValue({ plate: '' });
+          this.scoreForm.get('plate')?.setValue('');
+      });
+
+    this.scoreForm.get('plate')!.valueChanges
+      .subscribe((plateKey) => {
+        if (plateKey) {
+          const perfectGameKey = this.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
+          if (plateKey === perfectGameKey) {
+            this.scoreForm.get('score')?.setValue(this.maxScore);
+            this.previousScoreValue = this.maxScore.toString();
+          }
+          this.scoreForm.get('isBroken')?.setValue(false);
+        }
       });
   }
 
@@ -66,9 +83,32 @@ export class ScoreForm implements OnInit {
     });
   }
 
+  onKeyDown(event: KeyboardEvent) {
+    if (['+', '-', 'e', 'E', '.', ','].includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onScoreInput(value: string) {
+    if (value === '') {
+      this.previousScoreValue = '';
+      return;
+    }
+
+    const numVal = Number(value);
+    if (numVal > this.maxScore) {
+      this.scoreForm.get('score')?.setValue(this.previousScoreValue);
+      return;
+    }
+
+    const sanitizedVal = numVal.toString();
+    this.scoreForm.get('score')?.setValue(sanitizedVal);
+    this.previousScoreValue = sanitizedVal;
+  }
+
   private buildForm() {
     return this.fb.group({
-      score: [this.chartScore().score?.score ?? null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
+      score: [this.chartScore().score?.score ?? null, [Validators.required, Validators.min(0), Validators.max(this.maxScore)]],
       plate: [this.chartScore().score?.plate ? this.plateOptions.find(item => item.value === this.chartScore().score?.plate)?.key : ''],
       isBroken: [this.chartScore().score ? this.chartScore().score!.isBroken : true]
     }, {
@@ -88,35 +128,35 @@ export class ScoreForm implements OnInit {
   }
 
   private getLetterGradeByScore(score: number): string {
-    if (score >= 995000)
+    if (score >= 995_000)
       return 'SSS+';
-    if (score >= 990000)
+    if (score >= 990_000)
       return 'SSS';
-    if (score >= 985000)
+    if (score >= 985_000)
       return 'SS+';
-    if (score >= 980000)
+    if (score >= 980_000)
       return 'SS';
-    if (score >= 975000)
+    if (score >= 975_000)
       return 'S+';
-    if (score >= 970000)
+    if (score >= 970_000)
       return 'S';
-    if (score >= 960000)
+    if (score >= 960_000)
       return 'AAA+';
-    if (score >= 950000)
+    if (score >= 950_000)
       return 'AAA';
-    if (score >= 925000)
+    if (score >= 925_000)
       return 'AA+';
-    if (score >= 900000)
+    if (score >= 900_000)
       return 'AA';
-    if (score >= 825000)
+    if (score >= 825_000)
       return 'A+';
-    if (score >= 750000)
+    if (score >= 750_000)
       return 'A';
-    if (score >= 700000)
+    if (score >= 700_000)
       return 'B';
-    if (score >= 600000)
+    if (score >= 600_000)
       return 'C';
-    if (score >= 450000)
+    if (score >= 450_000)
       return 'D';
     return 'F';
   }
