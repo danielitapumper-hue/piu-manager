@@ -4,6 +4,7 @@ import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 
 const LOCAL_STORAGE_SAVED_FILTERS_KEY = 'savedFilters';
 const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
+const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
 export class LocalStorageService {
   lastFilter = signal<SearchFilters>(this.getLastFilter());
   savedFilters = signal<Map<string, TierListWithScore[]>>(this.getSavedFiltersFromLocalStorage());
+  geminiApiKey = signal<string>(this.getLocalStorageGeminiApiKey());
 
   /* GET */
   getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListWithScore[] {
@@ -55,6 +57,11 @@ export class LocalStorageService {
   setLocalStorageLastStagePassFilter(stagePass: boolean | null) {
     this.lastFilter.update(currentValue => ({ ...currentValue, stagePass: stagePass }));
     localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
+  }
+
+  setLocalStorageGeminiApiKey(key: string) {
+    this.geminiApiKey.set(key);
+    localStorage.setItem(LOCAL_STORAGE_GEMINI_API_KEY, key);
   }
 
   /* DELETE */
@@ -139,6 +146,10 @@ export class LocalStorageService {
   private getLastFilter(): SearchFilters {
     const lastFilter = localStorage.getItem(LOCAL_STORAGE_LAST_FILTER_KEY);
     return this.filterStringToSearchFilter(lastFilter);
+  }
+
+  private getLocalStorageGeminiApiKey() {
+    return localStorage.getItem(LOCAL_STORAGE_GEMINI_API_KEY) ?? '';
   }
 
   /**

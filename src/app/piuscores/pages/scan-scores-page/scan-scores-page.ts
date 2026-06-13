@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnDestroy, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { PiuscoresService } from '../../services/piuscores-service';
@@ -6,6 +6,7 @@ import { ChartType } from '../../interfaces/piuscores-services/piuscores-interfa
 import { Plate } from '../../interfaces/piuscores-services/phoenix-scores-response';
 import { ScoreRequest } from '../../interfaces/piuscores-services/score-request';
 import { Title } from "@piuscores/components/title/title";
+import { LocalStorageService } from '@piuscores/services/local-storage-service';
 
 interface ScanItem {
   id: string;
@@ -24,11 +25,12 @@ interface ScanItem {
 export class ScanScoresPage implements OnDestroy {
   private fb = inject(FormBuilder);
   private piuscoresService = inject(PiuscoresService);
+  private localStorageService = inject(LocalStorageService);
   private http = inject(HttpClient);
 
   scanItems = signal<ScanItem[]>([]);
   isDragOver = signal<boolean>(false);
-  apiKey = signal<string>(localStorage.getItem('gemini_api_key') || '');
+  geminiApiKey = computed<string>(() => this.localStorageService.geminiApiKey());
 
   chartTypeOptions = Object.values(ChartType);
   plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
@@ -39,13 +41,7 @@ export class ScanScoresPage implements OnDestroy {
   }
 
   saveApiKey(key: string): void {
-    const trimmed = key.trim();
-    this.apiKey.set(trimmed);
-    if (trimmed) {
-      localStorage.setItem('gemini_api_key', trimmed);
-    } else {
-      localStorage.removeItem('gemini_api_key');
-    }
+    this.localStorageService.setLocalStorageGeminiApiKey(key.trim());
   }
 
   onDragOver(event: DragEvent): void {
@@ -196,7 +192,7 @@ export class ScanScoresPage implements OnDestroy {
     item.status = 'scanning';
     this.scanItems.update(items => [...items]);
 
-    const key = this.apiKey();
+    const key = this.geminiApiKey();
     if (!key) {
       // Fallback to simulation mode using filename parser
       setTimeout(() => {
