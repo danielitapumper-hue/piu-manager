@@ -1,5 +1,5 @@
 import { Router, type CanMatchFn } from '@angular/router';
-import { AuthService } from '../services/auth-service';
+import { AuthService } from '@auth/services/auth-service';
 import { inject } from '@angular/core';
 
 export const notAuthenticatedGuard: CanMatchFn = (route, segments) => {

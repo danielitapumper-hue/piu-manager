@@ -1,10 +1,10 @@
 import { Component, inject, signal, OnDestroy, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { PiuscoresService } from '../../services/piuscores-service';
-import { ChartType } from '../../interfaces/piuscores-services/piuscores-interfaces';
-import { Plate } from '../../interfaces/piuscores-services/phoenix-scores-response';
-import { ScoreRequest } from '../../interfaces/piuscores-services/score-request';
+import { PiuscoresService } from '@piuscores/services/piuscores-service';
+import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
+import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
+import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Title } from "@piuscores/components/title/title";
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
 

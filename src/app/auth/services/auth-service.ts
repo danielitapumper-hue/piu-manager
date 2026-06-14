@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { PiuscoresService } from '../../piuscores/services/piuscores-service';
+import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 
