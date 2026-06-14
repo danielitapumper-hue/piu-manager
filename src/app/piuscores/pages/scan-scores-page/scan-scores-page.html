@@ -4,9 +4,9 @@
 
   <gemini-api-key-config />
 
+  @if(geminiApiKey()) {
   <upload-images (files)="processFiles($event)" />
 
-  @if(files()) {
-  <process-images [files]="files()!" />
+  <process-images [files]="filesList()" />
   }
 </div>
