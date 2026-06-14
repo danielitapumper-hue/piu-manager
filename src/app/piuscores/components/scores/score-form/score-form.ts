@@ -1,10 +1,11 @@
 import { Component, inject, input, OnInit, output, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Score } from '@piuscores/interfaces/score';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 @Component({
   selector: 'score-form',
@@ -20,12 +21,10 @@ export class ScoreForm implements OnInit {
 
   isLoading = signal<boolean>(false);
 
-  private readonly maxScore: number = 1_000_000;
-
   submitted = false;
-  plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
   scoreForm!: ReturnType<FormBuilder['group']>;
   previousScoreValue = '';
+  plateOptions = PiuSongsUtils.plateOptions;
 
   ngOnInit(): void {
     this.scoreForm = this.buildForm();
@@ -40,10 +39,10 @@ export class ScoreForm implements OnInit {
     this.scoreForm.get('plate')!.valueChanges
       .subscribe((plateKey) => {
         if (plateKey) {
-          const perfectGameKey = this.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
+          const perfectGameKey = PiuSongsUtils.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
           if (plateKey === perfectGameKey) {
-            this.scoreForm.get('score')?.setValue(this.maxScore);
-            this.previousScoreValue = this.maxScore.toString();
+            this.scoreForm.get('score')?.setValue(PiuSongsUtils.maxScore);
+            this.previousScoreValue = PiuSongsUtils.maxScore.toString();
           }
           this.scoreForm.get('isBroken')?.setValue(false);
         }
@@ -74,7 +73,7 @@ export class ScoreForm implements OnInit {
           ...this.chartScore().score,
           letterGrade: this.getLetterGradeByScore(scoreRequest.score),
           score: scoreRequest.score,
-          plate: this.plateOptions.find(item => item.key === scoreRequest.plate)?.value ?? null,
+          plate: PiuSongsUtils.plateOptions.find(item => item.key === scoreRequest.plate)?.value ?? null,
           isBroken: scoreRequest.isBroken == true,
         } : undefined;
 
@@ -96,7 +95,7 @@ export class ScoreForm implements OnInit {
     }
 
     const numVal = Number(value);
-    if (numVal > this.maxScore) {
+    if (numVal > PiuSongsUtils.maxScore) {
       this.scoreForm.get('score')?.setValue(this.previousScoreValue);
       return;
     }
@@ -108,23 +107,12 @@ export class ScoreForm implements OnInit {
 
   private buildForm() {
     return this.fb.group({
-      score: [this.chartScore().score?.score ?? null, [Validators.required, Validators.min(0), Validators.max(this.maxScore)]],
-      plate: [this.chartScore().score?.plate ? this.plateOptions.find(item => item.value === this.chartScore().score?.plate)?.key : ''],
+      score: [this.chartScore().score?.score ?? null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
+      plate: [this.chartScore().score?.plate ? PiuSongsUtils.plateOptions.find(item => item.value === this.chartScore().score?.plate)?.key : ''],
       isBroken: [this.chartScore().score ? this.chartScore().score!.isBroken : true]
     }, {
-      validators: [this.plateRequiredWhenBrokenValidator]
+      validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
     });
-  }
-
-  private plateRequiredWhenBrokenValidator(group: AbstractControl): ValidationErrors | null {
-    const isBroken = group.get('isBroken')?.value;
-    const plate = group.get('plate')?.value;
-
-    if (isBroken === false && !plate) {
-      return { plateRequired: true };
-    }
-
-    return null;
   }
 
   private getLetterGradeByScore(score: number): string {

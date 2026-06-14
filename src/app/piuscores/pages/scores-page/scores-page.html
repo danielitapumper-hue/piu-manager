@@ -1,6 +1,6 @@
 <div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
-  <app-title [title]="'Mis Scores'" [subTitle]="'Vas a poder ver tus scores filtrados por nivel y tipo de chart, ordenados según la calificación.
-      Puedes guardar los filtros que más necesites.'" />
+  <app-title [title]="'Mis Scores'"
+    [subTitle]="'Vas a poder ver tus scores filtrados por nivel y tipo de chart, ordenados según la calificación. Puedes guardar los filtros que más necesites.'" />
 
   <saved-filters (filter)="searchSavedFilter($event)" />
 

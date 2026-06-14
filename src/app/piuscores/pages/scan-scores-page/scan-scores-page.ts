@@ -7,6 +7,9 @@ import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-r
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Title } from "@piuscores/components/title/title";
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
+import { GeminiApiKeyConfig } from "@piuscores/components/gemini-api-key/gemini-api-key-config/gemini-api-key-config";
+import { UploadImages } from "@piuscores/components/images/upload-images/upload-images";
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 interface ScanItem {
   id: string;
@@ -19,7 +22,7 @@ interface ScanItem {
 
 @Component({
   selector: 'app-scan-scores-page',
-  imports: [ReactiveFormsModule, Title],
+  imports: [ReactiveFormsModule, Title, GeminiApiKeyConfig, UploadImages],
   templateUrl: './scan-scores-page.html',
 })
 export class ScanScoresPage implements OnDestroy {
@@ -29,44 +32,14 @@ export class ScanScoresPage implements OnDestroy {
   private http = inject(HttpClient);
 
   scanItems = signal<ScanItem[]>([]);
-  isDragOver = signal<boolean>(false);
   geminiApiKey = computed<string>(() => this.localStorageService.geminiApiKey());
 
-  chartTypeOptions = Object.values(ChartType);
-  plateOptions = Object.entries(Plate).map(([key, value]) => ({ key, value }));
+  chartTypes = PiuSongsUtils.chartTypes;
+  plateOptions = PiuSongsUtils.plateOptions;
 
   ngOnDestroy(): void {
     // Clean up all object URLs to prevent leaks
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
-  }
-
-  saveApiKey(key: string): void {
-    this.localStorageService.setLocalStorageGeminiApiKey(key.trim());
-  }
-
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver.set(true);
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver.set(false);
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver.set(false);
-    if (event.dataTransfer?.files) {
-      this.processFiles(event.dataTransfer.files);
-    }
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      this.processFiles(input.files);
-    }
   }
 
   saveItem(item: ScanItem): void {
@@ -124,7 +97,7 @@ export class ScanScoresPage implements OnDestroy {
     this.scanItems.set([]);
   }
 
-  private processFiles(files: FileList): void {
+  processFiles(files: FileList): void {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file.type.startsWith('image/')) {
@@ -137,12 +110,16 @@ export class ScanScoresPage implements OnDestroy {
       const form = this.fb.group({
         songName: ['', Validators.required],
         chartType: [ChartType.Single, Validators.required],
-        chartLevel: [10, [Validators.required, Validators.min(1), Validators.max(29)]],
-        score: [null as number | null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
+        chartLevel: [PiuSongsUtils.minLevel, [
+          Validators.required,
+          Validators.min(PiuSongsUtils.minLevel),
+          Validators.max(PiuSongsUtils.maxLevel)
+        ]],
+        score: [null as number | null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
         plate: [''],
         isBroken: [false]
       }, {
-        validators: [this.plateRequiredWhenBrokenValidator]
+        validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
       });
 
       // Listen for isBroken and plate changes, just like in score-form
@@ -156,7 +133,7 @@ export class ScanScoresPage implements OnDestroy {
         if (plateKey) {
           const perfectGameKey = this.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
           if (plateKey === perfectGameKey) {
-            form.get('score')?.setValue(1000000);
+            form.get('score')?.setValue(PiuSongsUtils.maxScore);
           }
           form.get('isBroken')?.setValue(false);
         }
@@ -399,16 +376,5 @@ Return ONLY a JSON object with this structure:
     }
 
     return result;
-  }
-
-  private plateRequiredWhenBrokenValidator(group: AbstractControl): ValidationErrors | null {
-    const isBroken = group.get('isBroken')?.value;
-    const plate = group.get('plate')?.value;
-
-    if (isBroken === false && !plate) {
-      return { plateRequired: true };
-    }
-
-    return null;
   }
 }

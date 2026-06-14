@@ -2,6 +2,7 @@ import { Component, effect, inject, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 @Component({
   selector: 'search-filters-form',
@@ -21,7 +22,7 @@ export class SearchFiltersForm {
     ],
     level: [
       this.localStorageService.lastFilter().level,
-      [Validators.required, Validators.min(1), Validators.max(29)]
+      [Validators.required, Validators.min(PiuSongsUtils.minLevel), Validators.max(PiuSongsUtils.maxLevel)]
     ],
     saveFilter: [false]
   });

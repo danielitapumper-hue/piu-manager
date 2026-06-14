@@ -2,8 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
-import { Category, ChartType, SongType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
-import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
+import { PhoenixScoresResponse, Plate, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
@@ -15,10 +14,6 @@ const API_URL = 'https://piuscores.arroweclip.se/api';
 })
 export class PiuscoresService {
   private http = inject(HttpClient);
-
-  chartTypes = Object.values(ChartType);
-  songTypes = Object.values(SongType);
-  categories = Object.entries(Category).map(([key, val]) => ({ key, val }));
 
   /* GET */
   getTierListByScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {

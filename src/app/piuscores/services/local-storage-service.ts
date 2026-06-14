@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 

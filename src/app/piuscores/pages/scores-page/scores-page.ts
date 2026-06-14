@@ -13,6 +13,7 @@ import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { Dialog } from '@angular/cdk/dialog';
 import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
 import { Title } from "@piuscores/components/title/title";
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 @Component({
   selector: 'app-scores-page',
@@ -140,7 +141,7 @@ export class ScoresPage {
   }
 
   private getFilteredScoresList(): ChartScore[] {
-    const songTypesFilter = this.piuScoresService.songTypes.filter((_, i) => this.songTypesFilter()[i]);
+    const songTypesFilter = PiuSongsUtils.songTypes.filter((_, i) => this.songTypesFilter()[i]);
     return this.scoresList().filter(item => item.score &&
       songTypesFilter.includes(item.chart.song.type) &&
       (!this.songName() || item.chart.song.name.toLowerCase().includes(this.songName().toLowerCase())));
