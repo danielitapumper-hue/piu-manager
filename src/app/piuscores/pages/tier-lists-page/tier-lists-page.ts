@@ -138,7 +138,7 @@ export class TierListsPage {
   }
 
   private getFilteredTierList(): TierListWithScore[] {
-    const songTypesFilter = PiuSongsUtils.songTypes.filter((_, i) => this.songTypesFilter()[i]);
+    const songTypesFilter = PiuSongsUtils.getSongTypesFilter(this.songTypesFilter());
     return this.tierList().filter(item => songTypesFilter.includes(item.chart.song.type) &&
       (this.stagePassFilter() && item.score && !item.score.isBroken ||
         this.stagePassFilter() === false && (!item.score || item.score.isBroken) ||

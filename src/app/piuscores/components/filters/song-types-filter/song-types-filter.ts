@@ -1,6 +1,7 @@
 import { Component, effect, inject, output, signal } from '@angular/core';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 @Component({
   selector: 'song-types-filter',
@@ -12,6 +13,8 @@ export class SongTypesFilter {
 
   songTypesFilter = output<boolean[]>();
   songTypesValue = signal<boolean[]>(this.localStorageService.lastFilter().songTypes);
+
+  readonly songTypes = PiuSongsUtils.songTypes;
 
   changeFilterEffect = effect(() => {
     const lastFilter = this.localStorageService.lastFilter();

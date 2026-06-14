@@ -1,6 +1,6 @@
 <div class="flex gap-2 justify-center">
 
-  @for (songType of piuScoresService.songTypes; track songType; let i = $index) {
+  @for (songType of songTypes; track songType; let i = $index) {
 
   <label class="cursor-pointer flex-1">
     <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" [checked]="songTypesValue()[i]"

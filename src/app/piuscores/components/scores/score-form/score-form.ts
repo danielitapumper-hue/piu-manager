@@ -13,18 +13,18 @@ import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
   templateUrl: './score-form.html',
 })
 export class ScoreForm implements OnInit {
-  chartScore = input.required<ChartScore>();
-  scoreSaved = output<Score | undefined>();
-
   fb = inject(FormBuilder);
   piuscoresService = inject(PiuscoresService);
+
+  chartScore = input.required<ChartScore>();
+  scoreSaved = output<Score | undefined>();
 
   isLoading = signal<boolean>(false);
 
   submitted = false;
   scoreForm!: ReturnType<FormBuilder['group']>;
   previousScoreValue = '';
-  plateOptions = PiuSongsUtils.plateOptions;
+  readonly plateOptions = PiuSongsUtils.plateOptions;
 
   ngOnInit(): void {
     this.scoreForm = this.buildForm();
@@ -39,8 +39,7 @@ export class ScoreForm implements OnInit {
     this.scoreForm.get('plate')!.valueChanges
       .subscribe((plateKey) => {
         if (plateKey) {
-          const perfectGameKey = PiuSongsUtils.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
-          if (plateKey === perfectGameKey) {
+          if (plateKey === PiuSongsUtils.perfectGameKey) {
             this.scoreForm.get('score')?.setValue(PiuSongsUtils.maxScore);
             this.previousScoreValue = PiuSongsUtils.maxScore.toString();
           }
@@ -73,7 +72,7 @@ export class ScoreForm implements OnInit {
           ...this.chartScore().score,
           letterGrade: this.getLetterGradeByScore(scoreRequest.score),
           score: scoreRequest.score,
-          plate: PiuSongsUtils.plateOptions.find(item => item.key === scoreRequest.plate)?.value ?? null,
+          plate: PiuSongsUtils.getPlateValue(scoreRequest.plate) ?? null,
           isBroken: scoreRequest.isBroken == true,
         } : undefined;
 
@@ -107,8 +106,11 @@ export class ScoreForm implements OnInit {
 
   private buildForm() {
     return this.fb.group({
-      score: [this.chartScore().score?.score ?? null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
-      plate: [this.chartScore().score?.plate ? PiuSongsUtils.plateOptions.find(item => item.value === this.chartScore().score?.plate)?.key : ''],
+      score: [
+        this.chartScore().score?.score ?? null,
+        [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]
+      ],
+      plate: [PiuSongsUtils.getPlateKey(this.chartScore().score?.plate) ?? ''],
       isBroken: [this.chartScore().score ? this.chartScore().score!.isBroken : true]
     }, {
       validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]

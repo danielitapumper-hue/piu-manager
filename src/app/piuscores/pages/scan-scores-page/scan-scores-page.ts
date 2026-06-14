@@ -34,8 +34,8 @@ export class ScanScoresPage implements OnDestroy {
   scanItems = signal<ScanItem[]>([]);
   geminiApiKey = computed<string>(() => this.localStorageService.geminiApiKey());
 
-  chartTypes = PiuSongsUtils.chartTypes;
-  plateOptions = PiuSongsUtils.plateOptions;
+  readonly chartTypes = PiuSongsUtils.chartTypes;
+  readonly plateOptions = PiuSongsUtils.plateOptions;
 
   ngOnDestroy(): void {
     // Clean up all object URLs to prevent leaks
