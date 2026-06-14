@@ -36,4 +36,38 @@ export class PiuSongsUtils {
 
     return null;
   }
+
+  static getLetterGradeByScore(score: number): string {
+    if (score >= 995_000)
+      return 'SSS+';
+    if (score >= 990_000)
+      return 'SSS';
+    if (score >= 985_000)
+      return 'SS+';
+    if (score >= 980_000)
+      return 'SS';
+    if (score >= 975_000)
+      return 'S+';
+    if (score >= 970_000)
+      return 'S';
+    if (score >= 960_000)
+      return 'AAA+';
+    if (score >= 950_000)
+      return 'AAA';
+    if (score >= 925_000)
+      return 'AA+';
+    if (score >= 900_000)
+      return 'AA';
+    if (score >= 825_000)
+      return 'A+';
+    if (score >= 750_000)
+      return 'A';
+    if (score >= 700_000)
+      return 'B';
+    if (score >= 600_000)
+      return 'C';
+    if (score >= 450_000)
+      return 'D';
+    return 'F';
+  }
 }
