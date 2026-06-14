@@ -140,6 +140,7 @@ export class ProcessImages {
 
       this.scanItems.update(items => [...items, newItem]);
       const item = this.processImagesService.triggerScan(newItem);
+      // console.log({ item });
       if (item) {
         newItem = item;
         this.scanItems.update(items => [...items]);

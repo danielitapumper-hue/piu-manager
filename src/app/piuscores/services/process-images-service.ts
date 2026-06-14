@@ -50,47 +50,57 @@ export class ProcessImagesService {
         }
       };
 
+      console.log('VAMOS A HACER EL POST');
       this.http.post<any>(url, payload).subscribe({
         next: (response) => {
-          try {
-            const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!textResponse) {
-              throw new Error('No text response received from API');
-            }
-            const data = JSON.parse(textResponse);
-
-            // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
-            let plateKey = '';
-            if (data.plate) {
-              const matchedOption = PiuSongsUtils.getPlateKey(data.plate); //PiuSongsUtils.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
-              if (matchedOption) {
-                plateKey = matchedOption;
-              }
-            }
-
-            item.form.patchValue({
-              songName: data.songName || 'Unknown Song',
-              chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
-              chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
-              score: data.score ?? null,
-              plate: plateKey,
-              isBroken: data.isBroken === true
-            });
-            item.status = 'success';
-          } catch (err) {
-            item.status = 'error';
-            item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
-          }
+          return this.processScanResponse(response, item);
         },
         error: (err) => {
+          // console.log({ error: 'ERROR1', err });
           item.status = 'error';
           item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
         }
       });
     }).catch(err => {
+      // console.log({ error: 'ERROR2', err });
       item.status = 'error';
       item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
     });
+
+    return item;
+  }
+
+  private processScanResponse(response: any, item: ScanItem): ScanItem {
+    try {
+      const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textResponse) {
+        throw new Error('No text response received from API');
+      }
+      const data = JSON.parse(textResponse);
+
+      // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
+      let plateKey = '';
+      if (data.plate) {
+        const matchedOption = PiuSongsUtils.getPlateKey(data.plate); //PiuSongsUtils.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
+        if (matchedOption) {
+          plateKey = matchedOption;
+        }
+      }
+
+      item.form.patchValue({
+        songName: data.songName || 'Unknown Song',
+        chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
+        chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
+        score: data.score ?? null,
+        plate: plateKey,
+        isBroken: data.isBroken === true
+      });
+      item.status = 'success';
+    } catch (err) {
+      // console.log({ error: 'ERROR3', err });
+      item.status = 'error';
+      item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
+    }
 
     return item;
   }
@@ -118,102 +128,6 @@ export class ProcessImagesService {
     "isBroken": boolean,
     "plate": string | null
   }`;
-  }
-
-  private parseFilename(filename: string): {
-    songName: string;
-    chartType: ChartType;
-    chartLevel: number;
-    score: number | null;
-    plate: string | null;
-    isBroken: boolean;
-  } {
-    const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.')) || filename;
-    const cleanName = nameWithoutExt.replace(/[_-]/g, ' ');
-
-    const result = {
-      songName: 'Unknown Song',
-      chartType: ChartType.Single,
-      chartLevel: 10,
-      score: null as number | null,
-      plate: null as string | null,
-      isBroken: false
-    };
-
-    // 1. Chart type and level (e.g. S18, D21, d23, s4)
-    const chartMatch = cleanName.match(/\b([SDsd])(\d{1,2})\b/);
-    if (chartMatch) {
-      const typeChar = chartMatch[1].toUpperCase();
-      result.chartType = typeChar === 'D' ? ChartType.Double : ChartType.Single;
-      result.chartLevel = parseInt(chartMatch[2], 10);
-    }
-
-    // 2. Score (6 to 7 digits, e.g. 985000, 1000000)
-    const scoreMatch = cleanName.match(/\b(\d{6,7})\b/);
-    if (scoreMatch) {
-      const scoreVal = parseInt(scoreMatch[1], 10);
-      if (scoreVal >= 0 && scoreVal <= 1000000) {
-        result.score = scoreVal;
-      }
-    }
-
-    // 3. Is Broken
-    if (/broken|break|broke|fail|roto/i.test(cleanName)) {
-      result.isBroken = true;
-    }
-
-    // 4. Default Plate based on score if pass
-    if (result.score !== null) {
-      if (result.score === 1000000) {
-        result.plate = Plate.PerfectGame;
-      } else if (result.score >= 995000) {
-        result.plate = Plate.UltimateGame;
-      } else if (result.score >= 990000) {
-        result.plate = Plate.ExtremeGame;
-      } else if (result.score >= 985000) {
-        result.plate = Plate.SuperbGame;
-      } else if (result.score >= 975000) {
-        result.plate = Plate.MarvelousGame;
-      } else if (result.score >= 950000) {
-        result.plate = Plate.TalentedGame;
-      } else if (result.score >= 900000) {
-        result.plate = Plate.FairGame;
-      } else {
-        result.plate = Plate.RoughGame;
-      }
-    }
-
-    // 5. Song Name (first segment before any metadata tokens)
-    const tokens = nameWithoutExt.split(/[_\-\s]+/);
-    if (tokens.length > 0 && tokens[0].trim().length > 0) {
-      const possibleName = tokens[0].trim();
-      if (!possibleName.match(/^[SDsd]\d+$/) && !possibleName.match(/^\d+$/)) {
-        result.songName = possibleName;
-      }
-    }
-
-    // Improve song name extraction if there are multiple parts before Dxx/Sxx
-    const chartIndex = cleanName.search(/\b([SDsd])(\d{1,2})\b/);
-    if (chartIndex > 0) {
-      const songPart = cleanName.substring(0, chartIndex).trim();
-      if (songPart.length > 0) {
-        result.songName = songPart;
-      }
-    } else {
-      const words = cleanName.split(/\s+/);
-      const nameParts = [];
-      for (const w of words) {
-        if (w.match(/\b\d{6,7}\b/) || w.match(/\b[SDsd]\d{1,2}\b/) || /broken|break|broke|fail|roto/i.test(w)) {
-          break;
-        }
-        nameParts.push(w);
-      }
-      if (nameParts.length > 0) {
-        result.songName = nameParts.join(' ');
-      }
-    }
-
-    return result;
   }
 
   private fileToBase64(file: File): Promise<string> {
