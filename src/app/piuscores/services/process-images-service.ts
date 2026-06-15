@@ -25,84 +25,42 @@ export class ProcessImagesService {
   private readonly GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
   private readonly GEMINI_VERSION = 'gemini-2.5-flash';
 
-  triggerScan(item: ScanItem): ScanItem | null | undefined {
-    const key = this.localStorageService.geminiApiKey();
-    if (!key) {
-      return null;
-    }
-
-    this.fileToBase64(item.file).then(base64Data => {
-      const url = `${this.GEMINI_URL}/${this.GEMINI_VERSION}:generateContent?key=${key}`;
-      const payload = {
-        contents: [{
-          parts: [
-            { text: this.getGeminiPrompt() },
-            {
-              inlineData: {
-                mimeType: item.file.type,
-                data: base64Data
-              }
-            }
-          ]
-        }],
-        generationConfig: {
-          responseMimeType: 'application/json'
-        }
+  fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
       };
-
-      console.log('VAMOS A HACER EL POST');
-      this.http.post<any>(url, payload).subscribe({
-        next: (response) => {
-          return this.processScanResponse(response, item);
-        },
-        error: (err) => {
-          // console.log({ error: 'ERROR1', err });
-          item.status = 'error';
-          item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
-        }
-      });
-    }).catch(err => {
-      // console.log({ error: 'ERROR2', err });
-      item.status = 'error';
-      item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
+      reader.onerror = error => reject(error);
     });
-
-    return item;
   }
 
-  private processScanResponse(response: any, item: ScanItem): ScanItem {
-    try {
-      const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!textResponse) {
-        throw new Error('No text response received from API');
-      }
-      const data = JSON.parse(textResponse);
-
-      // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
-      let plateKey = '';
-      if (data.plate) {
-        const matchedOption = PiuSongsUtils.getPlateKey(data.plate); //PiuSongsUtils.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
-        if (matchedOption) {
-          plateKey = matchedOption;
-        }
-      }
-
-      item.form.patchValue({
-        songName: data.songName || 'Unknown Song',
-        chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
-        chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
-        score: data.score ?? null,
-        plate: plateKey,
-        isBroken: data.isBroken === true
-      });
-      item.status = 'success';
-    } catch (err) {
-      // console.log({ error: 'ERROR3', err });
-      item.status = 'error';
-      item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
+  postImage(item: ScanItem, base64Data: string) {
+    const key = this.localStorageService.geminiApiKey();
+    if (!key) {
+      return;
     }
-
-    return item;
+    const url = `${this.GEMINI_URL}/${this.GEMINI_VERSION}:generateContent?key=${key}`;
+    const payload = {
+      contents: [{
+        parts: [
+          { text: this.getGeminiPrompt() },
+          {
+            inlineData: {
+              mimeType: item.file.type,
+              data: base64Data
+            }
+          }
+        ]
+      }],
+      generationConfig: {
+        responseMimeType: 'application/json'
+      }
+    };
+    return this.http.post<any>(url, payload);
   }
 
   private getGeminiPrompt(): string {
@@ -128,18 +86,5 @@ export class ProcessImagesService {
     "isBroken": boolean,
     "plate": string | null
   }`;
-  }
-
-  private fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64Data = result.split(',')[1];
-        resolve(base64Data);
-      };
-      reader.onerror = error => reject(error);
-    });
   }
 }

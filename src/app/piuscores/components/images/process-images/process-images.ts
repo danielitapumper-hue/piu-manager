@@ -130,21 +130,67 @@ export class ProcessImages {
         }
       });
 
-      let newItem: ScanItem = {
+      const newItem: ScanItem = {
         id,
         file,
         previewUrl,
-        status: 'scanning',
+        status: 'pending',
         form
       };
 
       this.scanItems.update(items => [...items, newItem]);
-      const item = this.processImagesService.triggerScan(newItem);
-      // console.log({ item });
-      if (item) {
-        newItem = item;
-        this.scanItems.update(items => [...items]);
-      }
+      this.triggerScan(newItem);
     }
+  }
+
+  private triggerScan(item: ScanItem): void {
+    item.status = 'scanning';
+    this.scanItems.update(items => [...items]);
+
+    this.processImagesService.fileToBase64(item.file).then(base64Data => {
+      this.processImagesService.postImage(item!, base64Data!)!.subscribe({
+        next: (response) => {
+          try {
+            const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!textResponse) {
+              throw new Error('No text response received from API');
+            }
+            const data = JSON.parse(textResponse);
+
+            // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
+            let plateKey = '';
+            if (data.plate) {
+              const matchedOption = this.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
+              if (matchedOption) {
+                plateKey = matchedOption.key;
+              }
+            }
+
+            item.form.patchValue({
+              songName: data.songName || 'Unknown Song',
+              chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
+              chartLevel: data.chartLevel || 10,
+              score: data.score !== undefined ? data.score : null,
+              plate: plateKey,
+              isBroken: data.isBroken === true
+            });
+            item.status = 'success';
+          } catch (err) {
+            item.status = 'error';
+            item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
+          }
+          this.scanItems.update(items => [...items]);
+        },
+        error: (err) => {
+          item.status = 'error';
+          item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
+          this.scanItems.update(items => [...items]);
+        }
+      });
+    }).catch(err => {
+      item.status = 'error';
+      item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
+      this.scanItems.update(items => [...items]);
+    });
   }
 }
