@@ -102,8 +102,6 @@ export class ProcessImagesItem {
         Validators.min(PiuSongsUtils.minLevel),
         Validators.max(PiuSongsUtils.maxLevel)
       ]],
-      plate: [''],
-      isBroken: [false]
       score: [this.item().scoreRequest?.score ?? null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
       plate: [this.item().scoreRequest?.plate ?? ''],
       isBroken: [this.item().scoreRequest?.isBroken === true]
