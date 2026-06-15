@@ -1,4 +1,3 @@
-import { Plate } from "./phoenix-scores-response";
 import { ChartType } from "./piuscores-interfaces";
 
 export interface ScoreRequest {

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
-import { PhoenixScoresResponse, Plate, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
+import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';

@@ -1,19 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
-import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
+import { inject, Injectable } from '@angular/core';
 import { LocalStorageService } from './local-storage-service';
-import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
-
-export interface ScanItem {
-  id: string;
-  file: File;
-  previewUrl: string;
-  status: 'pending' | 'scanning' | 'success' | 'saving' | 'saved' | 'error';
-  errorMessage?: string;
-  form: FormGroup;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +25,7 @@ export class ProcessImagesService {
     });
   }
 
-  postImage(item: ScanItem, base64Data: string) {
+  postImage(mimeType: string, base64Data: string) {
     const key = this.localStorageService.geminiApiKey();
     if (!key) {
       return;
@@ -50,7 +37,7 @@ export class ProcessImagesService {
           { text: this.getGeminiPrompt() },
           {
             inlineData: {
-              mimeType: item.file.type,
+              mimeType: mimeType,
               data: base64Data
             }
           }

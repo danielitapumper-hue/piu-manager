@@ -1,19 +1,17 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
+import { ScanItem } from '@piuscores/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
-import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { ProcessImagesService, ScanItem } from '@piuscores/services/process-images-service';
+import { ProcessImagesService } from '@piuscores/services/process-images-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { ProcessImagesItem } from "../process-images-item/process-images-item";
 
 @Component({
   selector: 'process-images',
-  imports: [ReactiveFormsModule],
+  imports: [ProcessImagesItem],
   templateUrl: './process-images.html',
 })
 export class ProcessImages {
-  private fb = inject(FormBuilder);
   private piuscoresService = inject(PiuscoresService);
   private processImagesService = inject(ProcessImagesService);
 
@@ -32,49 +30,51 @@ export class ProcessImages {
   //Efecto para tomar los cambios en this.files()
   filesEffect = effect(() => this.processFiles());
 
-  saveItem(item: ScanItem): void {
-    if (item.form.invalid || item.status === 'saving' || item.status === 'saved') {
-      return;
-    }
+  saveItem(itemToSave: ScanItem): void {
+    let updatedItem = this.scanItems().find(item => item.id === itemToSave.id);
 
-    item.status = 'saving';
+    if (!updatedItem || !itemToSave.scoreRequest)
+      return;
+
+    updatedItem.scoreRequest = itemToSave.scoreRequest;
+    updatedItem.status = 'saving';
     this.scanItems.update(items => [...items]);
 
-    const { songName, chartType, chartLevel, score, plate, isBroken } = item.form.value;
-
-    const scoreRequest: ScoreRequest = {
-      songName,
-      chartType,
-      chartLevel,
-      score: score ? Number(score) : null,
-      plate: plate ?? null,
-      isBroken: isBroken === true
-    };
-
-    this.piuscoresService.postScore(scoreRequest).subscribe({
+    this.piuscoresService.postScore(updatedItem.scoreRequest).subscribe({
       next: () => {
-        item.status = 'saved';
-        item.form.disable();
+        updatedItem.status = 'saved';
         this.scanItems.update(items => [...items]);
       },
       error: (err) => {
-        item.status = 'error';
-        item.errorMessage = err?.message || 'Error al guardar el score';
+        updatedItem.status = 'error';
+        updatedItem.errorMessage = err?.message || 'Error al guardar el score';
         this.scanItems.update(items => [...items]);
       }
     });
   }
 
+  updateFormValidItem(item: ScanItem) {
+    let formValidItem = this.scanItems().find(item => item.id === item.id);
+    if (!formValidItem)
+      return;
+    formValidItem.formValid = item.formValid;
+    this.scanItems.update(items => [...items]);
+  }
+
   saveAllReady(): void {
-    const readyItems = this.scanItems().filter(item =>
-      (item.status === 'success' || item.status === 'error') && item.form.valid
-    );
+    const readyItems = this.getReadyItems();
 
     if (readyItems.length === 0) {
       return;
     }
 
     readyItems.forEach(item => this.saveItem(item));
+  }
+
+  getReadyItems() {
+    return this.scanItems().filter(item =>
+      (item.status === 'success' || item.status === 'error') && item.formValid
+    );
   }
 
   removeItem(item: ScanItem): void {
@@ -98,44 +98,11 @@ export class ProcessImages {
       const previewUrl = URL.createObjectURL(file);
       const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
 
-      const form = this.fb.group({
-        songName: ['', Validators.required],
-        chartType: [ChartType.Single, Validators.required],
-        chartLevel: [PiuSongsUtils.minLevel, [
-          Validators.required,
-          Validators.min(PiuSongsUtils.minLevel),
-          Validators.max(PiuSongsUtils.maxLevel)
-        ]],
-        score: [null as number | null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
-        plate: [''],
-        isBroken: [false]
-      }, {
-        validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
-      });
-
-      // Listen for isBroken and plate changes, just like in score-form
-      form.get('isBroken')!.valueChanges.subscribe((isBroken) => {
-        if (isBroken) {
-          form.get('plate')?.setValue('');
-        }
-      });
-
-      form.get('plate')!.valueChanges.subscribe((plateKey) => {
-        if (plateKey) {
-          const perfectGameKey = this.plateOptions.find(item => item.value === Plate.PerfectGame)?.key;
-          if (plateKey === perfectGameKey) {
-            form.get('score')?.setValue(PiuSongsUtils.maxScore);
-          }
-          form.get('isBroken')?.setValue(false);
-        }
-      });
-
       const newItem: ScanItem = {
         id,
         file,
         previewUrl,
-        status: 'pending',
-        form
+        status: 'pending'
       };
 
       this.scanItems.update(items => [...items, newItem]);
@@ -148,7 +115,7 @@ export class ProcessImages {
     this.scanItems.update(items => [...items]);
 
     this.processImagesService.fileToBase64(item.file).then(base64Data => {
-      this.processImagesService.postImage(item, base64Data)?.subscribe({
+      this.processImagesService.postImage(item.file.type, base64Data)?.subscribe({
         next: (response) => {
           try {
             const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -167,14 +134,14 @@ export class ProcessImages {
               }
             }
 
-            item.form.patchValue({
+            item.scoreRequest = {
               songName: data.songName || 'Unknown Song',
               chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
               chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
               score: data.score ?? null,
               plate: plateKey,
               isBroken: data.isBroken === true
-            });
+            };
             item.status = 'success';
           } catch (err) {
             item.status = 'error';

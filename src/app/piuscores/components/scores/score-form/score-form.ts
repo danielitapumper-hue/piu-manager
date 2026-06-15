@@ -1,7 +1,6 @@
 import { Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
-import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Score } from '@piuscores/interfaces/score';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
@@ -24,6 +23,7 @@ export class ScoreForm implements OnInit {
   submitted = false;
   scoreForm!: ReturnType<FormBuilder['group']>;
   previousScoreValue = '';
+
   readonly plateOptions = PiuSongsUtils.plateOptions;
 
   ngOnInit(): void {
@@ -57,12 +57,14 @@ export class ScoreForm implements OnInit {
     }
 
     this.isLoading.set(true);
+
+    const { score, plate, isBroken } = this.scoreForm.value;
     const scoreRequest: ScoreRequest = {
       chartLevel: this.chartScore().chart.level,
       chartType: this.chartScore().chart.type,
-      isBroken: this.scoreForm.value.isBroken == true,
-      plate: this.scoreForm.value.plate ? this.scoreForm.value.plate : null,
-      score: this.scoreForm.value.score ? this.scoreForm.value.score : null,
+      isBroken: isBroken == true,
+      plate: plate ?? null,
+      score: score ?? null,
       songName: this.chartScore().chart.song.name
     };
 

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
 import { LocalStorageService } from '@piuscores/services/local-storage-service';
