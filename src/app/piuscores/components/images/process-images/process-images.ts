@@ -148,7 +148,7 @@ export class ProcessImages {
     this.scanItems.update(items => [...items]);
 
     this.processImagesService.fileToBase64(item.file).then(base64Data => {
-      this.processImagesService.postImage(item!, base64Data!)!.subscribe({
+      this.processImagesService.postImage(item, base64Data)?.subscribe({
         next: (response) => {
           try {
             const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -160,17 +160,18 @@ export class ProcessImages {
             // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
             let plateKey = '';
             if (data.plate) {
-              const matchedOption = this.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
+              const matchedOption = PiuSongsUtils.getPlateKey(data.plate);
+              //this.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
               if (matchedOption) {
-                plateKey = matchedOption.key;
+                plateKey = matchedOption;
               }
             }
 
             item.form.patchValue({
               songName: data.songName || 'Unknown Song',
               chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
-              chartLevel: data.chartLevel || 10,
-              score: data.score !== undefined ? data.score : null,
+              chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
+              score: data.score ?? null,
               plate: plateKey,
               isBroken: data.isBroken === true
             });
