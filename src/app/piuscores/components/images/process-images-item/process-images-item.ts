@@ -57,14 +57,16 @@ export class ProcessImagesItem {
     if (this.item().status === 'saved')
       this.itemForm.disable();
 
-    this.itemForm.patchValue({
-      songName: this.item().scoreRequest?.songName,
-      chartType: this.item().scoreRequest?.chartType,
-      chartLevel: this.item().scoreRequest?.chartLevel,
-      score: this.item().scoreRequest?.score,
-      plate: this.item().scoreRequest?.plate,
-      isBroken: this.item().scoreRequest?.isBroken
-    });
+    if (this.item().scoreRequest) {
+      this.itemForm.patchValue({
+        songName: this.item().scoreRequest!.songName,
+        chartType: this.item().scoreRequest!.chartType,
+        chartLevel: this.item().scoreRequest!.chartLevel,
+        score: this.item().scoreRequest!.score,
+        plate: this.item().scoreRequest!.plate,
+        isBroken: this.item().scoreRequest!.isBroken
+      });
+    }
   });
 
   saveItem(): void {
@@ -93,16 +95,18 @@ export class ProcessImagesItem {
 
   private buildForm() {
     return this.fb.group({
-      songName: ['', Validators.required],
-      chartType: [ChartType.Single, Validators.required],
-      chartLevel: [PiuSongsUtils.minLevel, [
+      songName: [this.item().scoreRequest?.songName ?? '', Validators.required],
+      chartType: [this.item().scoreRequest?.chartType ?? ChartType.Single, Validators.required],
+      chartLevel: [this.item().scoreRequest?.chartLevel ?? PiuSongsUtils.minLevel, [
         Validators.required,
         Validators.min(PiuSongsUtils.minLevel),
         Validators.max(PiuSongsUtils.maxLevel)
       ]],
-      score: [null as number | null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
       plate: [''],
       isBroken: [false]
+      score: [this.item().scoreRequest?.score ?? null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
+      plate: [this.item().scoreRequest?.plate ?? ''],
+      isBroken: [this.item().scoreRequest?.isBroken === true]
     }, {
       validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
     });

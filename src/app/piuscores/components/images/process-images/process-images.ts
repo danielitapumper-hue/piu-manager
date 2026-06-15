@@ -38,17 +38,17 @@ export class ProcessImages {
 
     updatedItem.scoreRequest = itemToSave.scoreRequest;
     updatedItem.status = 'saving';
-    this.scanItems.update(items => [...items]);
+    this.updateItem(updatedItem);
 
     this.piuscoresService.postScore(updatedItem.scoreRequest).subscribe({
       next: () => {
         updatedItem.status = 'saved';
-        this.scanItems.update(items => [...items]);
+        this.updateItem(updatedItem);
       },
       error: (err) => {
         updatedItem.status = 'error';
         updatedItem.errorMessage = err?.message || 'Error al guardar el score';
-        this.scanItems.update(items => [...items]);
+        this.updateItem(updatedItem);
       }
     });
   }
@@ -58,6 +58,7 @@ export class ProcessImages {
     if (!formValidItem)
       return;
     formValidItem.formValid = item.formValid;
+    // this.updateItem(formValidItem);
     this.scanItems.update(items => [...items]);
   }
 
@@ -112,7 +113,7 @@ export class ProcessImages {
 
   private triggerScan(item: ScanItem): void {
     item.status = 'scanning';
-    this.scanItems.update(items => [...items]);
+    this.updateItem(item);
 
     this.processImagesService.fileToBase64(item.file).then(base64Data => {
       this.processImagesService.postImage(item.file.type, base64Data)?.subscribe({
@@ -128,7 +129,6 @@ export class ProcessImages {
             let plateKey = '';
             if (data.plate) {
               const matchedOption = PiuSongsUtils.getPlateKey(data.plate);
-              //this.plateOptions.find(opt => opt.value.toLowerCase() === data.plate.toLowerCase());
               if (matchedOption) {
                 plateKey = matchedOption;
               }
@@ -143,22 +143,37 @@ export class ProcessImages {
               isBroken: data.isBroken === true
             };
             item.status = 'success';
+            this.updateItem(item);
           } catch (err) {
             item.status = 'error';
             item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
+            this.updateItem(item);
           }
-          this.scanItems.update(items => [...items]);
         },
         error: (err) => {
           item.status = 'error';
           item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
-          this.scanItems.update(items => [...items]);
+          this.updateItem(item);
         }
       });
     }).catch(err => {
       item.status = 'error';
       item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
-      this.scanItems.update(items => [...items]);
+      this.updateItem(item);
     });
   }
+
+  private updateItem(updatedItem: ScanItem) {
+    this.scanItems.update(items =>
+      items.map(current => {
+        if (current.id !== updatedItem.id)
+          return current;
+        return {
+          ...items,
+          ...updatedItem
+        };
+      })
+    );
+  }
 }
+
