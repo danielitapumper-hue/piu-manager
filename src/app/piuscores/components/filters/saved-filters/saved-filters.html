@@ -2,23 +2,40 @@
   <h2 class="text-xl font-bold">Filtros guardados</h2>
 
   @if(savedFiltersArray().length > 0){
-  <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="toggleEditMode()">
+  <div class="flex gap-2">
+    <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="updateSavedFilters()"
+      [disabled]="isLoadingUpdate()">
+      @if(isLoadingUpdate()) {
+      <span class="loading loading-spinner loading-xs"></span>
+      {{ loadingUpdateText() }}
+      }
+      @else {
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+        <path fill-rule="evenodd"
+          d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
+          clip-rule="evenodd" />
+      </svg>
 
-    @if(isEditMode()) {
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M5 12l5 5L20 7" />
-    </svg>
-    }
-    @else {
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-    </svg>
-    }
+      }
+    </button>
 
-  </button>
+    <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="toggleEditMode()">
+      @if(isEditMode()) {
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12l5 5L20 7" />
+      </svg>
+      }
+      @else {
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+      </svg>
+      }
+    </button>
+  </div>
+
   }
 
 </div>

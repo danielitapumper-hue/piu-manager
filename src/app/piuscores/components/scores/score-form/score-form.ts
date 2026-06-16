@@ -63,7 +63,7 @@ export class ScoreForm implements OnInit {
       chartLevel: this.chartScore().chart.level,
       chartType: this.chartScore().chart.type,
       isBroken: isBroken == true,
-      plate: plate ?? null,
+      plate: plate != '' ? plate : null,
       score: score ?? null,
       songName: this.chartScore().chart.song.name
     };

@@ -79,8 +79,8 @@ export class ProcessImagesItem {
       songName,
       chartType,
       chartLevel,
-      score: score ? Number(score) : null,
-      plate: plate ?? null,
+      score: score ?? null,
+      plate: plate != '' ? plate : null,
       isBroken: isBroken === true
     };
 
@@ -102,7 +102,10 @@ export class ProcessImagesItem {
         Validators.min(PiuSongsUtils.minLevel),
         Validators.max(PiuSongsUtils.maxLevel)
       ]],
-      score: [this.item().scoreRequest?.score ?? null, [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]],
+      score: [
+        this.item().scoreRequest?.score ?? null,
+        [Validators.required, Validators.min(0), Validators.max(PiuSongsUtils.maxScore)]
+      ],
       plate: [this.item().scoreRequest?.plate ?? ''],
       isBroken: [this.item().scoreRequest?.isBroken === true]
     }, {
