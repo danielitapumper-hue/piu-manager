@@ -1,6 +1,6 @@
 <div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
   <app-title [title]="'Historial de Scores'"
-    [subTitle]="'Puedes ver el historial de tus scores cargados, ordenados desde el más nuevo al más antiguo. También puedes filtrar por nombre de la canción.'" />
+    [subTitle]="'Puedes ver el historial de tus scores cargados, ordenados desde el más nuevo al más antiguo.'" />
 
   <song-name-filter (songNameFilter)="searchBySongName($event)" />
 
