@@ -1,4 +1,6 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, concatMap, map, switchMap, tap } from 'rxjs/operators';
 import { ScanItem } from '@piuscores/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
@@ -22,7 +24,20 @@ export class ProcessImages {
   readonly chartTypes = PiuSongsUtils.chartTypes;
   readonly plateOptions = PiuSongsUtils.plateOptions;
 
-  ngOnDestroy(): void {
+  private scanQueue = new Subject<ScanItem>();
+  private saveQueue = new Subject<ScanItem>();
+
+  constructor() {
+    this.scanQueue.pipe(
+      concatMap(item => this.triggerScan(item))
+    ).subscribe();
+
+    this.saveQueue.pipe(
+      concatMap(item => this.processSave(item))
+    ).subscribe();
+  }
+
+  ngOnDestroy() {
     // Clean up all object URLs to prevent leaks
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
   }
@@ -30,39 +45,50 @@ export class ProcessImages {
   //Efecto para tomar los cambios en this.files()
   filesEffect = effect(() => this.processFiles());
 
-  saveItem(itemToSave: ScanItem): void {
-    let updatedItem = this.scanItems().find(item => item.id === itemToSave.id);
-
-    if (!updatedItem || !itemToSave.scoreRequest)
+  saveItem(itemToSave: ScanItem) {
+    if (!itemToSave.scoreRequest)
       return;
 
-    updatedItem.scoreRequest = itemToSave.scoreRequest;
-    updatedItem.status = 'saving';
-    this.updateItem(updatedItem);
-
-    this.piuscoresService.postScore(updatedItem.scoreRequest, true).subscribe({
-      next: () => {
-        updatedItem.status = 'saved';
-        this.updateItem(updatedItem);
-      },
-      error: (err) => {
-        updatedItem.status = 'error';
-        updatedItem.errorMessage = err?.message || 'Error al guardar el score';
-        this.updateItem(updatedItem);
-      }
+    this.updateItemState(itemToSave.id, {
+      scoreRequest: itemToSave.scoreRequest,
+      status: 'saving'
     });
+
+    this.saveQueue.next(itemToSave);
+  }
+
+  private processSave(itemToSave: ScanItem): Observable<void> {
+    return of(null).pipe(
+      switchMap(() => {
+        const item = this.scanItems().find(i => i.id === itemToSave.id);
+        if (!item || !item.scoreRequest) {
+          throw new Error('Item no encontrado o sin request');
+        }
+        return this.piuscoresService.postScore(item.scoreRequest, true);
+      }),
+      tap({
+        next: () => this.updateItemState(itemToSave.id, { status: 'saved' }),
+        error: (err) => this.updateItemState(itemToSave.id, {
+          status: 'error',
+          errorMessage: err?.message || 'Error al guardar el score'
+        })
+      }),
+      map(() => void 0),
+      catchError(err => {
+        this.updateItemState(itemToSave.id, {
+          status: 'error',
+          errorMessage: err.message || 'Error al guardar el score'
+        });
+        return of(void 0);
+      })
+    );
   }
 
   updateFormValidItem(item: ScanItem) {
-    let formValidItem = this.scanItems().find(item => item.id === item.id);
-    if (!formValidItem)
-      return;
-    formValidItem.formValid = item.formValid;
-    // this.updateItem(formValidItem);
-    this.scanItems.update(items => [...items]);
+    this.updateItemState(item.id, { formValid: item.formValid });
   }
 
-  saveAllReady(): void {
+  saveAllReady() {
     const readyItems = this.getReadyItems();
 
     if (readyItems.length === 0) {
@@ -72,24 +98,26 @@ export class ProcessImages {
     readyItems.forEach(item => this.saveItem(item));
   }
 
-  getReadyItems() {
+  getReadyItems(): ScanItem[] {
     return this.scanItems().filter(item =>
       (item.status === 'success' || item.status === 'error') && item.formValid
     );
   }
 
-  removeItem(item: ScanItem): void {
+  removeItem(item: ScanItem) {
     URL.revokeObjectURL(item.previewUrl);
     this.scanItems.update(items => items.filter(i => i.id !== item.id));
   }
 
-  clearAll(): void {
+  clearAll() {
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
     this.scanItems.set([]);
   }
 
   private processFiles() {
     const files = this.files();
+    const newItems: ScanItem[] = [];
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file.type.startsWith('image/')) {
@@ -106,17 +134,30 @@ export class ProcessImages {
         status: 'pending'
       };
 
-      this.scanItems.update(items => [...items, newItem]);
-      this.triggerScan(newItem);
+      newItems.push(newItem);
+    }
+
+    if (newItems.length > 0) {
+      this.scanItems.update(items => [...newItems, ...items]);
+      newItems.forEach(item => this.scanQueue.next(item));
     }
   }
 
-  private triggerScan(item: ScanItem): void {
-    item.status = 'scanning';
-    this.updateItem(item);
-
-    this.processImagesService.fileToBase64(item.file).then(base64Data => {
-      this.processImagesService.postImage(item.file.type, base64Data)?.subscribe({
+  private triggerScan(item: ScanItem): Observable<void> {
+    return new Observable<void>(observer => {
+      this.updateItemState(item.id, { status: 'scanning' });
+      observer.next();
+      observer.complete();
+    }).pipe(
+      switchMap(() => this.processImagesService.fileToBase64(item.file)),
+      switchMap(base64Data => {
+        const req = this.processImagesService.postImage(item.file.type, base64Data);
+        if (!req) {
+          throw new Error('No se pudo generar la petición');
+        }
+        return req;
+      }),
+      tap({
         next: (response) => {
           try {
             const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -125,7 +166,6 @@ export class ProcessImages {
             }
             const data = JSON.parse(textResponse);
 
-            // Map the plate string back to the key (RoughGame, PerfectGame, etc.)
             let plateKey = '';
             if (data.plate) {
               const matchedOption = PiuSongsUtils.getPlateKey(data.plate);
@@ -134,45 +174,45 @@ export class ProcessImages {
               }
             }
 
-            item.scoreRequest = {
-              songName: data.songName || 'Unknown Song',
-              chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
-              chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
-              score: data.score ?? null,
-              plate: plateKey,
-              isBroken: data.isBroken === true
-            };
-            item.status = 'success';
-            this.updateItem(item);
+            this.updateItemState(item.id, {
+              status: 'success',
+              scoreRequest: {
+                songName: data.songName || 'Unknown Song',
+                chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
+                chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
+                score: data.score ?? null,
+                plate: plateKey,
+                isBroken: data.isBroken === true
+              }
+            });
           } catch (err) {
-            item.status = 'error';
-            item.errorMessage = 'Error al parsear el resultado de la imagen: ' + (err as Error).message;
-            this.updateItem(item);
+            this.updateItemState(item.id, {
+              status: 'error',
+              errorMessage: 'Error al parsear el resultado de la imagen: ' + (err as Error).message
+            });
           }
         },
         error: (err) => {
-          item.status = 'error';
-          item.errorMessage = err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini';
-          this.updateItem(item);
+          this.updateItemState(item.id, {
+            status: 'error',
+            errorMessage: err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini'
+          });
         }
-      });
-    }).catch(err => {
-      item.status = 'error';
-      item.errorMessage = 'No se pudo leer el archivo: ' + err.message;
-      this.updateItem(item);
-    });
+      }),
+      map(() => void 0),
+      catchError(err => {
+        this.updateItemState(item.id, {
+          status: 'error',
+          errorMessage: err.message || 'Error general en el escaneo'
+        });
+        return of(void 0);
+      })
+    );
   }
 
-  private updateItem(updatedItem: ScanItem) {
+  private updateItemState(id: string, updates: Partial<ScanItem>) {
     this.scanItems.update(items =>
-      items.map(current => {
-        if (current.id !== updatedItem.id)
-          return current;
-        return {
-          ...items,
-          ...updatedItem
-        };
-      })
+      items.map(item => item.id === id ? { ...item, ...updates } : item)
     );
   }
 }

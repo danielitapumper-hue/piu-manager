@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { LocalStorageService } from './local-storage-service';
 
 @Injectable({
@@ -12,16 +13,24 @@ export class ProcessImagesService {
   private readonly GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
   private readonly GEMINI_VERSION = 'gemini-2.5-flash';
 
-  fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
+  fileToBase64(file: File): Observable<string> {
+    return new Observable(observer => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
         const base64Data = result.split(',')[1];
-        resolve(base64Data);
+        observer.next(base64Data);
+        observer.complete();
       };
-      reader.onerror = error => reject(error);
+      reader.onerror = error => observer.error(error);
+
+      // Cleanup
+      return () => {
+        if (reader.readyState === 1) {
+          reader.abort();
+        }
+      };
     });
   }
 
