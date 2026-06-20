@@ -5,6 +5,10 @@
     @if (submitted && scoreForm.get('score')?.hasError('required')) {
     <p class="text-error text-sm mt-1">El score es obligatorio.</p>
     }
+
+    @if (warningScore() !== '') {
+    <p class="text-warning text-xs mt-1">{{ warningScore() }}</p>
+    }
   </div>
 
   <div class="w-full">
@@ -30,4 +34,5 @@
     }
     Actualizar score
   </button>
+
 </form>

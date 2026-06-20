@@ -19,6 +19,7 @@ export class ScoreForm implements OnInit {
   scoreSaved = output<Score | undefined>();
 
   isLoading = signal<boolean>(false);
+  warningScore = signal<string>('');
 
   submitted = false;
   scoreForm!: ReturnType<FormBuilder['group']>;
@@ -92,6 +93,7 @@ export class ScoreForm implements OnInit {
   onScoreInput(value: string) {
     if (value === '') {
       this.previousScoreValue = '';
+      this.warningScore.set('');
       return;
     }
 
@@ -99,6 +101,13 @@ export class ScoreForm implements OnInit {
     if (numVal > PiuSongsUtils.maxScore) {
       this.scoreForm.get('score')?.setValue(this.previousScoreValue);
       return;
+    }
+
+    if (this.chartScore()?.score?.score && numVal < this.chartScore()!.score!.score) {
+      this.warningScore.set('El score que estás ingresando es menor al que ya tienes guardado.');
+    }
+    else {
+      this.warningScore.set('');
     }
 
     const sanitizedVal = numVal.toString();

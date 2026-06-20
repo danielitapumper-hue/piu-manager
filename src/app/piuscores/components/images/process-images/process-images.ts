@@ -40,7 +40,7 @@ export class ProcessImages {
     updatedItem.status = 'saving';
     this.updateItem(updatedItem);
 
-    this.piuscoresService.postScore(updatedItem.scoreRequest).subscribe({
+    this.piuscoresService.postScore(updatedItem.scoreRequest, true).subscribe({
       next: () => {
         updatedItem.status = 'saved';
         this.updateItem(updatedItem);

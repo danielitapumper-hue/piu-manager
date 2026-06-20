@@ -72,8 +72,10 @@ export class PiuscoresService {
   }
 
   /* POST */
-  postScore(scoreRequest: ScoreRequest) {
-    return this.http.post(`${API_URL}/phoenixScores`, scoreRequest);
+  postScore(scoreRequest: ScoreRequest, keepBestStats?: boolean) {
+    return this.http.post(`${API_URL}/phoenixScores`, scoreRequest, {
+      params: { KeepBestStats: keepBestStats == true }
+    });
   }
 
   /* PRIVATE */
