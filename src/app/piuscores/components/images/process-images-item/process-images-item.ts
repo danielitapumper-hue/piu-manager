@@ -46,26 +46,32 @@ export class ProcessImagesItem {
       });
 
     this.itemForm.statusChanges.subscribe((status) => {
-      let formValidItem = this.item();
+      let formValidItem = { ...this.item() };
       formValidItem.formValid = status === 'VALID';
       this.formValidItem.emit(formValidItem);
     });
 
   }
 
-  itemEffect = effect(() => {
-    if (this.item().status === 'saved')
-      this.itemForm.disable();
+  private lastPatchedScoreRequest: ScoreRequest | undefined = undefined;
 
-    if (this.item().scoreRequest) {
+  itemEffect = effect(() => {
+    const currentItem = this.item();
+
+    if (currentItem.status === 'saved') {
+      this.itemForm.disable({ emitEvent: false });
+    }
+
+    if (currentItem.scoreRequest && currentItem.scoreRequest !== this.lastPatchedScoreRequest) {
+      this.lastPatchedScoreRequest = currentItem.scoreRequest;
       this.itemForm.patchValue({
-        songName: this.item().scoreRequest!.songName,
-        chartType: this.item().scoreRequest!.chartType,
-        chartLevel: this.item().scoreRequest!.chartLevel,
-        score: this.item().scoreRequest!.score,
-        plate: this.item().scoreRequest!.plate,
-        isBroken: this.item().scoreRequest!.isBroken
-      });
+        songName: currentItem.scoreRequest.songName,
+        chartType: currentItem.scoreRequest.chartType,
+        chartLevel: currentItem.scoreRequest.chartLevel,
+        score: currentItem.scoreRequest.score,
+        plate: currentItem.scoreRequest.plate,
+        isBroken: currentItem.scoreRequest.isBroken
+      }, { emitEvent: false });
     }
   });
 

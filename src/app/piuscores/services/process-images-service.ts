@@ -53,7 +53,8 @@ export class ProcessImagesService {
         ]
       }],
       generationConfig: {
-        responseMimeType: 'application/json'
+        responseMimeType: 'application/json',
+        temperature: 0.0
       }
     };
     return this.http.post<any>(url, payload);
@@ -71,7 +72,7 @@ export class ProcessImagesService {
      - If they are grey with a stone-like/cracked texture, set isBroken to true.
      - If they are colored (e.g., yellow, orange, blue, red) or shiny silver without a cracked stone texture, set isBroken to false.
   5. **plate**: If isBroken is true, set plate to null. If isBroken is false, look right below the grade letters for a text that represents the plate. Map it to one of these exact string values: "Rough Game", "Fair Game", "Talented Game", "Marvelous Game", "Superb Game", "Extreme Game", "Ultimate Game", "Perfect Game". If none is found, set to null.
-  6. **songName**: Extract the song title located right above the chart oval. It is written in white letters inside a semi-transparent blue box.
+  6. **songName**: Extract the song title. It is ALWAYS located directly above the vertical list of judgment words (PERFECT, GREAT, GOOD, BAD, MISS). It is horizontally aligned with this list, and this list can be on the left or the right side of the screen. Do NOT look at the bottom of the screen. Do not confuse it with the text "SESSION INFO". It is written in white text and can sometimes be very short (e.g., "8 6").
 
   Return ONLY a JSON object with this structure:
   {
