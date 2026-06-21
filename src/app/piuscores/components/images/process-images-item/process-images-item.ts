@@ -72,6 +72,10 @@ export class ProcessImagesItem {
         plate: currentItem.scoreRequest.plate,
         isBroken: currentItem.scoreRequest.isBroken
       }, { emitEvent: false });
+
+      let formValidItem = { ...this.item() };
+      formValidItem.formValid = this.itemForm.valid;
+      this.formValidItem.emit(formValidItem);
     }
   });
 
