@@ -4,8 +4,17 @@ export interface ScanItem {
   id: string;
   file: File;
   previewUrl: string;
-  status: 'pending' | 'scanning' | 'success' | 'saving' | 'saved' | 'error';
+  status: ScanStatus;
   errorMessage?: string;
   scoreRequest?: ScoreRequest;
   formValid?: boolean;
+}
+
+export enum ScanStatus {
+  Pending = 'pending',
+  Scanning = 'scanning',
+  Success = 'success',
+  Saving = 'saving',
+  Saved = 'saved',
+  Error = 'error',
 }

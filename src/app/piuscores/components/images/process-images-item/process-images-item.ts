@@ -1,9 +1,15 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, computed, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ScanItem } from '@piuscores/interfaces/files/scan-item';
+import { ScanItem, ScanStatus } from '@piuscores/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+
+interface UI {
+  cardClasses: string,
+  disableDiscard: boolean,
+  disableSave: boolean
+}
 
 @Component({
   selector: 'process-images-item',
@@ -23,6 +29,38 @@ export class ProcessImagesItem {
 
   readonly chartTypes = PiuSongsUtils.chartTypes;
   readonly plateOptions = PiuSongsUtils.plateOptions;
+  readonly ScanStatus = ScanStatus;
+
+  ui = computed<UI>(() => {
+    const status = this.item().status;
+    const isInvalid = this.itemForm.invalid;
+    switch (status) {
+      case ScanStatus.Saved:
+        return {
+          cardClasses: 'border-success opacity-75',
+          disableDiscard: true,
+          disableSave: true
+        };
+      case ScanStatus.Saving:
+        return {
+          cardClasses: 'border-base-300',
+          disableDiscard: true,
+          disableSave: true
+        };
+      case ScanStatus.Error:
+        return {
+          cardClasses: 'border-error',
+          disableDiscard: false,
+          disableSave: isInvalid
+        };
+      default:
+        return {
+          cardClasses: 'border-base-300',
+          disableDiscard: false,
+          disableSave: isInvalid
+        };
+    }
+  });
 
   ngOnInit(): void {
     this.itemForm = this.buildForm();
@@ -58,7 +96,7 @@ export class ProcessImagesItem {
   itemEffect = effect(() => {
     const currentItem = this.item();
 
-    if (currentItem.status === 'saved') {
+    if (currentItem.status === ScanStatus.Saved) {
       this.itemForm.disable({ emitEvent: false });
     }
 
@@ -80,7 +118,7 @@ export class ProcessImagesItem {
   });
 
   saveItem(): void {
-    if (this.itemForm.invalid || this.item().status === 'saving' || this.item().status === 'saved') {
+    if (this.itemForm.invalid || this.item().status === ScanStatus.Saving || this.item().status === ScanStatus.Saved) {
       return;
     }
 

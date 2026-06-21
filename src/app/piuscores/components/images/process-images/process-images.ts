@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap } from 'rxjs/operators';
-import { ScanItem } from '@piuscores/interfaces/files/scan-item';
+import { ScanItem, ScanStatus } from '@piuscores/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { ProcessImagesService } from '@piuscores/services/process-images-service';
@@ -51,7 +51,7 @@ export class ProcessImages {
 
     this.updateItemState(itemToSave.id, {
       scoreRequest: itemToSave.scoreRequest,
-      status: 'saving'
+      status: ScanStatus.Saving
     });
 
     this.saveQueue.next(itemToSave);
@@ -67,16 +67,16 @@ export class ProcessImages {
         return this.piuscoresService.postScore(item.scoreRequest, true);
       }),
       tap({
-        next: () => this.updateItemState(itemToSave.id, { status: 'saved' }),
+        next: () => this.updateItemState(itemToSave.id, { status: ScanStatus.Saved }),
         error: (err) => this.updateItemState(itemToSave.id, {
-          status: 'error',
+          status: ScanStatus.Error,
           errorMessage: err?.message || 'Error al guardar el score'
         })
       }),
       map(() => void 0),
       catchError(err => {
         this.updateItemState(itemToSave.id, {
-          status: 'error',
+          status: ScanStatus.Error,
           errorMessage: err.message || 'Error al guardar el score'
         });
         return of(void 0);
@@ -100,7 +100,7 @@ export class ProcessImages {
 
   getReadyItems(): ScanItem[] {
     return this.scanItems().filter(item =>
-      (item.status === 'success' || item.status === 'error') && item.formValid
+      (item.status === ScanStatus.Success || item.status === ScanStatus.Error) && item.formValid
     );
   }
 
@@ -131,7 +131,7 @@ export class ProcessImages {
         id,
         file,
         previewUrl,
-        status: 'pending'
+        status: ScanStatus.Pending
       };
 
       newItems.push(newItem);
@@ -145,7 +145,7 @@ export class ProcessImages {
 
   private triggerScan(item: ScanItem): Observable<void> {
     return new Observable<void>(observer => {
-      this.updateItemState(item.id, { status: 'scanning' });
+      this.updateItemState(item.id, { status: ScanStatus.Scanning });
       observer.next();
       observer.complete();
     }).pipe(
@@ -175,7 +175,7 @@ export class ProcessImages {
             }
 
             this.updateItemState(item.id, {
-              status: 'success',
+              status: ScanStatus.Success,
               scoreRequest: {
                 songName: data.songName || 'Unknown Song',
                 chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
@@ -187,14 +187,14 @@ export class ProcessImages {
             });
           } catch (err) {
             this.updateItemState(item.id, {
-              status: 'error',
+              status: ScanStatus.Error,
               errorMessage: 'Error al parsear el resultado de la imagen: ' + (err as Error).message
             });
           }
         },
         error: (err) => {
           this.updateItemState(item.id, {
-            status: 'error',
+            status: ScanStatus.Error,
             errorMessage: err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini'
           });
         }
@@ -202,7 +202,7 @@ export class ProcessImages {
       map(() => void 0),
       catchError(err => {
         this.updateItemState(item.id, {
-          status: 'error',
+          status: ScanStatus.Error,
           errorMessage: err.message || 'Error general en el escaneo'
         });
         return of(void 0);

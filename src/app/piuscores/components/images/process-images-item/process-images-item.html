@@ -1,13 +1,11 @@
-<div class="card lg:card-side bg-base-100 shadow-md border overflow-hidden transition-all duration-300"
-  [class.border-success]="item().status === 'saved'" [class.border-error]="item().status === 'error'"
-  [class.border-base-300]="item().status !== 'saved' && item().status !== 'error'"
-  [class.opacity-75]="item().status === 'saved'">
+<div
+  class="card lg:card-side bg-base-100 shadow-md border overflow-hidden transition-all duration-300 {{ ui().cardClasses }}">
 
   <!-- Image Column -->
   <div class="w-full lg:w-48 h-48 lg:h-auto relative bg-base-300 shrink-0 flex items-center justify-center">
     <img [src]="item().previewUrl" class="w-full h-full object-cover" alt="Score Screenshot" />
 
-    @if (item().status === 'scanning') {
+    @if (item().status === ScanStatus.Scanning) {
     <div
       class="absolute inset-0 bg-base-900/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-white">
       <span class="loading loading-spinner text-primary"></span>
@@ -23,19 +21,20 @@
       <!-- Card Header Row -->
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-200 pb-2">
         <div class="flex gap-2">
-          @if (item().status === 'pending') {
+          @switch (item().status) {
+          @case (ScanStatus.Pending) {
           <div class="badge badge-neutral">Pendiente</div>
           }
-          @if (item().status === 'scanning') {
+          @case (ScanStatus.Scanning) {
           <div class="badge badge-info">Escaneando...</div>
           }
-          @if (item().status === 'success') {
+          @case (ScanStatus.Success) {
           <div class="badge badge-success text-success-content font-semibold">Listo para guardar</div>
           }
-          @if (item().status === 'saving') {
+          @case (ScanStatus.Saving) {
           <div class="badge badge-warning text-warning-content">Guardando...</div>
           }
-          @if (item().status === 'saved') {
+          @case (ScanStatus.Saved) {
           <div class="badge badge-success text-success-content font-semibold flex gap-1 items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
@@ -44,8 +43,9 @@
             Guardado
           </div>
           }
-          @if (item().status === 'error') {
+          @case (ScanStatus.Error) {
           <div class="badge badge-error text-error-content font-semibold">Error</div>
+          }
           }
         </div>
         <span class="text-xs text-base-content/50 max-w-50 sm:max-w-xs truncate" [title]="item().file.name">
@@ -126,7 +126,7 @@
       </div>
       }
 
-      @if (item().status === 'error') {
+      @if (item().status === ScanStatus.Error) {
       <div class="alert alert-error p-2 text-xs rounded-btn mt-1">
         <span>Error al guardar: {{ item().errorMessage }}</span>
       </div>
@@ -135,12 +135,11 @@
       <!-- Action Buttons -->
       <div class="card-actions justify-end mt-2 pt-2 border-t border-base-200">
         <button type="button" class="btn btn-sm btn-ghost text-error" (click)="removeItem()"
-          [disabled]="item().status === 'saving' || item().status === 'saved'">
+          [disabled]="ui().disableDiscard">
           Descartar
         </button>
-        <button type="submit" class="btn btn-sm btn-primary"
-          [disabled]="item().status === 'saving' || item().status === 'saved' || itemForm.invalid">
-          @if (item().status === 'saving') {
+        <button type="submit" class="btn btn-sm btn-primary" [disabled]="ui().disableSave">
+          @if (item().status === ScanStatus.Saving) {
           <span class="loading loading-spinner loading-xs"></span>
           }
           Guardar
