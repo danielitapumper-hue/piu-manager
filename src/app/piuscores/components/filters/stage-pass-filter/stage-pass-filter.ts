@@ -1,5 +1,5 @@
 import { Component, effect, inject, output, signal } from '@angular/core';
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'stage-pass-filter',

@@ -1,8 +1,8 @@
 import { Component, effect, inject, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'search-filters-form',

@@ -1,8 +1,8 @@
 import { Component, input, inject, output } from '@angular/core';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Dialog } from '@angular/cdk/dialog';
-import { ScoreDialog } from '../../scores/score-dialog/score-dialog';
-import { ScoreData } from "../../scores/score-data/score-data";
+import { ScoreData } from '@piuscores/components/scores/score-data/score-data';
+import { ScoreDialog } from '@piuscores/components/scores/score-dialog/score-dialog';
 
 @Component({
   selector: 'song-card',

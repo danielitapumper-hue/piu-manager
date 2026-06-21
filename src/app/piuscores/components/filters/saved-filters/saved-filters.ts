@@ -1,8 +1,8 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 import { catchError, concatMap, from, map, of } from 'rxjs';
 
 @Component({

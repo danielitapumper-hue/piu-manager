@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { CategoryCharts } from '@piuscores/interfaces/category-charts';
 import { ImageSrcPipe } from '@piuscores/pipes/image-src-pipe';
@@ -14,6 +13,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
 import { Title } from "@piuscores/components/title/title";
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'app-scores-page',

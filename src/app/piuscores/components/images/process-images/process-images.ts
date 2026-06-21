@@ -1,12 +1,12 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap } from 'rxjs/operators';
-import { ScanItem, ScanStatus } from '@piuscores/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { ProcessImagesService } from '@piuscores/services/process-images-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
-import { ProcessImagesItem } from "../process-images-item/process-images-item";
+import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
+import { ProcessImagesService } from '@gemini/services/process-images-service';
+import { ProcessImagesItem } from '../process-images-item/process-images-item';
 
 @Component({
   selector: 'process-images',

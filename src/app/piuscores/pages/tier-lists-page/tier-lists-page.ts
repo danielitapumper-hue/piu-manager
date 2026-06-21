@@ -3,7 +3,6 @@ import { SongCard } from '@piuscores/components/songs/song-card/song-card';
 import { CategoryCharts } from '@piuscores/interfaces/category-charts';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Filters } from '@piuscores/components/filters/filters';
@@ -11,6 +10,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/components/songs/song-randomizer-dialog/song-randomizer-dialog';
 import { Title } from "@piuscores/components/title/title";
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'app-tier-lists-page',

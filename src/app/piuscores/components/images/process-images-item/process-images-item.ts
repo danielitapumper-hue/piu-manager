@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ScanItem, ScanStatus } from '@piuscores/interfaces/files/scan-item';
+import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';

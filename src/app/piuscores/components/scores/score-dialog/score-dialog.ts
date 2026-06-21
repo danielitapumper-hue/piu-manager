@@ -2,9 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Score } from '@piuscores/interfaces/score';
-import { ScoreData } from "../score-data/score-data";
-import { ScoreForm } from "../score-form/score-form";
 import { DecimalPipe } from '@angular/common';
+import { ScoreData } from '../score-data/score-data';
+import { ScoreForm } from '../score-form/score-form';
 
 @Component({
   selector: 'app-score-dialog',

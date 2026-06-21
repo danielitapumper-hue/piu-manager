@@ -1,4 +1,4 @@
-import { ScoreRequest } from "../piuscores-services/score-request";
+import { ScoreRequest } from "@piuscores/interfaces/piuscores-services/score-request";
 
 export interface ScanItem {
   id: string;

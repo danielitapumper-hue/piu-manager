@@ -7,8 +7,14 @@
       "@auth/*": [
         "./src/app/auth/*"
       ],
+      "@gemini/*": [
+        "./src/app/gemini/*"
+      ],
       "@piuscores/*": [
         "./src/app/piuscores/*"
+      ],
+      "@shared/*": [
+        "./src/app/shared/*"
       ]
     },
     "strict": true,

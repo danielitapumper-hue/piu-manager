@@ -1,7 +1,7 @@
 import { Component, effect, inject, output, signal } from '@angular/core';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
-import { LocalStorageService } from '@piuscores/services/local-storage-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'song-types-filter',
