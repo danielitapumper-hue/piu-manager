@@ -1,10 +1,16 @@
 import { Component, inject, input, OnInit, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Score } from '@piuscores/interfaces/score';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+
+interface ScoreFormGroup {
+  score: FormControl<number | null>;
+  plate: FormControl<string | null>;
+  isBroken: FormControl<boolean | null>;
+}
 
 @Component({
   selector: 'score-form',
@@ -22,7 +28,7 @@ export class ScoreForm implements OnInit {
   warningScore = signal<string>('');
 
   submitted = false;
-  scoreForm!: ReturnType<FormBuilder['group']>;
+  scoreForm!: FormGroup<ScoreFormGroup>;
   previousScoreValue = '';
 
   readonly plateOptions = PiuSongsUtils.plateOptions;
@@ -31,20 +37,20 @@ export class ScoreForm implements OnInit {
     this.scoreForm = this.buildForm();
     this.previousScoreValue = this.chartScore().score?.score?.toString() ?? '';
 
-    this.scoreForm.get('isBroken')!.valueChanges
+    this.scoreForm.controls.isBroken.valueChanges
       .subscribe((isBroken) => {
         if (isBroken)
-          this.scoreForm.get('plate')?.setValue('');
+          this.scoreForm.controls.plate.setValue('');
       });
 
-    this.scoreForm.get('plate')!.valueChanges
+    this.scoreForm.controls.plate.valueChanges
       .subscribe((plateKey) => {
         if (plateKey) {
           if (plateKey === PiuSongsUtils.perfectGameKey) {
-            this.scoreForm.get('score')?.setValue(PiuSongsUtils.maxScore);
+            this.scoreForm.controls.score.setValue(PiuSongsUtils.maxScore);
             this.previousScoreValue = PiuSongsUtils.maxScore.toString();
           }
-          this.scoreForm.get('isBroken')?.setValue(false);
+          this.scoreForm.controls.isBroken.setValue(false);
         }
       });
   }
@@ -64,7 +70,7 @@ export class ScoreForm implements OnInit {
       chartLevel: this.chartScore().chart.level,
       chartType: this.chartScore().chart.type,
       isBroken: isBroken == true,
-      plate: plate != '' ? plate : null,
+      plate: plate && plate !== '' ? plate : null,
       score: score ?? null,
       songName: this.chartScore().chart.song.name
     };
@@ -99,7 +105,7 @@ export class ScoreForm implements OnInit {
 
     const numVal = Number(value);
     if (numVal > PiuSongsUtils.maxScore) {
-      this.scoreForm.get('score')?.setValue(this.previousScoreValue);
+      this.scoreForm.controls.score.setValue(Number(this.previousScoreValue) || null);
       return;
     }
 
@@ -111,11 +117,11 @@ export class ScoreForm implements OnInit {
     }
 
     const sanitizedVal = numVal.toString();
-    this.scoreForm.get('score')?.setValue(sanitizedVal);
+    this.scoreForm.controls.score.setValue(numVal);
     this.previousScoreValue = sanitizedVal;
   }
 
-  private buildForm() {
+  private buildForm(): FormGroup<ScoreFormGroup> {
     return this.fb.group({
       score: [
         this.chartScore().score?.score ?? null,
@@ -125,6 +131,6 @@ export class ScoreForm implements OnInit {
       isBroken: [this.chartScore().score ? this.chartScore().score!.isBroken : true]
     }, {
       validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
-    });
+    }) as FormGroup<ScoreFormGroup>;
   }
 }

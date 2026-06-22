@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, input, output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, effect, inject, input, OnInit, output } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
@@ -11,12 +11,21 @@ interface UI {
   disableSave: boolean
 }
 
+interface ProcessImagesItemFormGroup {
+  songName: FormControl<string>;
+  chartType: FormControl<ChartType>;
+  chartLevel: FormControl<number>;
+  score: FormControl<number | null>;
+  plate: FormControl<string | null>;
+  isBroken: FormControl<boolean | null>;
+}
+
 @Component({
   selector: 'process-images-item',
   imports: [ReactiveFormsModule],
   templateUrl: './process-images-item.html',
 })
-export class ProcessImagesItem {
+export class ProcessImagesItem implements OnInit {
   fb = inject(FormBuilder);
 
   item = input.required<ScanItem>();
@@ -24,7 +33,7 @@ export class ProcessImagesItem {
   removedItem = output<ScanItem>();
   formValidItem = output<ScanItem>();
 
-  itemForm!: ReturnType<FormBuilder['group']>;
+  itemForm!: FormGroup<ProcessImagesItemFormGroup>;
   previousScoreValue = '';
 
   readonly chartTypes = PiuSongsUtils.chartTypes;
@@ -66,20 +75,20 @@ export class ProcessImagesItem {
     this.itemForm = this.buildForm();
     this.previousScoreValue = this.item().scoreRequest?.score?.toString() ?? '';
 
-    this.itemForm.get('isBroken')!.valueChanges
+    this.itemForm.controls.isBroken.valueChanges
       .subscribe((isBroken) => {
         if (isBroken)
-          this.itemForm.get('plate')?.setValue('');
+          this.itemForm.controls.plate.setValue('');
       });
 
-    this.itemForm.get('plate')!.valueChanges
+    this.itemForm.controls.plate.valueChanges
       .subscribe((plateKey) => {
         if (plateKey) {
           if (plateKey === PiuSongsUtils.perfectGameKey) {
-            this.itemForm.get('score')?.setValue(PiuSongsUtils.maxScore);
+            this.itemForm.controls.score.setValue(PiuSongsUtils.maxScore);
             this.previousScoreValue = PiuSongsUtils.maxScore.toString();
           }
-          this.itemForm.get('isBroken')?.setValue(false);
+          this.itemForm.controls.isBroken.setValue(false);
         }
       });
 
@@ -124,11 +133,11 @@ export class ProcessImagesItem {
 
     const { songName, chartType, chartLevel, score, plate, isBroken } = this.itemForm.value;
     const scoreRequest: ScoreRequest = {
-      songName,
-      chartType,
-      chartLevel,
+      songName: songName!,
+      chartType: chartType!,
+      chartLevel: chartLevel!,
       score: score ?? null,
-      plate: plate != '' ? plate : null,
+      plate: plate && plate !== '' ? plate : null,
       isBroken: isBroken === true
     };
 
@@ -141,7 +150,7 @@ export class ProcessImagesItem {
     this.removedItem.emit(this.item());
   }
 
-  private buildForm() {
+  private buildForm(): FormGroup<ProcessImagesItemFormGroup> {
     return this.fb.group({
       songName: [this.item().scoreRequest?.songName ?? '', Validators.required],
       chartType: [this.item().scoreRequest?.chartType ?? ChartType.Single, Validators.required],
@@ -158,6 +167,6 @@ export class ProcessImagesItem {
       isBroken: [this.item().scoreRequest?.isBroken === true]
     }, {
       validators: [PiuSongsUtils.plateRequiredWhenBrokenValidator]
-    });
+    }) as FormGroup<ProcessImagesItemFormGroup>;
   }
 }

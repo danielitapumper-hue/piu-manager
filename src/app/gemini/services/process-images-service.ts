@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { GEMINI_PROMPTS } from '@gemini/constants/gemini-prompts.constant';
 import { LocalStorageService } from '@shared/services/local-storage-service';
 import { Observable } from 'rxjs';
+import { GeminiGenerateContentResponse } from '../interfaces/gemini-response';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,7 @@ export class ProcessImagesService {
     });
   }
 
-  postImage(mimeType: string, base64Data: string) {
+  postImage(mimeType: string, base64Data: string): Observable<GeminiGenerateContentResponse> | undefined {
     const key = this.localStorageService.geminiApiKey();
     if (!key) {
       return;
@@ -58,6 +59,6 @@ export class ProcessImagesService {
         temperature: 0.0
       }
     };
-    return this.http.post<any>(url, payload);
+    return this.http.post<GeminiGenerateContentResponse>(url, payload);
   }
 }
