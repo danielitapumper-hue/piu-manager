@@ -51,37 +51,47 @@ export class ScoresPage {
     this.isLoadingScores.set(true);
     if (searchFilters.saveFilter) {
       this.piuScoresService.getTierListWithScores(searchFilters)
-        .subscribe(resp => {
-          this.scoresList.set(resp.map(item => ({
-            chart: item.chart,
-            score: item.score
-          })));
-          this.localStorageService.setLocalStorageLastFilter(searchFilters);
-          this.localStorageService.setLocalStorageSavedFilters(
-            this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
-            resp
-          );
-          this.isLoadingScores.set(false);
+        .subscribe({
+          next: resp => {
+            this.scoresList.set(resp.map(item => ({
+              chart: item.chart,
+              score: item.score
+            })));
+            this.localStorageService.setLocalStorageLastFilter(searchFilters);
+            this.localStorageService.setLocalStorageSavedFilters(
+              this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
+              resp
+            );
+            this.isLoadingScores.set(false);
+          },
+          error: () => {
+            this.isLoadingScores.set(false);
+          }
         });
       return;
     }
 
     this.piuScoresService.getAllPhoenixScores()
-      .subscribe(allScores => {
-        const filteredScores = allScores.filter(score => {
-          return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
-        });
-        this.scoresList.set(filteredScores.map(score => ({
-          chart: score.chart,
-          score: {
-            letterGrade: score.letterGrade,
-            score: score.score,
-            isBroken: score.isBroken,
-            plate: score.plate
-          }
-        })));
-        this.localStorageService.setLocalStorageLastFilter(searchFilters);
-        this.isLoadingScores.set(false);
+      .subscribe({
+        next: allScores => {
+          const filteredScores = allScores.filter(score => {
+            return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
+          });
+          this.scoresList.set(filteredScores.map(score => ({
+            chart: score.chart,
+            score: {
+              letterGrade: score.letterGrade,
+              score: score.score,
+              isBroken: score.isBroken,
+              plate: score.plate
+            }
+          })));
+          this.localStorageService.setLocalStorageLastFilter(searchFilters);
+          this.isLoadingScores.set(false);
+        },
+        error: () => {
+          this.isLoadingScores.set(false);
+        }
       });
   }
 

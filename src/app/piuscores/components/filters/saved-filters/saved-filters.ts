@@ -65,6 +65,11 @@ export class SavedFilters {
           resp
         );
       },
+      error: (err) => {
+        console.error('Error fatal al actualizar filtros', err);
+        this.isLoadingUpdate.set(false);
+        this.processingItemNumber.set(0);
+      },
       complete: () => {
         console.log('Se actualizaron los filtros.');
         this.isLoadingUpdate.set(false);

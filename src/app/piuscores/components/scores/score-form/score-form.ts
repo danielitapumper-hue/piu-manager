@@ -79,18 +79,23 @@ export class ScoreForm implements OnInit {
       songName: this.chartScore().chart.song.name
     };
 
-    this.piuscoresService.postScore(scoreRequest).subscribe(() => {
-      const updatedScore: Score | undefined = scoreRequest.score
-        ? {
-          ...this.chartScore().score,
-          letterGrade: PiuSongsUtils.getLetterGradeByScore(scoreRequest.score),
-          score: scoreRequest.score,
-          plate: PiuSongsUtils.getPlateValue(scoreRequest.plate) ?? null,
-          isBroken: scoreRequest.isBroken == true,
-        } : undefined;
+    this.piuscoresService.postScore(scoreRequest).subscribe({
+      next: () => {
+        const updatedScore: Score | undefined = scoreRequest.score
+          ? {
+            ...this.chartScore().score,
+            letterGrade: PiuSongsUtils.getLetterGradeByScore(scoreRequest.score),
+            score: scoreRequest.score,
+            plate: PiuSongsUtils.getPlateValue(scoreRequest.plate) ?? null,
+            isBroken: scoreRequest.isBroken == true,
+          } : undefined;
 
-      this.scoreSaved.emit(updatedScore);
-      this.isLoading.set(false);
+        this.scoreSaved.emit(updatedScore);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
     });
   }
 
