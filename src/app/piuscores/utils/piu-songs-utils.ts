@@ -3,6 +3,8 @@ import { Plate } from "@piuscores/interfaces/piuscores-services/phoenix-scores-r
 import { ChartType, SongType, Category } from "@piuscores/interfaces/piuscores-services/piuscores-interfaces";
 import { ChartScore } from "@piuscores/interfaces/chart-score";
 import { CategoryCharts } from "@piuscores/interfaces/category-charts";
+import { DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 export class PiuSongsUtils {
   static maxScore: number = 1_000_000;
@@ -119,5 +121,38 @@ export class PiuSongsUtils {
     return filteredScoresList
       .filter(item => item.score!.letterGrade === letterGrade)
       .sort((a, b) => a.score!.score - b.score!.score);
+  }
+
+  static generateId(): string {
+    return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
+  }
+
+  static setupScoreFormBehavior(
+    isBrokenControl: AbstractControl<boolean | null>,
+    plateControl: AbstractControl<string | null>,
+    scoreControl: AbstractControl<number | null>,
+    destroyRef: DestroyRef,
+    updatePreviousScore?: (val: string) => void
+  ): void {
+    isBrokenControl.valueChanges
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((isBroken) => {
+        if (isBroken)
+          plateControl.setValue('');
+      });
+
+    plateControl.valueChanges
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((plateKey) => {
+        if (plateKey) {
+          if (plateKey === PiuSongsUtils.perfectGameKey) {
+            scoreControl.setValue(PiuSongsUtils.maxScore);
+            if (updatePreviousScore) {
+              updatePreviousScore(PiuSongsUtils.maxScore.toString());
+            }
+          }
+          isBrokenControl.setValue(false);
+        }
+      });
   }
 }

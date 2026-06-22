@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 export interface ToastMessage {
   id: string;
@@ -13,7 +14,7 @@ export class ToastService {
   toasts = signal<ToastMessage[]>([]);
 
   show(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', durationMs = 4000) {
-    const id = crypto.randomUUID();
+    const id = PiuSongsUtils.generateId();
     const newToast: ToastMessage = { id, message, type };
 
     this.toasts.update(current => [...current, newToast]);

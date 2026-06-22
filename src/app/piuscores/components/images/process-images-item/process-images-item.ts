@@ -77,24 +77,13 @@ export class ProcessImagesItem implements OnInit {
     this.itemForm = this.buildForm();
     this.previousScoreValue = this.item().scoreRequest?.score?.toString() ?? '';
 
-    this.itemForm.controls.isBroken.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isBroken) => {
-        if (isBroken)
-          this.itemForm.controls.plate.setValue('');
-      });
-
-    this.itemForm.controls.plate.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((plateKey) => {
-        if (plateKey) {
-          if (plateKey === PiuSongsUtils.perfectGameKey) {
-            this.itemForm.controls.score.setValue(PiuSongsUtils.maxScore);
-            this.previousScoreValue = PiuSongsUtils.maxScore.toString();
-          }
-          this.itemForm.controls.isBroken.setValue(false);
-        }
-      });
+    PiuSongsUtils.setupScoreFormBehavior(
+      this.itemForm.controls.isBroken,
+      this.itemForm.controls.plate,
+      this.itemForm.controls.score,
+      this.destroyRef,
+      (val) => this.previousScoreValue = val
+    );
 
     this.itemForm.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))

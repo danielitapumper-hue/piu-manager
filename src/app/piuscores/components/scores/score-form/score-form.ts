@@ -39,24 +39,13 @@ export class ScoreForm implements OnInit {
     this.scoreForm = this.buildForm();
     this.previousScoreValue = this.chartScore().score?.score?.toString() ?? '';
 
-    this.scoreForm.controls.isBroken.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isBroken) => {
-        if (isBroken)
-          this.scoreForm.controls.plate.setValue('');
-      });
-
-    this.scoreForm.controls.plate.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((plateKey) => {
-        if (plateKey) {
-          if (plateKey === PiuSongsUtils.perfectGameKey) {
-            this.scoreForm.controls.score.setValue(PiuSongsUtils.maxScore);
-            this.previousScoreValue = PiuSongsUtils.maxScore.toString();
-          }
-          this.scoreForm.controls.isBroken.setValue(false);
-        }
-      });
+    PiuSongsUtils.setupScoreFormBehavior(
+      this.scoreForm.controls.isBroken,
+      this.scoreForm.controls.plate,
+      this.scoreForm.controls.score,
+      this.destroyRef,
+      (val) => this.previousScoreValue = val
+    );
   }
 
   formSubmit() {

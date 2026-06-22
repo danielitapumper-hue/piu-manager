@@ -128,7 +128,7 @@ export class ProcessImages {
       }
 
       const previewUrl = URL.createObjectURL(file);
-      const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
+      const id = PiuSongsUtils.generateId();
 
       const newItem: ScanItem = {
         id,
