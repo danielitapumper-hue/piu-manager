@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
 import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
 import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
@@ -49,15 +49,26 @@ export class PiuscoresService {
       switchMap(firstPage => {
         // Calcular total de páginas
         const totalPages = Math.ceil(firstPage.totalResults / count);
-
-        // Crear array de Observables con todas las páginas
-        const allPages = [of(firstPage)]; // Primera página ya obtenida
-        for (let page = 2; page <= totalPages; page++) {
-          allPages.push(this.getPhoenixScores(page, count));
+        if (totalPages <= 1) {
+          return of(firstPage.results);
         }
 
-        // Combinar todas las páginas en paralelo
-        return forkJoin(allPages).pipe(map(responses => responses.flatMap(response => response.results)));
+        // Crear array con las páginas restantes
+        const pageNumbers: number[] = [];
+        for (let page = 2; page <= totalPages; page++) {
+          pageNumbers.push(page);
+        }
+
+        // Ejecutar peticiones restantes con un límite de concurrencia de 3
+        return from(pageNumbers).pipe(
+          mergeMap(page => this.getPhoenixScores(page, count), 3),
+          toArray(),
+          map(pages => {
+            const allResults = [...firstPage.results];
+            pages.forEach(p => allResults.push(...p.results));
+            return allResults;
+          })
+        );
       })
     );
   }

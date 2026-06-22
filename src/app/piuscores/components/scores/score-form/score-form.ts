@@ -1,5 +1,6 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { Score } from '@piuscores/interfaces/score';
@@ -20,6 +21,7 @@ interface ScoreFormGroup {
 export class ScoreForm implements OnInit {
   fb = inject(FormBuilder);
   piuscoresService = inject(PiuscoresService);
+  destroyRef = inject(DestroyRef);
 
   chartScore = input.required<ChartScore>();
   scoreSaved = output<Score | undefined>();
@@ -38,12 +40,14 @@ export class ScoreForm implements OnInit {
     this.previousScoreValue = this.chartScore().score?.score?.toString() ?? '';
 
     this.scoreForm.controls.isBroken.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((isBroken) => {
         if (isBroken)
           this.scoreForm.controls.plate.setValue('');
       });
 
     this.scoreForm.controls.plate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((plateKey) => {
         if (plateKey) {
           if (plateKey === PiuSongsUtils.perfectGameKey) {

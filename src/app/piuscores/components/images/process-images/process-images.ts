@@ -1,4 +1,5 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap } from 'rxjs/operators';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
@@ -29,10 +30,12 @@ export class ProcessImages {
 
   constructor() {
     this.scanQueue.pipe(
+      takeUntilDestroyed(),
       concatMap(item => this.triggerScan(item))
     ).subscribe();
 
     this.saveQueue.pipe(
+      takeUntilDestroyed(),
       concatMap(item => this.processSave(item))
     ).subscribe();
   }

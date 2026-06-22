@@ -1,5 +1,6 @@
-import { Component, computed, effect, inject, input, OnInit, output } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, OnInit, output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
@@ -27,6 +28,7 @@ interface ProcessImagesItemFormGroup {
 })
 export class ProcessImagesItem implements OnInit {
   fb = inject(FormBuilder);
+  destroyRef = inject(DestroyRef);
 
   item = input.required<ScanItem>();
   updatedItem = output<ScanItem>();
@@ -76,12 +78,14 @@ export class ProcessImagesItem implements OnInit {
     this.previousScoreValue = this.item().scoreRequest?.score?.toString() ?? '';
 
     this.itemForm.controls.isBroken.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((isBroken) => {
         if (isBroken)
           this.itemForm.controls.plate.setValue('');
       });
 
     this.itemForm.controls.plate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((plateKey) => {
         if (plateKey) {
           if (plateKey === PiuSongsUtils.perfectGameKey) {
@@ -92,11 +96,13 @@ export class ProcessImagesItem implements OnInit {
         }
       });
 
-    this.itemForm.statusChanges.subscribe((status) => {
-      let formValidItem = { ...this.item() };
-      formValidItem.formValid = status === 'VALID';
-      this.formValidItem.emit(formValidItem);
-    });
+    this.itemForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        let formValidItem = { ...this.item() };
+        formValidItem.formValid = status === 'VALID';
+        this.formValidItem.emit(formValidItem);
+      });
 
   }
 
