@@ -126,10 +126,12 @@ export class TierListsPage {
     const tierListByCategories: CategoryCharts[] = [];
 
     for (const category of PiuSongsUtils.categories) {
-      tierListByCategories.push({
-        category: category.value,
-        charts: this.getTierListByCategory(category.key)
-      });
+      const charts = this.getTierListByCategory(category.key);
+      if (charts.length > 0)
+        tierListByCategories.push({
+          category: category.value,
+          charts: charts
+        });
     }
 
     return tierListByCategories;

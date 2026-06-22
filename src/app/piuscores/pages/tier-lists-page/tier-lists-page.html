@@ -22,8 +22,6 @@
 
   @for (tierListByCategory of tierListByCategories(); track $index) {
 
-  @if (tierListByCategory.charts.length > 0) {
-
   <div class="flex justify-between items-center">
 
     <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
@@ -44,8 +42,6 @@
 
   </div>
   <div class="divider"></div>
-
-  }
 
   }
   @empty {
