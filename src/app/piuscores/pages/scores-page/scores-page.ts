@@ -39,12 +39,10 @@ export class ScoresPage {
 
   searchLastFilter() {
     const lastFilter = this.lastFilter();
-    if (lastFilter.filter) {
-      this.songTypesFilter.set(lastFilter.songTypes);
-      this.scoresList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
-        this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
-      ));
-    }
+    this.songTypesFilter.set(lastFilter.songTypes);
+    this.scoresList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
+      this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
+    ));
   }
 
   search(searchFilters: SearchFilters) {
