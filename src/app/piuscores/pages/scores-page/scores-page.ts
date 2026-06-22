@@ -56,7 +56,7 @@ export class ScoresPage {
             chart: item.chart,
             score: item.score
           })));
-          this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+          this.localStorageService.setLocalStorageLastFilter(searchFilters);
           this.localStorageService.setLocalStorageSavedFilters(
             this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
             resp
@@ -80,7 +80,7 @@ export class ScoresPage {
             plate: score.plate
           }
         })));
-        this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+        this.localStorageService.setLocalStorageLastFilter(searchFilters);
         this.isLoadingScores.set(false);
       });
   }

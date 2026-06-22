@@ -6,6 +6,14 @@ const LOCAL_STORAGE_SAVED_FILTERS_KEY = 'savedFilters';
 const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
 const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
 
+const DEFAULT_FILTER: SearchFilters = {
+  chartType: 'Single',
+  filter: '',
+  level: 2,
+  songTypes: [true],
+  stagePass: null
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,10 +31,10 @@ export class LocalStorageService {
       level: charTypeLevelFilter.level
     }));
 
-    //Uso la key de searchFilters completa
-    this.setLocalStorageLastFilter(this.searchFiltersToKey(this.lastFilter()));
+    // Persiste el lastFilter actualizado como JSON
+    this.persistLastFilter(this.lastFilter());
 
-    //Uso charTypeLevelKey porque los filtros guardados tienen chartType-level, sin los songTypes.
+    // charTypeLevelKey es la key del Map de savedFilters (formato chartType-level)
     return this.savedFilters().get(charTypeLevelKey) ?? [];
   }
 
@@ -44,19 +52,19 @@ export class LocalStorageService {
     localStorage.setItem(LOCAL_STORAGE_SAVED_FILTERS_KEY, JSON.stringify(Array.from(this.savedFilters().entries())));
   }
 
-  setLocalStorageLastFilter(searchFiltersKey: string) {
-    this.lastFilter.set(this.filterStringToSearchFilter(searchFiltersKey));
-    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, searchFiltersKey);
+  setLocalStorageLastFilter(searchFilters: SearchFilters) {
+    this.lastFilter.set(searchFilters);
+    this.persistLastFilter(searchFilters);
   }
 
   setLocalStorageLastSongTypesFilter(songTypes: boolean[]) {
-    this.lastFilter.update(currentValue => ({ ...currentValue, songTypes: songTypes }));
-    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
+    this.lastFilter.update(currentValue => ({ ...currentValue, songTypes }));
+    this.persistLastFilter(this.lastFilter());
   }
 
   setLocalStorageLastStagePassFilter(stagePass: boolean | null) {
-    this.lastFilter.update(currentValue => ({ ...currentValue, stagePass: stagePass }));
-    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, this.searchFiltersToKey(this.lastFilter()));
+    this.lastFilter.update(currentValue => ({ ...currentValue, stagePass }));
+    this.persistLastFilter(this.lastFilter());
   }
 
   setLocalStorageGeminiApiKey(key: string) {
@@ -76,35 +84,6 @@ export class LocalStorageService {
   }
 
   /* UTILS */
-  filterStringToSearchFilter(filter: string | null): SearchFilters {
-    const filterArray = filter?.split('-');
-
-    if (!filterArray || filterArray.length === 0) {
-      //Filtro por defecto
-      return {
-        chartType: 'Single',
-        filter: '',
-        level: 2,
-        songTypes: [true],
-        stagePass: null
-      };
-    }
-
-    const level = Number(filterArray.at(1));
-    const songTypes = filterArray.at(2) ?? 'true';
-    const songTypesArray = songTypes.split(',').map((item) => item === 'true');
-    const stagePass = filterArray.at(3);
-    const stagePassFilter = !stagePass ? null : stagePass === 'true';
-
-    return {
-      chartType: filterArray.at(0)!,
-      filter: filter ?? '',
-      level: level,
-      songTypes: songTypesArray,
-      stagePass: stagePassFilter
-    };
-  }
-
   charTypeLevelKeyToSearchFilter(charTypeLevelKey: string): SearchFilters {
     const filterArray = charTypeLevelKey.split('-');
     const chartType = filterArray.at(0)!;
@@ -112,27 +91,50 @@ export class LocalStorageService {
     const isLastFilter = this.lastFilter().chartType === chartType && this.lastFilter().level === level;
 
     return {
-      chartType: filterArray.at(0)!,
+      chartType,
       filter: charTypeLevelKey,
-      isLastFilter: isLastFilter,
-      level: level,
-      songTypes: [true], //valor por defecto
-      stagePass: null //valor por defecto
+      isLastFilter,
+      level,
+      songTypes: [true], // valor por defecto
+      stagePass: null    // valor por defecto
     };
   }
 
-  //Este sirve para guardar el último filtro completo
-  searchFiltersToKey(searchFilters: SearchFilters): string {
-    const key = `${searchFilters.chartType}-${searchFilters.level}-${searchFilters.songTypes}`;
-    return searchFilters.stagePass === null ? key : `${key}-${searchFilters.stagePass}`;
-  }
-
-  //Este sirve para guardar los filtros de chartType y level nada más
+  // Genera la key del Map de savedFilters (no es serialización, es un identificador)
   searchFiltersToChartTypeLevelKey(searchFilters: SearchFilters): string {
     return `${searchFilters.chartType}-${searchFilters.level}`;
   }
 
   /* PRIVATE */
+  private persistLastFilter(filter: SearchFilters): void {
+    localStorage.setItem(LOCAL_STORAGE_LAST_FILTER_KEY, JSON.stringify(filter));
+  }
+
+  private getLastFilter(): SearchFilters {
+    const raw = localStorage.getItem(LOCAL_STORAGE_LAST_FILTER_KEY);
+    if (!raw) return { ...DEFAULT_FILTER };
+
+    try {
+      const parsed = JSON.parse(raw) as SearchFilters;
+      // Validación mínima: si tiene chartType y level, es un objeto válido
+      if (parsed && typeof parsed.chartType === 'string' && typeof parsed.level === 'number') {
+        return {
+          ...DEFAULT_FILTER,
+          ...parsed,
+          // Sanitizar campos que podrían no estar presentes en datos migrados
+          songTypes: Array.isArray(parsed.songTypes) ? parsed.songTypes : DEFAULT_FILTER.songTypes,
+          stagePass: parsed.stagePass === undefined ? null : parsed.stagePass
+        };
+      }
+    } catch {
+      // Si el JSON falla, el dato era del formato antiguo (string con guiones); se ignora y usa el default
+    }
+
+    // Fallback transparente: limpiar el dato viejo y usar el default
+    localStorage.removeItem(LOCAL_STORAGE_LAST_FILTER_KEY);
+    return { ...DEFAULT_FILTER };
+  }
+
   private getSavedFiltersFromLocalStorage(): Map<string, TierListWithScore[]> {
     const savedFilters = localStorage.getItem(LOCAL_STORAGE_SAVED_FILTERS_KEY);
 
@@ -141,11 +143,6 @@ export class LocalStorageService {
 
     const parsed = JSON.parse(savedFilters) as [string, TierListWithScore[]][];
     return new Map(parsed);
-  }
-
-  private getLastFilter(): SearchFilters {
-    const lastFilter = localStorage.getItem(LOCAL_STORAGE_LAST_FILTER_KEY);
-    return this.filterStringToSearchFilter(lastFilter);
   }
 
   private getLocalStorageGeminiApiKey() {

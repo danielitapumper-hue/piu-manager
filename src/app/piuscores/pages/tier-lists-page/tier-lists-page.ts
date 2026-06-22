@@ -52,7 +52,7 @@ export class TierListsPage {
     this.piuScoresService.getTierListWithScores(searchFilters)
       .subscribe(resp => {
         this.tierList.set(resp);
-        this.localStorageService.setLocalStorageLastFilter(this.localStorageService.searchFiltersToKey(searchFilters));
+        this.localStorageService.setLocalStorageLastFilter(searchFilters);
         if (searchFilters.saveFilter) {
           this.localStorageService.setLocalStorageSavedFilters(
             this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
