@@ -22,7 +22,10 @@ export class ScoresHistoryPage {
     stream: () => this.piuScoresService.getAllPhoenixScores(),
   });
 
-  allScores = computed(() => this.scoresResource.value() ?? []);
+  allScores = computed(() => {
+    const scores = this.scoresResource.value();
+    return scores ? scores.filter(score => score.score > 0) : [];
+  });
 
   filteredScores = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
