@@ -38,13 +38,11 @@ export class TierListsPage {
 
   searchLastFilter() {
     const lastFilter = this.lastFilter();
-    if (lastFilter.filter) {
-      this.songTypesFilter.set(lastFilter.songTypes);
-      this.stagePassFilter.set(lastFilter.stagePass);
-      this.tierList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
-        this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
-      ));
-    }
+    this.songTypesFilter.set(lastFilter.songTypes);
+    this.stagePassFilter.set(lastFilter.stagePass);
+    this.tierList.set(this.localStorageService.getTierListByScoresFromLocalStorage(
+      this.localStorageService.searchFiltersToChartTypeLevelKey(lastFilter)
+    ));
   }
 
   search(searchFilters: SearchFilters) {

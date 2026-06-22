@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 const LOCAL_STORAGE_SAVED_FILTERS_KEY = 'savedFilters';
 const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
@@ -9,8 +10,8 @@ const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
 const DEFAULT_FILTER: SearchFilters = {
   chartType: 'Single',
   filter: '',
-  level: 2,
-  songTypes: [true],
+  level: PiuSongsUtils.minLevel,
+  songTypes: [true, true, true, true],
   stagePass: null
 };
 

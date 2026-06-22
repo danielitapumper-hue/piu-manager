@@ -6,9 +6,11 @@
     (stagePassFilter)="searchByStagePass($event)" (savedFilter)="searchSavedFilter($event)"
     (songNameFilter)="searchBySongName($event)" />
 
+  @if (tierListByCategories().length > 0) {
   <button class="btn btn-primary btn-outline" (click)="openRandomizerDialog()">
     Random
   </button>
+  }
 
   <div class="divider"></div>
 
