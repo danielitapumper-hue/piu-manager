@@ -31,7 +31,9 @@ export class ScoresPage {
 
   isLoadingScores = signal<boolean>(false);
   lastFilter = computed<SearchFilters>(() => this.localStorageService.lastFilter());
-  scoresListByLetterGrade = computed<CategoryCharts[]>(() => this.getScoresListByLetterGrade());
+  scoresListByLetterGrade = computed<CategoryCharts[]>(() => 
+    PiuSongsUtils.getScoresListByLetterGrade(this.scoresList(), this.songTypesFilter(), this.songName())
+  );
 
   ngOnInit() {
     this.searchLastFilter();
@@ -111,45 +113,5 @@ export class ScoresPage {
       },
       backdropClass: 'bg-base-100/90'
     });
-  }
-
-  private getScoresListByLetterGrade(): CategoryCharts[] {
-    if (this.scoresList().length === 0)
-      return [];
-
-    const scoresListByLetterGrade: CategoryCharts[] = [];
-    const filteredScoresList = this.getFilteredScoresList();
-    const letterGrades = [...new Set(
-      this.scoresList()
-        .filter(item => item.score)
-        .map(item => item.score!.letterGrade)
-        .sort((a, b) => a.localeCompare(b))
-    )];
-
-    for (const letterGrade of letterGrades) {
-      const charts = this.getScoreListByLetterGrade(letterGrade, filteredScoresList);
-      if (charts.length === 0)
-        continue;
-
-      scoresListByLetterGrade.push({
-        category: letterGrade,
-        charts: charts
-      });
-    }
-
-    return scoresListByLetterGrade;
-  }
-
-  private getFilteredScoresList(): ChartScore[] {
-    const songTypesFilter = PiuSongsUtils.getSongTypesFilter(this.songTypesFilter());
-    return this.scoresList().filter(item => item.score &&
-      songTypesFilter.includes(item.chart.song.type) &&
-      (!this.songName() || item.chart.song.name.toLowerCase().includes(this.songName().toLowerCase())));
-  }
-
-  private getScoreListByLetterGrade(letterGrade: string, filteredScoresList: ChartScore[]): ChartScore[] {
-    return filteredScoresList
-      .filter(item => item.score!.letterGrade === letterGrade)
-      .sort((a, b) => a.score!.score - b.score!.score);
   }
 }

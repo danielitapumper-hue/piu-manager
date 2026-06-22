@@ -1,6 +1,8 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
 import { Plate } from "@piuscores/interfaces/piuscores-services/phoenix-scores-response";
 import { ChartType, SongType, Category } from "@piuscores/interfaces/piuscores-services/piuscores-interfaces";
+import { ChartScore } from "@piuscores/interfaces/chart-score";
+import { CategoryCharts } from "@piuscores/interfaces/category-charts";
 
 export class PiuSongsUtils {
   static maxScore: number = 1_000_000;
@@ -69,5 +71,53 @@ export class PiuSongsUtils {
     if (score >= 450_000)
       return 'D';
     return 'F';
+  }
+
+  static getScoresListByLetterGrade(
+    scoresList: ChartScore[],
+    songTypesFilterRaw: boolean[],
+    songName: string
+  ): CategoryCharts[] {
+    if (scoresList.length === 0)
+      return [];
+
+    const scoresListByLetterGrade: CategoryCharts[] = [];
+    const filteredScoresList = PiuSongsUtils.getFilteredScoresList(scoresList, songTypesFilterRaw, songName);
+    const letterGrades = [...new Set(
+      scoresList
+        .filter(item => item.score)
+        .map(item => item.score!.letterGrade)
+        .sort((a, b) => a.localeCompare(b))
+    )];
+
+    for (const letterGrade of letterGrades) {
+      const charts = PiuSongsUtils.getScoreListByLetterGrade(letterGrade, filteredScoresList);
+      if (charts.length === 0)
+        continue;
+
+      scoresListByLetterGrade.push({
+        category: letterGrade,
+        charts: charts
+      });
+    }
+
+    return scoresListByLetterGrade;
+  }
+
+  static getFilteredScoresList(
+    scoresList: ChartScore[],
+    songTypesFilterRaw: boolean[],
+    songName: string
+  ): ChartScore[] {
+    const songTypesFilter = PiuSongsUtils.getSongTypesFilter(songTypesFilterRaw);
+    return scoresList.filter(item => item.score &&
+      songTypesFilter.includes(item.chart.song.type) &&
+      (!songName || item.chart.song.name.toLowerCase().includes(songName.toLowerCase())));
+  }
+
+  static getScoreListByLetterGrade(letterGrade: string, filteredScoresList: ChartScore[]): ChartScore[] {
+    return filteredScoresList
+      .filter(item => item.score!.letterGrade === letterGrade)
+      .sort((a, b) => a.score!.score - b.score!.score);
   }
 }
