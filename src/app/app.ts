@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Navbar } from "./piuscores/components/navbar/navbar";
+import { ToastService } from './shared/services/toast-service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +10,5 @@ import { Navbar } from "./piuscores/components/navbar/navbar";
 })
 export class App {
   protected readonly title = signal('piu-manager');
+  toastService = inject(ToastService);
 }

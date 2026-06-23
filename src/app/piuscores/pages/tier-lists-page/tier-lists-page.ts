@@ -48,16 +48,21 @@ export class TierListsPage {
   search(searchFilters: SearchFilters) {
     this.isLoadingTierList.set(true);
     this.piuScoresService.getTierListWithScores(searchFilters)
-      .subscribe(resp => {
-        this.tierList.set(resp);
-        this.localStorageService.setLocalStorageLastFilter(searchFilters);
-        if (searchFilters.saveFilter) {
-          this.localStorageService.setLocalStorageSavedFilters(
-            this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
-            resp
-          );
+      .subscribe({
+        next: resp => {
+          this.tierList.set(resp);
+          this.localStorageService.setLocalStorageLastFilter(searchFilters);
+          if (searchFilters.saveFilter) {
+            this.localStorageService.setLocalStorageSavedFilters(
+              this.localStorageService.searchFiltersToChartTypeLevelKey(searchFilters),
+              resp
+            );
+          }
+          this.isLoadingTierList.set(false);
+        },
+        error: () => {
+          this.isLoadingTierList.set(false);
         }
-        this.isLoadingTierList.set(false);
       });
   }
 
