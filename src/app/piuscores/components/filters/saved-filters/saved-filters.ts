@@ -3,6 +3,7 @@ import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { LocalStorageService } from '@shared/services/local-storage-service';
+import { ToastService } from '@shared/services/toast-service';
 import { catchError, concatMap, from, map, of } from 'rxjs';
 
 @Component({
@@ -13,6 +14,7 @@ import { catchError, concatMap, from, map, of } from 'rxjs';
 export class SavedFilters {
   piuScoresService = inject(PiuscoresService);
   localStorageService = inject(LocalStorageService);
+  toastService = inject(ToastService);
 
   filter = output<string>();
 
@@ -71,7 +73,7 @@ export class SavedFilters {
         this.processingItemNumber.set(0);
       },
       complete: () => {
-        console.log('Se actualizaron los filtros.');
+        this.toastService.success('Se actualizaron los filtros correctamente.');
         this.isLoadingUpdate.set(false);
         this.processingItemNumber.set(0);
         if (ultimoFiltro?.filter)
