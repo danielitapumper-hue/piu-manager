@@ -6,6 +6,7 @@ import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-req
 import { Score } from '@piuscores/interfaces/score';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { ToastService } from '@shared/services/toast-service';
 
 interface ScoreFormGroup {
   score: FormControl<number | null>;
@@ -21,6 +22,7 @@ interface ScoreFormGroup {
 export class ScoreForm implements OnInit {
   fb = inject(FormBuilder);
   piuscoresService = inject(PiuscoresService);
+  toastService = inject(ToastService);
   destroyRef = inject(DestroyRef);
 
   chartScore = input.required<ChartScore>();
@@ -79,6 +81,7 @@ export class ScoreForm implements OnInit {
             isBroken: scoreRequest.isBroken == true,
           } : undefined;
 
+        this.toastService.success('Se actualizó el score correctamente');
         this.scoreSaved.emit(updatedScore);
         this.isLoading.set(false);
       },
