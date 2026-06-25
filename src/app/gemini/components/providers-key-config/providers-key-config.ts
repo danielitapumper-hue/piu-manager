@@ -4,11 +4,11 @@ import { ProcessImagesService } from '@gemini/services/process-images-service';
 import { ImageScannerProvider, ScannerProviderId } from '@gemini/providers/image-scanner-provider.interface';
 
 @Component({
-  selector: 'gemini-api-key-config',
+  selector: 'providers-key-config',
   imports: [],
-  templateUrl: './gemini-api-key-config.html',
+  templateUrl: './providers-key-config.html',
 })
-export class GeminiApiKeyConfig {
+export class ProvidersKeyConfig {
   private localStorageService = inject(LocalStorageService);
   private processImagesService = inject(ProcessImagesService);
 

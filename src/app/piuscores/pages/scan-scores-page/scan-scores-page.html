@@ -2,7 +2,7 @@
   <app-title [title]="'Escanear Scores'"
     [subTitle]="'Sube capturas de tus puntuaciones para escanearlas de forma automática. Puedes subir varias imágenes en simultáneo. Las imágenes no se almacenarán en ningún servidor.'" />
 
-  <gemini-api-key-config />
+  <providers-key-config />
 
   @if(hasActiveApiKey()) {
   <upload-images (files)="processFiles($event)" />

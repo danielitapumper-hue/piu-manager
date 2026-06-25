@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GEMINI_PROMPTS } from '@gemini/constants/gemini-prompts.constant';
+import { PROMPTS } from '@gemini/constants/prompts.constant';
 import { ImageScannerProvider, SCANNER_PROVIDER_IDS } from './image-scanner-provider.interface';
 import { BYPASS_AUTH } from '@auth/interceptors/auth-interceptor';
 
@@ -27,7 +27,7 @@ export class GithubScannerProvider implements ImageScannerProvider {
         {
           role: 'user',
           content: [
-            { type: 'text', text: GEMINI_PROMPTS },
+            { type: 'text', text: PROMPTS },
             { type: 'image_url', image_url: { url: dataUrl } }
           ]
         }

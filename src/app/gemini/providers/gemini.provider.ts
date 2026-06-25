@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GEMINI_PROMPTS } from '@gemini/constants/gemini-prompts.constant';
+import { PROMPTS } from '@gemini/constants/prompts.constant';
 import { GeminiGenerateContentResponse } from '@gemini/interfaces/gemini-response';
 import { ImageScannerProvider, SCANNER_PROVIDER_IDS } from './image-scanner-provider.interface';
 import { BYPASS_AUTH } from '@auth/interceptors/auth-interceptor';
@@ -21,7 +21,7 @@ export class GeminiScannerProvider implements ImageScannerProvider {
     const payload = {
       contents: [{
         parts: [
-          { text: GEMINI_PROMPTS },
+          { text: PROMPTS },
           { inlineData: { mimeType, data: base64Data } }
         ]
       }],
