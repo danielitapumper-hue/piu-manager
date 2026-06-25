@@ -5,6 +5,9 @@
     <span class="font-semibold text-sm">{{ scanItems().length }} imagen(es) cargada(s)</span>
   </div>
   <div class="flex gap-2">
+    <button class="btn btn-outline btn-sm btn-warning" (click)="rescanAllErrors()" [disabled]="getErrorItems().length === 0">
+      Reintentar errores
+    </button>
     <button class="btn btn-outline btn-sm btn-error" (click)="clearAll()">
       Limpiar todo
     </button>

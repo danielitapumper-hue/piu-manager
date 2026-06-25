@@ -120,6 +120,16 @@ export class ProcessImages {
     this.scanQueue.next(item);
   }
 
+  getErrorItems(): ScanItem[] {
+    return this.scanItems().filter(item => item.status === ScanStatus.Error);
+  }
+
+  rescanAllErrors() {
+    const errorItems = this.getErrorItems();
+    if (errorItems.length === 0) return;
+    errorItems.forEach(item => this.rescanItem(item));
+  }
+
   clearAll() {
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
     this.scanItems.set([]);
