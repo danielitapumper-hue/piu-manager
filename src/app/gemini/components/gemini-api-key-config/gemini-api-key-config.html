@@ -1,7 +1,9 @@
-<!-- API Key & Settings Configuration -->
+<!-- Scanner Provider Configuration -->
 <div class="card bg-base-100 border border-base-300 shadow-sm p-4 rounded-box">
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div class="flex-1">
+  <div class="flex flex-col gap-4">
+
+    <!-- Header -->
+    <div>
       <h2 class="text-sm font-bold text-base-content flex items-center gap-1.5">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
@@ -12,26 +14,53 @@
         Configuración del Escáner Visual
       </h2>
       <p class="text-xs text-base-content/60 mt-0.5">
-        Introduce una API Key de Gemini para activar el escaneo real de imágenes usando IA.
-        Se guarda localmente en tu navegador.
+        Selecciona tu proveedor de IA preferido e introduce su API Key. Todas las claves se guardan localmente y puedes
+        cambiar de proveedor sin perder las claves ingresadas.
       </p>
     </div>
-    <div class="w-full md:w-80">
-      <input #keyInput type="password" placeholder="Gemini API Key..." class="input input-sm input-bordered w-full"
-        [value]="geminiApiKey()" (input)="saveApiKey(keyInput.value)" />
+
+    <!-- Provider selector + API Key input -->
+    <div class="flex flex-col sm:flex-row gap-2">
+      <!-- Provider dropdown -->
+      <select
+        class="select select-sm select-bordered w-full sm:w-48 shrink-0"
+        [value]="selectedProviderId()"
+        (change)="selectProvider($any($event.target).value)">
+        @for (provider of availableProviders; track provider.id) {
+          <option [value]="provider.id" [selected]="provider.id === selectedProviderId()">{{ provider.name }}</option>
+        }
+      </select>
+
+      <!-- API Key input -->
+      <input
+        #keyInput
+        type="password"
+        [placeholder]="'API Key de ' + (selectedProvider()?.name ?? 'proveedor') + '...'"
+        class="input input-sm input-bordered w-full"
+        [value]="activeApiKey()"
+        (input)="saveApiKey(keyInput.value)" />
     </div>
+
+    <!-- Model info badge -->
+    @if (selectedProvider()) {
+      <p class="text-xs text-base-content/50">
+        Modelo activo: <span class="font-mono">{{ selectedProvider()!.modelDescription }}</span>
+      </p>
+    }
   </div>
 </div>
 
 <!-- Status Alert Badges -->
-@if (geminiApiKey()) {
+@if (activeApiKey()) {
 <div class="alert alert-success shadow-sm py-2 px-3 text-xs mb-6 rounded-btn flex items-center gap-1.5">
   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-success-content" fill="none" viewBox="0 0 24 24"
     stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
       d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
   </svg>
-  <span class="font-medium">Escáner de imagen activo usando Gemini 2.5 Flash API</span>
+  <span class="font-medium">
+    Escáner activo usando {{ selectedProvider()?.name }} ({{ selectedProvider()?.modelDescription }})
+  </span>
 </div>
 } @else {
 <div class="alert alert-error shadow-sm py-2 px-3 text-xs mb-6 rounded-btn flex items-center gap-1.5">
@@ -41,7 +70,7 @@
       d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
   <span class="font-medium">
-    Introduce una API Key arriba para escanear tus imágenes.
+    Introduce una API Key para {{ selectedProvider()?.name ?? 'el proveedor seleccionado' }} para activar el escáner.
   </span>
 </div>
 }

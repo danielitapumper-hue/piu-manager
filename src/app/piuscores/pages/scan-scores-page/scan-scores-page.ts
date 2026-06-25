@@ -4,6 +4,8 @@ import { UploadImages } from "@piuscores/components/images/upload-images/upload-
 import { ProcessImages } from "@piuscores/components/images/process-images/process-images";
 import { GeminiApiKeyConfig } from '@gemini/components/gemini-api-key-config/gemini-api-key-config';
 import { LocalStorageService } from '@shared/services/local-storage-service';
+import { ProcessImagesService } from '@gemini/services/process-images-service';
+import { ScannerProviderId } from '@gemini/providers/image-scanner-provider.interface';
 
 @Component({
   selector: 'app-scan-scores-page',
@@ -12,12 +14,18 @@ import { LocalStorageService } from '@shared/services/local-storage-service';
 })
 export class ScanScoresPage {
   private localStorageService = inject(LocalStorageService);
+  private processImagesService = inject(ProcessImagesService);
 
   filesList = signal<File[]>([]);
-  geminiApiKey = computed<string>(() => this.localStorageService.geminiApiKey());
 
-  geminiApiKeyEffect = effect(() => {
-    if (!this.geminiApiKey())
+  /** True when the currently selected provider has an API Key configured. */
+  hasActiveApiKey = computed<boolean>(() => {
+    const providerId = this.localStorageService.scannerProvider() as ScannerProviderId;
+    return !!this.processImagesService.getApiKeyForProvider(providerId);
+  });
+
+  activeApiKeyEffect = effect(() => {
+    if (!this.hasActiveApiKey())
       this.filesList.set([]);
   });
 
