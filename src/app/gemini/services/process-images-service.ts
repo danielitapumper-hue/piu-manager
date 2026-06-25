@@ -9,7 +9,6 @@ import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-r
 import { ImageScannerProvider, ScannerProviderId } from '@gemini/providers/image-scanner-provider.interface';
 import { GeminiScannerProvider } from '@gemini/providers/gemini.provider';
 import { OpenRouterScannerProvider } from '@gemini/providers/openrouter.provider';
-import { SambaNovaScannerProvider } from '@gemini/providers/sambanova.provider';
 import { GithubScannerProvider } from '@gemini/providers/github.provider';
 
 @Injectable({
@@ -19,13 +18,11 @@ export class ProcessImagesService {
   private localStorageService = inject(LocalStorageService);
   private geminiProvider = inject(GeminiScannerProvider);
   private openRouterProvider = inject(OpenRouterScannerProvider);
-  private sambanovaProvider = inject(SambaNovaScannerProvider);
   private githubProvider = inject(GithubScannerProvider);
 
   private readonly providers = new Map<ScannerProviderId, ImageScannerProvider>([
     ['gemini', this.geminiProvider],
     ['openrouter', this.openRouterProvider],
-    ['sambanova', this.sambanovaProvider],
     ['github', this.githubProvider],
   ] as [ScannerProviderId, ImageScannerProvider][]);
 
@@ -77,7 +74,6 @@ export class ProcessImagesService {
     switch (providerId) {
       case 'gemini': return this.localStorageService.geminiApiKey();
       case 'openrouter': return this.localStorageService.openrouterApiKey();
-      case 'sambanova': return this.localStorageService.sambanovaApiKey();
       case 'github': return this.localStorageService.githubApiKey();
       default: return '';
     }

@@ -8,7 +8,6 @@ const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
 const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
 const LOCAL_STORAGE_SCANNER_PROVIDER_KEY = 'scanner_provider';
 const LOCAL_STORAGE_OPENROUTER_API_KEY = 'openrouter_api_key';
-const LOCAL_STORAGE_SAMBANOVA_API_KEY = 'sambanova_api_key';
 const LOCAL_STORAGE_GITHUB_API_KEY = 'github_api_key';
 
 const DEFAULT_FILTER: SearchFilters = {
@@ -28,7 +27,6 @@ export class LocalStorageService {
   geminiApiKey = signal<string>(this.getLocalStorageGeminiApiKey());
   scannerProvider = signal<string>(this.getLocalStorageScannerProvider());
   openrouterApiKey = signal<string>(this.getLocalStorageOpenRouterApiKey());
-  sambanovaApiKey = signal<string>(this.getLocalStorageSambanovaApiKey());
   githubApiKey = signal<string>(this.getLocalStorageGithubApiKey());
 
   /* GET */
@@ -89,11 +87,6 @@ export class LocalStorageService {
   setLocalStorageOpenRouterApiKey(key: string) {
     this.openrouterApiKey.set(key);
     localStorage.setItem(LOCAL_STORAGE_OPENROUTER_API_KEY, key);
-  }
-
-  setLocalStorageSambanovaApiKey(key: string) {
-    this.sambanovaApiKey.set(key);
-    localStorage.setItem(LOCAL_STORAGE_SAMBANOVA_API_KEY, key);
   }
 
   setLocalStorageGithubApiKey(key: string) {
@@ -184,10 +177,6 @@ export class LocalStorageService {
 
   private getLocalStorageOpenRouterApiKey() {
     return localStorage.getItem(LOCAL_STORAGE_OPENROUTER_API_KEY) ?? '';
-  }
-
-  private getLocalStorageSambanovaApiKey() {
-    return localStorage.getItem(LOCAL_STORAGE_SAMBANOVA_API_KEY) ?? '';
   }
 
   private getLocalStorageGithubApiKey() {

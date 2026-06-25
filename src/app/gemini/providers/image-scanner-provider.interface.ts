@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 export const SCANNER_PROVIDER_IDS = {
   GEMINI: 'gemini',
   OPENROUTER: 'openrouter',
-  SAMBANOVA: 'sambanova',
   GITHUB: 'github',
 } as const;
 

@@ -24,13 +24,11 @@ export class GeminiApiKeyConfig {
 
   geminiApiKey = computed<string>(() => this.localStorageService.geminiApiKey());
   openrouterApiKey = computed<string>(() => this.localStorageService.openrouterApiKey());
-  sambanovaApiKey = computed<string>(() => this.localStorageService.sambanovaApiKey());
   githubApiKey = computed<string>(() => this.localStorageService.githubApiKey());
 
   activeApiKey = computed<string>(() => {
     switch (this.selectedProviderId()) {
       case 'openrouter': return this.openrouterApiKey();
-      case 'sambanova': return this.sambanovaApiKey();
       case 'github': return this.githubApiKey();
       default: return this.geminiApiKey();
     }
@@ -45,9 +43,6 @@ export class GeminiApiKeyConfig {
     switch (this.selectedProviderId()) {
       case 'openrouter':
         this.localStorageService.setLocalStorageOpenRouterApiKey(trimmed);
-        break;
-      case 'sambanova':
-        this.localStorageService.setLocalStorageSambanovaApiKey(trimmed);
         break;
       case 'github':
         this.localStorageService.setLocalStorageGithubApiKey(trimmed);
