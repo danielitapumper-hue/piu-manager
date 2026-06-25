@@ -3,7 +3,7 @@
 
   @if(savedFiltersArray().length > 0){
   <div class="flex gap-2">
-    <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="updateSavedFilters()"
+    <button type="button" class="btn btn-primary btn-soft btn-xs" (click)="updateSavedFilters()"
       [disabled]="isLoadingUpdate()">
       @if(isLoadingUpdate()) {
       <span class="loading loading-spinner loading-xs"></span>
@@ -19,7 +19,7 @@
       }
     </button>
 
-    <button type="button" class="btn btn-primary btn-outline btn-xs" (click)="toggleEditMode()">
+    <button type="button" class="btn btn-primary btn-soft btn-xs" (click)="toggleEditMode()">
       @if(isEditMode()) {
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,9 +48,8 @@
 
   <div class="inline-flex items-center rounded-lg border border-base-300 bg-base-100">
 
-    <button type="button" class="btn btn-outline btn-sm normal-case px-3 py-2" [class]="{
-        'btn-outline': !searchFilter.isLastFilter,
-        'text-white': searchFilter.isLastFilter,
+    <button type="button" class="btn btn-sm normal-case px-3 py-2" [class]="{
+        'btn-soft': !searchFilter.isLastFilter,
         'btn-success': searchFilter.chartType==='Double',
         'btn-error': searchFilter.chartType==='Single'
       }" (click)="search(searchFilter.filter!)">

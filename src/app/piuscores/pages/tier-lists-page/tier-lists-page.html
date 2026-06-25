@@ -7,7 +7,7 @@
     (songNameFilter)="searchBySongName($event)" />
 
   @if (tierListByCategories().length > 0) {
-  <button class="btn btn-primary btn-outline" (click)="openRandomizerDialog()">
+  <button class="btn btn-primary btn-soft" (click)="openRandomizerDialog()">
     Random
   </button>
   }
@@ -26,7 +26,7 @@
 
     <h2 class="text-xl font-bold">{{ tierListByCategory.category }}</h2>
 
-    <button class="btn btn-primary btn-outline btn-sm" (click)="openRandomizerDialog(tierListByCategory.category)">
+    <button class="btn btn-primary btn-soft btn-sm" (click)="openRandomizerDialog(tierListByCategory.category)">
       Random ({{ tierListByCategory.category }})
     </button>
 

@@ -22,30 +22,23 @@
     <!-- Provider selector + API Key input -->
     <div class="flex flex-col sm:flex-row gap-2">
       <!-- Provider dropdown -->
-      <select
-        class="select select-sm select-bordered w-full sm:w-48 shrink-0"
-        [value]="selectedProviderId()"
+      <select class="select select-sm w-full sm:w-48 shrink-0" [value]="selectedProviderId()"
         (change)="selectProvider($any($event.target).value)">
         @for (provider of availableProviders; track provider.id) {
-          <option [value]="provider.id" [selected]="provider.id === selectedProviderId()">{{ provider.name }}</option>
+        <option [value]="provider.id" [selected]="provider.id === selectedProviderId()">{{ provider.name }}</option>
         }
       </select>
 
       <!-- API Key input -->
-      <input
-        #keyInput
-        type="password"
-        [placeholder]="'API Key de ' + (selectedProvider()?.name ?? 'proveedor') + '...'"
-        class="input input-sm input-bordered w-full"
-        [value]="activeApiKey()"
-        (input)="saveApiKey(keyInput.value)" />
+      <input #keyInput type="password" [placeholder]="'API Key de ' + (selectedProvider()?.name ?? 'proveedor') + '...'"
+        class="input input-sm w-full" [value]="activeApiKey()" (input)="saveApiKey(keyInput.value)" />
     </div>
 
     <!-- Model info badge -->
     @if (selectedProvider()) {
-      <p class="text-xs text-base-content/50">
-        Modelo activo: <span class="font-mono">{{ selectedProvider()!.modelDescription }}</span>
-      </p>
+    <p class="text-xs text-base-content/50">
+      Modelo activo: <span class="font-mono">{{ selectedProvider()!.modelDescription }}</span>
+    </p>
     }
   </div>
 </div>
