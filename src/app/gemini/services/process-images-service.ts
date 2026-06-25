@@ -22,8 +22,8 @@ export class ProcessImagesService {
 
   private readonly providers = new Map<ScannerProviderId, ImageScannerProvider>([
     ['gemini', this.geminiProvider],
-    ['openrouter', this.openRouterProvider],
     ['github', this.githubProvider],
+    ['openrouter', this.openRouterProvider],
   ] as [ScannerProviderId, ImageScannerProvider][]);
 
   get availableProviders(): ImageScannerProvider[] {
