@@ -18,7 +18,7 @@
 <div class="flex flex-col gap-4">
   @for (item of scanItems(); track item.id) {
   <process-images-item [item]="item" (updatedItem)="saveItem($event)" (removedItem)="removeItem($event)"
-    (formValidItem)="updateFormValidItem($event)" />
+    (rescanItem)="rescanItem($event)" (formValidItem)="updateFormValidItem($event)" />
   }
 </div>
 }

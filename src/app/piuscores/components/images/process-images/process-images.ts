@@ -112,6 +112,15 @@ export class ProcessImages {
     this.scanItems.update(items => items.filter(i => i.id !== item.id));
   }
 
+  rescanItem(item: ScanItem) {
+    this.updateItemState(item.id, {
+      status: ScanStatus.Pending,
+      errorMessage: undefined,
+      scoreRequest: undefined
+    });
+    this.scanQueue.next(item);
+  }
+
   clearAll() {
     this.scanItems().forEach(item => URL.revokeObjectURL(item.previewUrl));
     this.scanItems.set([]);

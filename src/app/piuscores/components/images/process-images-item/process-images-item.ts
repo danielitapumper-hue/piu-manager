@@ -33,6 +33,7 @@ export class ProcessImagesItem implements OnInit {
   item = input.required<ScanItem>();
   updatedItem = output<ScanItem>();
   removedItem = output<ScanItem>();
+  rescanItem = output<ScanItem>();
   formValidItem = output<ScanItem>();
 
   itemForm!: FormGroup<ProcessImagesItemFormGroup>;
@@ -143,6 +144,10 @@ export class ProcessImagesItem implements OnInit {
 
   removeItem(): void {
     this.removedItem.emit(this.item());
+  }
+
+  retryItem(): void {
+    this.rescanItem.emit(this.item());
   }
 
   private buildForm(): FormGroup<ProcessImagesItemFormGroup> {
