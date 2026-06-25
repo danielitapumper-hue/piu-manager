@@ -7,7 +7,7 @@ import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 
-const API_URL = 'https://piuscores.arroweclip.se/api';
+export const PIUSCORES_API_URL = 'https://piuscores.arroweclip.se/api';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ export class PiuscoresService {
 
   /* GET */
   getTierListByScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {
-    return this.http.get<TierListResponse[]>(`${API_URL}/tierlist/scores`, {
+    return this.http.get<TierListResponse[]>(`${PIUSCORES_API_URL}/tierlist/scores`, {
       params: {
         chartType: searchFilters.chartType,
         level: searchFilters.level
@@ -74,7 +74,7 @@ export class PiuscoresService {
   }
 
   getPhoenixScores(page: number, count: number): Observable<PhoenixScoresResponse> {
-    return this.http.get<PhoenixScoresResponse>(`${API_URL}/phoenixScores`, {
+    return this.http.get<PhoenixScoresResponse>(`${PIUSCORES_API_URL}/phoenixScores`, {
       params: {
         page: page,
         count: count
@@ -84,7 +84,7 @@ export class PiuscoresService {
 
   /* POST */
   postScore(scoreRequest: ScoreRequest, keepBestStats?: boolean) {
-    return this.http.post(`${API_URL}/phoenixScores`, scoreRequest, {
+    return this.http.post(`${PIUSCORES_API_URL}/phoenixScores`, scoreRequest, {
       params: { KeepBestStats: keepBestStats == true }
     });
   }

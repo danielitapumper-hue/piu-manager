@@ -1,4 +1,4 @@
-export const GEMINI_PROMPTS = `You are an expert OCR and data extraction agent for the arcade game Pump It Up (Phoenix version).
+export const PROMPTS = `You are an expert OCR and data extraction agent for the arcade game Pump It Up (Phoenix version).
   Analyze the provided image containing a screenshot of the game results screen and extract the data to populate a ScoreRequest JSON object.
 
   Follow these rules strictly:

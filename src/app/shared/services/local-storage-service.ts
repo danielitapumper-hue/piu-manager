@@ -6,6 +6,9 @@ import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 const LOCAL_STORAGE_SAVED_FILTERS_KEY = 'savedFilters';
 const LOCAL_STORAGE_LAST_FILTER_KEY = 'lastFilter';
 const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
+const LOCAL_STORAGE_SCANNER_PROVIDER_KEY = 'scanner_provider';
+const LOCAL_STORAGE_OPENROUTER_API_KEY = 'openrouter_api_key';
+const LOCAL_STORAGE_GITHUB_API_KEY = 'github_api_key';
 
 const DEFAULT_FILTER: SearchFilters = {
   chartType: 'Single',
@@ -22,6 +25,9 @@ export class LocalStorageService {
   lastFilter = signal<SearchFilters>(this.getLastFilter());
   savedFilters = signal<Map<string, TierListWithScore[]>>(this.getSavedFiltersFromLocalStorage());
   geminiApiKey = signal<string>(this.getLocalStorageGeminiApiKey());
+  scannerProvider = signal<string>(this.getLocalStorageScannerProvider());
+  openrouterApiKey = signal<string>(this.getLocalStorageOpenRouterApiKey());
+  githubApiKey = signal<string>(this.getLocalStorageGithubApiKey());
 
   /* GET */
   getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListWithScore[] {
@@ -71,6 +77,21 @@ export class LocalStorageService {
   setLocalStorageGeminiApiKey(key: string) {
     this.geminiApiKey.set(key);
     localStorage.setItem(LOCAL_STORAGE_GEMINI_API_KEY, key);
+  }
+
+  setLocalStorageScannerProvider(provider: string) {
+    this.scannerProvider.set(provider);
+    localStorage.setItem(LOCAL_STORAGE_SCANNER_PROVIDER_KEY, provider);
+  }
+
+  setLocalStorageOpenRouterApiKey(key: string) {
+    this.openrouterApiKey.set(key);
+    localStorage.setItem(LOCAL_STORAGE_OPENROUTER_API_KEY, key);
+  }
+
+  setLocalStorageGithubApiKey(key: string) {
+    this.githubApiKey.set(key);
+    localStorage.setItem(LOCAL_STORAGE_GITHUB_API_KEY, key);
   }
 
   /* DELETE */
@@ -148,6 +169,18 @@ export class LocalStorageService {
 
   private getLocalStorageGeminiApiKey() {
     return localStorage.getItem(LOCAL_STORAGE_GEMINI_API_KEY) ?? '';
+  }
+
+  private getLocalStorageScannerProvider() {
+    return localStorage.getItem(LOCAL_STORAGE_SCANNER_PROVIDER_KEY) ?? 'gemini';
+  }
+
+  private getLocalStorageOpenRouterApiKey() {
+    return localStorage.getItem(LOCAL_STORAGE_OPENROUTER_API_KEY) ?? '';
+  }
+
+  private getLocalStorageGithubApiKey() {
+    return localStorage.getItem(LOCAL_STORAGE_GITHUB_API_KEY) ?? '';
   }
 
   /**

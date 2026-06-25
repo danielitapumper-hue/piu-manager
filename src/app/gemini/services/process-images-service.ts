@@ -1,19 +1,34 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { GEMINI_PROMPTS } from '@gemini/constants/gemini-prompts.constant';
+import { Observable, switchMap, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { LocalStorageService } from '@shared/services/local-storage-service';
-import { Observable } from 'rxjs';
-import { GeminiGenerateContentResponse } from '../interfaces/gemini-response';
+import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
+import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { Plate } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
+import { ImageScannerProvider, ScannerProviderId } from '@gemini/providers/image-scanner-provider.interface';
+import { GeminiScannerProvider } from '@gemini/providers/gemini.provider';
+import { OpenRouterScannerProvider } from '@gemini/providers/openrouter.provider';
+import { GithubScannerProvider } from '@gemini/providers/github.provider';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessImagesService {
-  private http = inject(HttpClient);
   private localStorageService = inject(LocalStorageService);
+  private geminiProvider = inject(GeminiScannerProvider);
+  private openRouterProvider = inject(OpenRouterScannerProvider);
+  private githubProvider = inject(GithubScannerProvider);
 
-  private readonly GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-  private readonly GEMINI_VERSION = 'gemini-2.5-flash';
+  private readonly providers = new Map<ScannerProviderId, ImageScannerProvider>([
+    ['gemini', this.geminiProvider],
+    ['openrouter', this.openRouterProvider],
+    ['github', this.githubProvider],
+  ] as [ScannerProviderId, ImageScannerProvider][]);
+
+  get availableProviders(): ImageScannerProvider[] {
+    return Array.from(this.providers.values());
+  }
 
   fileToBase64(file: File): Observable<string> {
     return new Observable(observer => {
@@ -27,7 +42,6 @@ export class ProcessImagesService {
       };
       reader.onerror = error => observer.error(error);
 
-      // Cleanup
       return () => {
         if (reader.readyState === 1) {
           reader.abort();
@@ -36,29 +50,56 @@ export class ProcessImagesService {
     });
   }
 
-  postImage(mimeType: string, base64Data: string): Observable<GeminiGenerateContentResponse> | undefined {
-    const key = this.localStorageService.geminiApiKey();
-    if (!key) {
-      return;
+  scanImage(mimeType: string, base64Data: string): Observable<ScoreRequest> {
+    const providerId = this.localStorageService.scannerProvider() as ScannerProviderId;
+    const provider = this.providers.get(providerId);
+    if (!provider) {
+      return throwError(() => new Error(`Proveedor desconocido: ${providerId}`));
     }
-    const url = `${this.GEMINI_URL}/${this.GEMINI_VERSION}:generateContent?key=${key}`;
-    const payload = {
-      contents: [{
-        parts: [
-          { text: GEMINI_PROMPTS },
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: base64Data
-            }
-          }
-        ]
-      }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.0
+
+    const apiKey = this.getApiKeyForProvider(providerId);
+    if (!apiKey) {
+      return throwError(() => new Error(`No hay API Key configurada para ${provider.name}`));
+    }
+
+    return provider.postImage(mimeType, base64Data, apiKey).pipe(
+      map(response => {
+        const rawText = provider.parseResponse(response);
+        return this.mapToScoreRequest(JSON.parse(rawText));
+      })
+    );
+  }
+
+  getApiKeyForProvider(providerId: ScannerProviderId): string {
+    switch (providerId) {
+      case 'gemini': return this.localStorageService.geminiApiKey();
+      case 'openrouter': return this.localStorageService.openrouterApiKey();
+      case 'github': return this.localStorageService.githubApiKey();
+      default: return '';
+    }
+  }
+
+  get activeProvider(): ImageScannerProvider | undefined {
+    const providerId = this.localStorageService.scannerProvider() as ScannerProviderId;
+    return this.providers.get(providerId);
+  }
+
+  private mapToScoreRequest(data: Record<string, unknown>): ScoreRequest {
+    let plateKey = '';
+    if (data['plate']) {
+      const matchedOption = PiuSongsUtils.getPlateKey(data['plate'] as Plate);
+      if (matchedOption) {
+        plateKey = matchedOption;
       }
+    }
+
+    return {
+      songName: (data['songName'] as string) || 'Unknown Song',
+      chartType: data['chartType'] === 'Double' ? ChartType.Double : ChartType.Single,
+      chartLevel: (data['chartLevel'] as number) || PiuSongsUtils.minLevel,
+      score: (data['score'] as number) ?? null,
+      plate: plateKey,
+      isBroken: data['isBroken'] === true
     };
-    return this.http.post<GeminiGenerateContentResponse>(url, payload);
   }
 }

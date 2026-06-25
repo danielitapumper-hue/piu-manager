@@ -2,7 +2,6 @@ import { Component, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, concatMap, map, switchMap, tap } from 'rxjs/operators';
-import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
@@ -162,52 +161,18 @@ export class ProcessImages {
       observer.complete();
     }).pipe(
       switchMap(() => this.processImagesService.fileToBase64(item.file)),
-      switchMap(base64Data => {
-        const req = this.processImagesService.postImage(item.file.type, base64Data);
-        if (!req) {
-          throw new Error('No se pudo generar la petición');
-        }
-        return req;
-      }),
+      switchMap(base64Data => this.processImagesService.scanImage(item.file.type, base64Data)),
       tap({
-        next: (response) => {
-          try {
-            const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!textResponse) {
-              throw new Error('No text response received from API');
-            }
-            const data = JSON.parse(textResponse);
-
-            let plateKey = '';
-            if (data.plate) {
-              const matchedOption = PiuSongsUtils.getPlateKey(data.plate);
-              if (matchedOption) {
-                plateKey = matchedOption;
-              }
-            }
-
-            this.updateItemState(item.id, {
-              status: ScanStatus.Success,
-              scoreRequest: {
-                songName: data.songName || 'Unknown Song',
-                chartType: data.chartType === 'Double' ? ChartType.Double : ChartType.Single,
-                chartLevel: data.chartLevel || PiuSongsUtils.minLevel,
-                score: data.score ?? null,
-                plate: plateKey,
-                isBroken: data.isBroken === true
-              }
-            });
-          } catch (err) {
-            this.updateItemState(item.id, {
-              status: ScanStatus.Error,
-              errorMessage: 'Error al parsear el resultado de la imagen: ' + (err as Error).message
-            });
-          }
+        next: (scoreRequest) => {
+          this.updateItemState(item.id, {
+            status: ScanStatus.Success,
+            scoreRequest
+          });
         },
         error: (err) => {
           this.updateItemState(item.id, {
             status: ScanStatus.Error,
-            errorMessage: err.error?.error?.message || err.message || 'Error en la llamada de red a la API de Gemini'
+            errorMessage: err.error?.error?.message || err.message || 'Error al escanear la imagen'
           });
         }
       }),
