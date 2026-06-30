@@ -1,7 +1,7 @@
-<form class="flex flex-col gap-2 items-start" [formGroup]="scoreForm" (ngSubmit)="formSubmit()">
+<form class="flex flex-col gap-3 items-start w-full" [formGroup]="scoreForm" (ngSubmit)="formSubmit()">
   <div class="w-full">
     <input type="number" placeholder="Score" class="input input-primary w-full" formControlName="score"
-      (keydown)="onKeyDown($event)" (input)="onScoreInput(inputScore.value)" #inputScore />
+      (keydown)="onKeyDown($event)" (input)="onScoreInput(inputScore.value)" #inputScore aria-label="Puntaje de la canción" />
     @if (submitted && scoreForm.get('score')?.hasError('required')) {
     <p class="text-error text-sm mt-1">El score es obligatorio.</p>
     }
@@ -12,7 +12,7 @@
   </div>
 
   <div class="w-full">
-    <select class="select select-primary w-full" formControlName="plate">
+    <select class="select select-primary w-full" formControlName="plate" aria-label="Placa obtenida">
       <option value="" disabled selected>Plate</option>
       @for (plate of plateOptions; track plate.key) {
       <option [value]="plate.key">{{ plate.value }}</option>
@@ -23,9 +23,9 @@
     }
   </div>
 
-  <label class="cursor-pointer">
+  <label class="label cursor-pointer flex justify-start items-center gap-2">
     <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" formControlName="isBroken" />
-    <span class="ml-1">Broken</span>
+    <span class="label-text">Broken</span>
   </label>
 
   <button type="submit" class="btn btn-outline btn-primary w-full">

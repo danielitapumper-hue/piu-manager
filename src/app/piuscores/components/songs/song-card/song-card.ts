@@ -1,8 +1,9 @@
-import { Component, input, inject, output } from '@angular/core';
+import { Component, input, inject, output, DestroyRef } from '@angular/core';
 import { ChartScore } from '@piuscores/interfaces/chart-score';
 import { Dialog } from '@angular/cdk/dialog';
 import { ScoreData } from '@piuscores/components/scores/score-data/score-data';
 import { ScoreDialog } from '@piuscores/components/scores/score-dialog/score-dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'song-card',
@@ -11,6 +12,7 @@ import { ScoreDialog } from '@piuscores/components/scores/score-dialog/score-dia
 })
 export class SongCard {
   dialog = inject(Dialog);
+  destroyRef = inject(DestroyRef);
   chartScore = input.required<ChartScore>();
   chartScoreUpdated = output<ChartScore>();
 
@@ -30,10 +32,12 @@ export class SongCard {
       backdropClass: 'bg-base-100/90'
     });
 
-    dialogRef.closed.subscribe((updatedChartScore) => {
-      if (updatedChartScore) {
-        this.chartScoreUpdated.emit(updatedChartScore);
-      }
-    });
+    dialogRef.closed
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((updatedChartScore) => {
+        if (updatedChartScore) {
+          this.chartScoreUpdated.emit(updatedChartScore);
+        }
+      });
   }
 }

@@ -1,10 +1,11 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, output, signal } from '@angular/core';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { ShortHandPipe } from '@piuscores/pipes/short-hand-pipe';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { LocalStorageService } from '@shared/services/local-storage-service';
 import { ToastService } from '@shared/services/toast-service';
 import { catchError, concatMap, from, map, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'saved-filters',
@@ -15,6 +16,7 @@ export class SavedFilters {
   piuScoresService = inject(PiuscoresService);
   localStorageService = inject(LocalStorageService);
   toastService = inject(ToastService);
+  destroyRef = inject(DestroyRef);
 
   filter = output<string>();
 
@@ -51,7 +53,8 @@ export class SavedFilters {
           return { savedFilter, resp, error: null };
         }),
         catchError(error => of({ savedFilter, resp: null, error }))
-      ))
+      )),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: ({ savedFilter, resp, error }) => {
         if (savedFilter.isLastFilter)

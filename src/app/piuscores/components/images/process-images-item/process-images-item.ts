@@ -45,7 +45,7 @@ export class ProcessImagesItem implements OnInit {
 
   ui = computed<UI>(() => {
     const status = this.item().status;
-    const isInvalid = this.itemForm.invalid;
+    const isInvalid = this.itemForm ? this.itemForm.invalid : false;
     switch (status) {
       case ScanStatus.Saved:
         return {

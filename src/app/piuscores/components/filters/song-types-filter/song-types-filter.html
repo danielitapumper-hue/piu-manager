@@ -1,11 +1,11 @@
-<div class="flex gap-2 justify-center">
+<div class="flex flex-wrap gap-4 justify-start py-2" role="group" aria-label="Filtro de tipo de canción">
 
   @for (songType of songTypes; track songType; let i = $index) {
 
-  <label class="cursor-pointer flex-1">
+  <label class="label cursor-pointer flex items-center gap-2">
     <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" [checked]="songTypesValue()[i]"
-      (change)="toggleSongType(i)" />
-    <span class="ml-1">{{ songType }}</span>
+      (change)="toggleSongType(i)" [attr.aria-label]="'Filtrar por ' + songType" />
+    <span class="label-text text-sm font-medium">{{ songType }}</span>
   </label>
 
   }

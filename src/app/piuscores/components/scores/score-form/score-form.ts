@@ -70,7 +70,9 @@ export class ScoreForm implements OnInit {
       songName: this.chartScore().chart.song.name
     };
 
-    this.piuscoresService.postScore(scoreRequest).subscribe({
+    this.piuscoresService.postScore(scoreRequest)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         const updatedScore: Score | undefined = scoreRequest.score
           ? {

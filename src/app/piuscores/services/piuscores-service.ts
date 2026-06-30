@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
+import { forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray, tap, shareReplay } from 'rxjs';
 import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-list-response';
 import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
@@ -14,6 +14,7 @@ export const PIUSCORES_API_URL = 'https://piuscores.arroweclip.se/api';
 })
 export class PiuscoresService {
   private http = inject(HttpClient);
+  private cachedScores$: Observable<Result[]> | null = null;
 
   /* GET */
   getTierListByScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {
@@ -43,9 +44,13 @@ export class PiuscoresService {
   }
 
   getAllPhoenixScores(): Observable<Result[]> {
+    if (this.cachedScores$) {
+      return this.cachedScores$;
+    }
+
     const count = 1000;
     // Obtener primera página para saber cuántas páginas hay
-    return this.getPhoenixScores(1, count).pipe(
+    this.cachedScores$ = this.getPhoenixScores(1, count).pipe(
       switchMap(firstPage => {
         // Calcular total de páginas
         const totalPages = Math.ceil(firstPage.totalResults / count);
@@ -69,8 +74,11 @@ export class PiuscoresService {
             return allResults;
           })
         );
-      })
+      }),
+      shareReplay(1)
     );
+
+    return this.cachedScores$;
   }
 
   getPhoenixScores(page: number, count: number): Observable<PhoenixScoresResponse> {
@@ -86,7 +94,11 @@ export class PiuscoresService {
   postScore(scoreRequest: ScoreRequest, keepBestStats?: boolean) {
     return this.http.post(`${PIUSCORES_API_URL}/phoenixScores`, scoreRequest, {
       params: { KeepBestStats: keepBestStats == true }
-    });
+    }).pipe(
+      tap(() => {
+        this.cachedScores$ = null;
+      })
+    );
   }
 
   /* PRIVATE */

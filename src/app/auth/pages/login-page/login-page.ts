@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '@auth/services/auth-service';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-login-page',
@@ -12,6 +13,7 @@ export class LoginPage {
   fb = inject(FormBuilder);
   authService = inject(AuthService);
   router = inject(Router);
+  destroyRef = inject(DestroyRef);
 
   hasError = signal(false);
 
@@ -27,6 +29,7 @@ export class LoginPage {
     }
     const { username, token } = this.loginForm.value;
     this.authService.login(username!, token!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(isAuthenticated => {
         if (isAuthenticated) {
           this.router.navigate(['/']);

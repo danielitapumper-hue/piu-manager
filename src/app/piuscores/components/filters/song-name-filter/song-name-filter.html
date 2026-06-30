@@ -1,12 +1,12 @@
-<div class="flex justify-start my-4">
-  <label class="input input-primary">
-    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<div class="flex justify-start my-2 w-full">
+  <label class="input input-primary w-full max-w-md">
+    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" role="img">
       <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.3-4.3"></path>
       </g>
     </svg>
-    <input #searchSongName type="search" placeholder="Buscar" (input)="searchBySongName(searchSongName.value)"
-      (search)="searchBySongName(searchSongName.value)" />
+    <input #searchSongName type="search" placeholder="Buscar por nombre..." (input)="searchBySongName(searchSongName.value)"
+      (search)="searchBySongName(searchSongName.value)" aria-label="Buscar canción por nombre" />
   </label>
 </div>

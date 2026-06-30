@@ -1,8 +1,8 @@
-<div class="flex gap-2 justify-start mt-4">
-  <label class="cursor-pointer flex-1">
+<div class="flex gap-2 justify-start mt-2">
+  <label class="label cursor-pointer flex items-center gap-2">
     <input #stagePassInput type="checkbox" class="checkbox checkbox-primary checkbox-sm"
       [checked]="stagePassValue() === true" [indeterminate]="stagePassValue() === null"
-      (change)="toggleStagePass(stagePassInput)" />
-    <span class="ml-1">Stage pass</span>
+      (change)="toggleStagePass(stagePassInput)" aria-label="Filtrar por Stage Pass" />
+    <span class="label-text text-sm font-medium">Stage pass</span>
   </label>
 </div>

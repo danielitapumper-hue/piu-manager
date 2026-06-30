@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { SavedFilters } from "@piuscores/components/filters/saved-filters/saved-filters";
 import { ChartScore } from '@piuscores/interfaces/chart-score';
@@ -14,6 +14,7 @@ import { SongRandomizerDialog, SongRandomizerDialogData } from '@piuscores/compo
 import { Title } from "@piuscores/components/title/title";
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 import { LocalStorageService } from '@shared/services/local-storage-service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-scores-page',
@@ -24,6 +25,7 @@ export class ScoresPage {
   localStorageService = inject(LocalStorageService);
   piuScoresService = inject(PiuscoresService);
   dialog = inject(Dialog);
+  destroyRef = inject(DestroyRef);
 
   private songTypesFilter = signal<boolean[]>([]);
   private songName = signal<string>('');
@@ -51,6 +53,7 @@ export class ScoresPage {
     this.isLoadingScores.set(true);
     if (searchFilters.saveFilter) {
       this.piuScoresService.getTierListWithScores(searchFilters)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: resp => {
             this.scoresList.set(resp.map(item => ({
@@ -72,6 +75,7 @@ export class ScoresPage {
     }
 
     this.piuScoresService.getAllPhoenixScores()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: allScores => {
           const filteredScores = allScores.filter(score => {
