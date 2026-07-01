@@ -1,10 +1,11 @@
 <div class="card bg-base-300 text-base-content w-96">
   <div class="card-body items-center text-center">
     <h2 class="card-title">Random {{ data.filter }}</h2>
-    <div class="h-50">
+    <div>
       @if(randomChart()){
+      <p class="mb-1">{{ randomChart()!.chart.song.name }}</p>
       <img [src]="randomChart()!.chart.song.imagePath" [alt]="randomChart()!.chart.song.name"
-        class="border border-primary" />
+        class="border border-primary h-50" />
       }
     </div>
     <div class="card-actions justify-end">
