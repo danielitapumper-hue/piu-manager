@@ -12,7 +12,7 @@ export class GeminiScannerProvider implements ImageScannerProvider {
 
   readonly id = SCANNER_PROVIDER_IDS.GEMINI;
   readonly name = 'Google Gemini';
-  readonly modelDescription = 'gemini-2.5-flash';
+  readonly modelDescription = 'gemini-3.1-flash-lite';
 
   private readonly GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
