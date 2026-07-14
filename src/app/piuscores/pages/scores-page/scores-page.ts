@@ -33,7 +33,7 @@ export class ScoresPage {
 
   isLoadingScores = signal<boolean>(false);
   lastFilter = computed<SearchFilters>(() => this.localStorageService.lastFilter());
-  scoresListByLetterGrade = computed<CategoryCharts[]>(() => 
+  scoresListByLetterGrade = computed<CategoryCharts[]>(() =>
     PiuSongsUtils.getScoresListByLetterGrade(this.scoresList(), this.songTypesFilter(), this.songName())
   );
 
@@ -74,14 +74,11 @@ export class ScoresPage {
       return;
     }
 
-    this.piuScoresService.getAllPhoenixScores()
+    this.piuScoresService.getPhoenixScoresByFilter(searchFilters)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: allScores => {
-          const filteredScores = allScores.filter(score => {
-            return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
-          });
-          this.scoresList.set(filteredScores.map(score => ({
+          this.scoresList.set(allScores.results.map(score => ({
             chart: score.chart,
             score: {
               letterGrade: score.letterGrade,

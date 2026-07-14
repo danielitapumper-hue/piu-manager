@@ -2,6 +2,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { PiuscoresService } from '@piuscores/services/piuscores-service';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
 
 const LOCAL_STORAGE_CREDENTIALS_KEY = 'credentials';
 
@@ -29,7 +31,12 @@ export class AuthService {
       basicAuthorization: encoded
     });
 
-    return this.piuscoresService.getPhoenixScores(1, 1).pipe(
+    return this.piuscoresService.getPhoenixScoresByFilter({
+      chartType: ChartType.Single,
+      level: PiuSongsUtils.minLevel,
+      songTypes: [],
+      stagePass: null
+    }).pipe(
       map(() => {
         localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(this._credentials()));
         return true;

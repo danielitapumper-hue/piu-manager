@@ -29,14 +29,10 @@ export class PiuscoresService {
   getTierListWithScores(searchFilters: SearchFilters): Observable<TierListWithScore[]> {
     return this.getTierListByScores(searchFilters).pipe(
       switchMap(tierList => {
-        return this.getAllPhoenixScores().pipe(
+        return this.getPhoenixScoresByFilter(searchFilters).pipe(
           map(allScores => {
-            // Filtrar según tu lógica
-            const filteredScores = allScores.filter(score => {
-              return searchFilters.chartType === score.chart.type && searchFilters.level === score.chart.level;
-            });
             // Combinar tierList con los scores filtrados
-            return this.combineResults(tierList, filteredScores);
+            return this.combineResults(tierList, allScores.results);
           })
         );
       })
@@ -86,6 +82,16 @@ export class PiuscoresService {
       params: {
         page: page,
         count: count
+      }
+    });
+  }
+
+  getPhoenixScoresByFilter(searchFilters: SearchFilters): Observable<PhoenixScoresResponse> {
+    return this.http.get<PhoenixScoresResponse>(`${PIUSCORES_API_URL}/phoenixScores`, {
+      params: {
+        minLevel: searchFilters.level,
+        maxLevel: searchFilters.level,
+        chartType: searchFilters.chartType,
       }
     });
   }
