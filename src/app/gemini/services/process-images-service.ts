@@ -99,7 +99,8 @@ export class ProcessImagesService {
       chartLevel: (data['chartLevel'] as number) || PiuSongsUtils.minLevel,
       score: (data['score'] as number) ?? null,
       plate: plateKey,
-      isBroken: data['isBroken'] === true
+      isBroken: data['isBroken'] === true,
+      mix: null
     };
   }
 }

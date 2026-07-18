@@ -67,30 +67,31 @@ export class ScoreForm implements OnInit {
       isBroken: isBroken == true,
       plate: plate && plate !== '' ? plate : null,
       score: score ?? null,
-      songName: this.chartScore().chart.song.name
+      songName: this.chartScore().chart.song.name,
+      mix: null
     };
 
     this.piuscoresService.postScore(scoreRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: () => {
-        const updatedScore: Score | undefined = scoreRequest.score
-          ? {
-            ...this.chartScore().score,
-            letterGrade: PiuSongsUtils.getLetterGradeByScore(scoreRequest.score),
-            score: scoreRequest.score,
-            plate: PiuSongsUtils.getPlateValue(scoreRequest.plate) ?? null,
-            isBroken: scoreRequest.isBroken == true,
-          } : undefined;
+        next: () => {
+          const updatedScore: Score | undefined = scoreRequest.score
+            ? {
+              ...this.chartScore().score,
+              letterGrade: PiuSongsUtils.getLetterGradeByScore(scoreRequest.score),
+              score: scoreRequest.score,
+              plate: PiuSongsUtils.getPlateValue(scoreRequest.plate) ?? null,
+              isBroken: scoreRequest.isBroken == true,
+            } : undefined;
 
-        this.toastService.success('Se actualizó el score correctamente');
-        this.scoreSaved.emit(updatedScore);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      }
-    });
+          this.toastService.success('Se actualizó el score correctamente');
+          this.scoreSaved.emit(updatedScore);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        }
+      });
   }
 
   onKeyDown(event: KeyboardEvent) {

@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
-import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
+import { MixOption, ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 
 interface UI {
@@ -31,6 +31,7 @@ export class ProcessImagesItem implements OnInit {
   destroyRef = inject(DestroyRef);
 
   item = input.required<ScanItem>();
+  mix = input.required<MixOption>();
   updatedItem = output<ScanItem>();
   removedItem = output<ScanItem>();
   rescanItem = output<ScanItem>();
@@ -134,7 +135,8 @@ export class ProcessImagesItem implements OnInit {
       chartLevel: chartLevel!,
       score: score ?? null,
       plate: plate && plate !== '' ? plate : null,
-      isBroken: isBroken === true
+      isBroken: isBroken === true,
+      mix: this.mix()
     };
 
     let updatedItem = this.item();

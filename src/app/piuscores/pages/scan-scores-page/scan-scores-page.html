@@ -4,9 +4,20 @@
 
   <providers-key-config />
 
+  <div class="form-control w-full max-w-xs mb-4">
+    <label class="label">
+      <span class="label-text">Versión</span>
+    </label>
+    <select class="select select-primary" [value]="mix()" (change)="mix.set($any($event.target).value)">
+      @for (option of mixOptions; track option) {
+      <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </div>
+
   @if(hasActiveApiKey()) {
   <upload-images (files)="processFiles($event)" />
 
-  <process-images [files]="filesList()" />
+  <process-images [files]="filesList()" [mix]="mix()" />
   }
 </div>
