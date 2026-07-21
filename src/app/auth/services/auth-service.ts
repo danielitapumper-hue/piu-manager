@@ -36,7 +36,7 @@ export class AuthService {
       level: PiuSongsUtils.minLevel,
       songTypes: [],
       stagePass: null
-    }).pipe(
+    }, 1, 1).pipe(
       map(() => {
         localStorage.setItem(LOCAL_STORAGE_CREDENTIALS_KEY, JSON.stringify(this._credentials()));
         return true;

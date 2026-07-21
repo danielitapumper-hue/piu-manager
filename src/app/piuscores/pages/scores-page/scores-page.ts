@@ -74,11 +74,11 @@ export class ScoresPage {
       return;
     }
 
-    this.piuScoresService.getPhoenixScoresByFilter(searchFilters)
+    this.piuScoresService.getAllPhoenixScoresByFilter(searchFilters)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: allScores => {
-          this.scoresList.set(allScores.results.map(score => ({
+          this.scoresList.set(allScores.map(score => ({
             chart: score.chart,
             score: {
               letterGrade: score.letterGrade,

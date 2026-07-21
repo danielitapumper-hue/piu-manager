@@ -29,10 +29,10 @@ export class PiuscoresService {
   getTierListWithScores(searchFilters: SearchFilters): Observable<TierListWithScore[]> {
     return this.getTierListByScores(searchFilters).pipe(
       switchMap(tierList => {
-        return this.getPhoenixScoresByFilter(searchFilters).pipe(
+        return this.getAllPhoenixScoresByFilter(searchFilters).pipe(
           map(allScores => {
             // Combinar tierList con los scores filtrados
-            return this.combineResults(tierList, allScores.results);
+            return this.combineResults(tierList, allScores);
           })
         );
       })
@@ -86,12 +86,46 @@ export class PiuscoresService {
     });
   }
 
-  getPhoenixScoresByFilter(searchFilters: SearchFilters): Observable<PhoenixScoresResponse> {
+  getAllPhoenixScoresByFilter(searchFilters: SearchFilters): Observable<Result[]> {
+    const count = 1000;
+    // Obtener primera página para saber cuántas páginas hay
+    return this.getPhoenixScoresByFilter(searchFilters, 1, count).pipe(
+      switchMap(firstPage => {
+        // Calcular total de páginas
+        const totalPages = Math.ceil(firstPage.totalResults / count);
+        if (totalPages <= 1) {
+          return of(firstPage.results);
+        }
+
+        // Crear array con las páginas restantes
+        const pageNumbers: number[] = [];
+        for (let page = 2; page <= totalPages; page++) {
+          pageNumbers.push(page);
+        }
+
+        // Ejecutar peticiones restantes con un límite de concurrencia de 3
+        return from(pageNumbers).pipe(
+          mergeMap(page => this.getPhoenixScoresByFilter(searchFilters, page, count), 3),
+          toArray(),
+          map(pages => {
+            const allResults = [...firstPage.results];
+            pages.forEach(p => allResults.push(...p.results));
+            return allResults;
+          })
+        );
+      }),
+      shareReplay(1)
+    );
+  }
+
+  getPhoenixScoresByFilter(searchFilters: SearchFilters, page: number, count: number): Observable<PhoenixScoresResponse> {
     return this.http.get<PhoenixScoresResponse>(`${PIUSCORES_API_URL}/phoenixScores`, {
       params: {
         minLevel: searchFilters.level,
         maxLevel: searchFilters.level,
         chartType: searchFilters.chartType,
+        page: page,
+        count: count
       }
     });
   }
