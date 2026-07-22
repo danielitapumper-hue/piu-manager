@@ -5,7 +5,8 @@ import { TierListResponse } from '@piuscores/interfaces/piuscores-services/tier-
 import { PhoenixScoresResponse, Result } from '@piuscores/interfaces/piuscores-services/phoenix-scores-response';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
-import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
+import { MIX_OPTIONS, ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 export const PIUSCORES_API_URL = 'https://piuscores.arroweclip.se/api';
 
@@ -13,6 +14,7 @@ export const PIUSCORES_API_URL = 'https://piuscores.arroweclip.se/api';
   providedIn: 'root',
 })
 export class PiuscoresService {
+  private localStorageService = inject(LocalStorageService);
   private http = inject(HttpClient);
   private cachedScores$: Observable<Result[]> | null = null;
 
@@ -21,13 +23,27 @@ export class PiuscoresService {
     return this.http.get<TierListResponse[]>(`${PIUSCORES_API_URL}/tierlist/scores`, {
       params: {
         chartType: searchFilters.chartType,
-        level: searchFilters.level
+        level: searchFilters.level,
+        mix: this.localStorageService.mix() ?? ''
+      }
+    });
+  }
+
+  getTierListByOfficialScores(searchFilters: SearchFilters): Observable<TierListResponse[]> {
+    return this.http.get<TierListResponse[]>(`${PIUSCORES_API_URL}/tierlist/popularity`, {
+      params: {
+        chartType: searchFilters.chartType,
+        level: searchFilters.level,
+        mix: this.localStorageService.mix() ?? ''
       }
     });
   }
 
   getTierListWithScores(searchFilters: SearchFilters): Observable<TierListWithScore[]> {
-    return this.getTierListByScores(searchFilters).pipe(
+    const tierList$ = this.localStorageService.mix() === MIX_OPTIONS[1]
+      ? this.getTierListByOfficialScores(searchFilters)
+      : this.getTierListByScores(searchFilters);
+    return tierList$.pipe(
       switchMap(tierList => {
         return this.getAllPhoenixScoresByFilter(searchFilters).pipe(
           map(allScores => {
@@ -119,10 +135,13 @@ export class PiuscoresService {
   }
 
   getPhoenixScoresByFilter(searchFilters: SearchFilters, page: number, count: number): Observable<PhoenixScoresResponse> {
+    let minLevel = searchFilters.level - 2;
+    let maxLevel = searchFilters.level + 2;
+
     return this.http.get<PhoenixScoresResponse>(`${PIUSCORES_API_URL}/phoenixScores`, {
       params: {
-        minLevel: searchFilters.level,
-        maxLevel: searchFilters.level,
+        minLevel: minLevel,
+        maxLevel: maxLevel,
         chartType: searchFilters.chartType,
         page: page,
         count: count
