@@ -4,13 +4,16 @@ import { Dialog } from '@angular/cdk/dialog';
 import { ScoreData } from '@piuscores/components/scores/score-data/score-data';
 import { ScoreDialog } from '@piuscores/components/scores/score-dialog/score-dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ShortHandImagePipe } from '@piuscores/pipes/short-hand-image-pipe';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 @Component({
   selector: 'song-card',
-  imports: [ScoreData],
+  imports: [ScoreData, ShortHandImagePipe],
   templateUrl: './song-card.html',
 })
 export class SongCard {
+  localStorageService = inject(LocalStorageService);
   dialog = inject(Dialog);
   destroyRef = inject(DestroyRef);
   chartScore = input.required<ChartScore>();
