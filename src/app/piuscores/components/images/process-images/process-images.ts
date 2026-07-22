@@ -7,7 +7,6 @@ import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ProcessImagesService } from '@gemini/services/process-images-service';
 import { ProcessImagesItem } from '../process-images-item/process-images-item';
-import { MixOption } from '@piuscores/interfaces/piuscores-services/score-request';
 
 @Component({
   selector: 'process-images',
@@ -19,7 +18,6 @@ export class ProcessImages {
   private processImagesService = inject(ProcessImagesService);
 
   files = input.required<File[]>();
-  mix = input.required<MixOption>();
 
   scanItems = signal<ScanItem[]>([]);
 

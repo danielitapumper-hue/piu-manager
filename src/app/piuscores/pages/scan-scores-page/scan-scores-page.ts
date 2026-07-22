@@ -6,7 +6,6 @@ import { LocalStorageService } from '@shared/services/local-storage-service';
 import { ProcessImagesService } from '@gemini/services/process-images-service';
 import { ScannerProviderId } from '@gemini/providers/image-scanner-provider.interface';
 import { ProvidersKeyConfig } from '@gemini/components/providers-key-config/providers-key-config';
-import { MIX_OPTIONS, MixOption } from '@piuscores/interfaces/piuscores-services/score-request';
 
 @Component({
   selector: 'app-scan-scores-page',
@@ -18,8 +17,6 @@ export class ScanScoresPage {
   private processImagesService = inject(ProcessImagesService);
 
   filesList = signal<File[]>([]);
-  mix = signal<MixOption>('Phoenix');
-  readonly mixOptions = MIX_OPTIONS;
 
   /** True when the currently selected provider has an API Key configured. */
   hasActiveApiKey = computed<boolean>(() => {

@@ -3,8 +3,9 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ScanItem, ScanStatus } from '@gemini/interfaces/files/scan-item';
 import { ChartType } from '@piuscores/interfaces/piuscores-services/piuscores-interfaces';
-import { MixOption, ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
+import { ScoreRequest } from '@piuscores/interfaces/piuscores-services/score-request';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
+import { LocalStorageService } from '@shared/services/local-storage-service';
 
 interface UI {
   cardClasses: string,
@@ -27,11 +28,11 @@ interface ProcessImagesItemFormGroup {
   templateUrl: './process-images-item.html',
 })
 export class ProcessImagesItem implements OnInit {
+  private localStorageService = inject(LocalStorageService);
   fb = inject(FormBuilder);
   destroyRef = inject(DestroyRef);
 
   item = input.required<ScanItem>();
-  mix = input.required<MixOption>();
   updatedItem = output<ScanItem>();
   removedItem = output<ScanItem>();
   rescanItem = output<ScanItem>();
@@ -136,7 +137,7 @@ export class ProcessImagesItem implements OnInit {
       score: score ?? null,
       plate: plate && plate !== '' ? plate : null,
       isBroken: isBroken === true,
-      mix: this.mix()
+      mix: this.localStorageService.mix()
     };
 
     let updatedItem = this.item();

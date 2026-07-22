@@ -21,7 +21,7 @@
 <!-- Cards List -->
 <div class="flex flex-col gap-4">
   @for (item of scanItems(); track item.id) {
-  <process-images-item [item]="item" [mix]="mix()" (updatedItem)="saveItem($event)" (removedItem)="removeItem($event)"
+  <process-images-item [item]="item" (updatedItem)="saveItem($event)" (removedItem)="removeItem($event)"
     (rescanItem)="rescanItem($event)" (formValidItem)="updateFormValidItem($event)" />
   }
 </div>

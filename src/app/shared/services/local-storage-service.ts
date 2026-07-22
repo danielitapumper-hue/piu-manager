@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { MIX_OPTIONS, MixOption } from '@piuscores/interfaces/piuscores-services/score-request';
 import { SearchFilters } from '@piuscores/interfaces/search-filters';
 import { TierListWithScore } from '@piuscores/interfaces/tier-list-with-score';
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
@@ -9,6 +10,7 @@ const LOCAL_STORAGE_GEMINI_API_KEY = 'gemini_api_key';
 const LOCAL_STORAGE_SCANNER_PROVIDER_KEY = 'scanner_provider';
 const LOCAL_STORAGE_OPENROUTER_API_KEY = 'openrouter_api_key';
 const LOCAL_STORAGE_GITHUB_API_KEY = 'github_api_key';
+const LOCAL_STORAGE_MIX = 'mix';
 
 const DEFAULT_FILTER: SearchFilters = {
   chartType: 'Single',
@@ -28,6 +30,7 @@ export class LocalStorageService {
   scannerProvider = signal<string>(this.getLocalStorageScannerProvider());
   openrouterApiKey = signal<string>(this.getLocalStorageOpenRouterApiKey());
   githubApiKey = signal<string>(this.getLocalStorageGithubApiKey());
+  mix = signal<MixOption>(this.getLocalStorageMix());
 
   /* GET */
   getTierListByScoresFromLocalStorage(charTypeLevelKey: string): TierListWithScore[] {
@@ -92,6 +95,15 @@ export class LocalStorageService {
   setLocalStorageGithubApiKey(key: string) {
     this.githubApiKey.set(key);
     localStorage.setItem(LOCAL_STORAGE_GITHUB_API_KEY, key);
+  }
+
+  setLocalStorageMix(mix: MixOption) {
+    this.mix.set(mix);
+    if (mix) {
+      localStorage.setItem(LOCAL_STORAGE_MIX, mix);
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_MIX);
+    }
   }
 
   /* DELETE */
@@ -181,6 +193,14 @@ export class LocalStorageService {
 
   private getLocalStorageGithubApiKey() {
     return localStorage.getItem(LOCAL_STORAGE_GITHUB_API_KEY) ?? '';
+  }
+
+  private getLocalStorageMix(): MixOption {
+    const raw = localStorage.getItem(LOCAL_STORAGE_MIX);
+    if (raw && (MIX_OPTIONS as readonly string[]).includes(raw)) {
+      return raw as MixOption;
+    }
+    return MIX_OPTIONS[0];
   }
 
   /**

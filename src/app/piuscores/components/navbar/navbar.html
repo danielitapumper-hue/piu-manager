@@ -23,7 +23,7 @@
         </li>
       </ul>
     </div>
-    <a class="btn btn-ghost text-xl">Hola, {{ authService.userName() | uppercase }}</a>
+    <a class="hidden md:flex btn btn-ghost text-xl">Hola, {{ authService.userName() | uppercase }}</a>
   </div>
   <div class="navbar-center hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
@@ -44,6 +44,18 @@
     </ul>
   </div>
   <div class="navbar-end">
+
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost">
+        {{ localStorageService.mix() }}
+      </div>
+      <ul tabindex="-1" class="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 p-2 shadow">
+        @for (option of mixOptions; track option) {
+        <li><a (click)="setGlobalMix(option)">{{ option }}</a></li>
+        }
+      </ul>
+    </div>
+
     <button class="btn btn-soft" (click)="authService.logout()">Logout</button>
   </div>
 </nav>
