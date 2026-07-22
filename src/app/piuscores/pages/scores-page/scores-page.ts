@@ -15,10 +15,11 @@ import { Title } from "@piuscores/components/title/title";
 import { PiuSongsUtils } from '@piuscores/utils/piu-songs-utils';
 import { LocalStorageService } from '@shared/services/local-storage-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Filters } from "@piuscores/components/filters/filters";
 
 @Component({
   selector: 'app-scores-page',
-  imports: [SavedFilters, ImageSrcPipe, DecimalPipe, SongTypesFilter, SongNameFilter, SearchFiltersForm, Title],
+  imports: [ImageSrcPipe, DecimalPipe, Title, Filters],
   templateUrl: './scores-page.html',
 })
 export class ScoresPage {

@@ -1,4 +1,6 @@
-<div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
+<div class="flex flex-col w-full mx-auto pb-12
+lg:min-w-screen lg:px-10">
+
   <app-title [title]="'Tier Lists'"
     [subTitle]="'Vas a poder ver las canciones filtradas por nivel y tipo de chart, clasificadas según su dificultad. Puedes guardar los filtros que más necesites.'" />
 
@@ -7,12 +9,10 @@
     (songNameFilter)="searchBySongName($event)" />
 
   @if (tierListByCategories().length > 0) {
-  <button class="btn btn-primary btn-soft" (click)="openRandomizerDialog()">
+  <button class="btn btn-primary btn-soft mb-4" (click)="openRandomizerDialog()">
     Random
   </button>
   }
-
-  <div class="divider"></div>
 
   @if(isLoadingTierList()){
   <div class="flex justify-center">
@@ -32,7 +32,12 @@
 
   </div>
 
-  <div class="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+  <!-- Charts -->
+  <div class="grid grid-cols-2 gap-2 mt-4
+  sm:grid-cols-3
+  lg:grid-cols-4
+  xl:grid-cols-5
+  2xl:grid-cols-8">
 
     @for (chartScore of tierListByCategory.charts; track chartScore.chart.id) {
 
@@ -45,6 +50,7 @@
 
   }
   @empty {
-  <p class="text-base-content/60 text-center py-8 italic font-medium">No hay datos. Utiliza los filtros de búsqueda para obtener la lista.</p>
+  <p class="text-base-content/60 text-center py-8 italic font-medium">No hay datos. Utiliza los filtros de búsqueda para
+    obtener la lista.</p>
   }
 </div>

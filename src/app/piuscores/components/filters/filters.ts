@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { SearchFiltersForm } from './search-filters-form/search-filters-form';
 import { SavedFilters } from './saved-filters/saved-filters';
 import { SongNameFilter } from './song-name-filter/song-name-filter';
@@ -12,6 +12,7 @@ import { SearchFilters } from '@piuscores/interfaces/search-filters';
   templateUrl: './filters.html',
 })
 export class Filters {
+  showStagePassFilter = input<boolean>(true);
   searchFilters = output<SearchFilters>();
   songTypesFilter = output<boolean[]>();
   stagePassFilter = output<boolean | null>();

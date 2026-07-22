@@ -1,20 +1,12 @@
-<div class="flex flex-col w-full max-w-5xl mx-auto pb-12">
+<div class="flex flex-col w-full mx-auto pb-12
+lg:min-w-screen lg:px-10">
+
   <app-title [title]="'Mis Scores'"
     [subTitle]="'Vas a poder ver tus scores filtrados por nivel y tipo de chart, ordenados según la calificación. Puedes guardar los filtros que más necesites.'" />
 
-  <saved-filters (filter)="searchSavedFilter($event)" />
-
-  <div class="divider"></div>
-
-  <search-filters-form (searchFilters)="search($event)" />
-
-  <div class="divider"></div>
-
-  <song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
-
-  <song-name-filter (songNameFilter)="searchBySongName($event)" />
-
-  <div class="divider"></div>
+  <app-filters (searchFilters)="search($event)" (songTypesFilter)="searchBySongTypes($event)"
+    (savedFilter)="searchSavedFilter($event)" (songNameFilter)="searchBySongName($event)"
+    [showStagePassFilter]="false" />
 
   @if(isLoadingScores()){
   <div class="flex justify-center">
@@ -22,7 +14,10 @@
   </div>
   }
 
-  <div class="grid grid-cols-1 gap-x-2 gap-y-10 mt-2 sm:grid-cols-2 2xl:grid-cols-3">
+  <div class="grid grid-cols-1 gap-x-2 gap-y-10 mt-2
+  sm:grid-cols-2
+  xl:grid-cols-3
+  2xl:grid-cols-4">
 
     @for(categoryChart of this.scoresListByLetterGrade(); track categoryChart.category) {
 

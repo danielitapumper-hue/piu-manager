@@ -1,13 +1,27 @@
-<saved-filters (filter)="searchSavedFilter($event)" />
+<div class="grid gap-2 grid-cols-1 border-b-2 border-base-content/10 mb-4 pb-2
+sm:grid-cols-2
+lg:grid-cols-3 lg:border-t-2 lg:pt-4">
 
-<div class="divider"></div>
+  <div class="border-b-2 border-base-content/10 pb-2
+  sm:col-span-2
+  lg:col-span-1 lg:border-t-0 lg:border-b-0 lg:pb-0 lg:border-r-2 lg:pr-2">
+    <saved-filters (filter)="searchSavedFilter($event)" />
+  </div>
 
-<search-filters-form (searchFilters)="search($event)" />
+  <div class="border-b-2 border-base-content/10 pb-2
+  sm:border-b-0
+  lg:border-t-0 lg:pt-0">
+    <search-filters-form (searchFilters)="search($event)" />
+  </div>
 
-<div class="divider"></div>
+  <div class="border-base-content/10
+  sm:border-l-2 sm:pl-2">
+    <song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
 
-<song-types-filter (songTypesFilter)="searchBySongTypes($event)" />
+    @if (showStagePassFilter()) {
+    <stage-pass-filter (stagePassFilter)="searchByStagePass($event)" />
+    }
 
-<stage-pass-filter (stagePassFilter)="searchByStagePass($event)" />
-
-<song-name-filter (songNameFilter)="searchBySongName($event)" />
+    <song-name-filter (songNameFilter)="searchBySongName($event)" />
+  </div>
+</div>
